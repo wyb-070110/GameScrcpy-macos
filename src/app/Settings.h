@@ -108,7 +108,7 @@ struct Appearance {
     static constexpr std::size_t kMaxPaletteLength = 64 + 1 + 4 * 64;
 
     ThemeMode theme = ThemeMode::Dark;
-    Accent accent = Accent::Ember;
+    Accent accent = Accent::Azure;
     SystemToggle reducedMotion = SystemToggle::System;
     SystemToggle reducedTransparency = SystemToggle::System;
     std::string palette;

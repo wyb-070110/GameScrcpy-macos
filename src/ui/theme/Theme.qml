@@ -6,7 +6,7 @@ QtObject {
     id: theme
 
     property bool dark: true
-    property string accentName: "ember"
+    property string accentName: "azure"
     property bool reducedMotion: false
     property bool reducedTransparency: false
     // Liquid Glass (macOS): windows show the desktop, blurred, through their translucent surfaces.
@@ -16,7 +16,7 @@ QtObject {
     readonly property var accentChoices: ({
         ember: "#FF6B3D",
         teal: "#22D3C5",
-        azure: "#4C8DFF",
+        azure: "#0A84FF",
         lime: "#B8F34A",
         rose: "#FF4D8D",
         amber: "#FFB020"
@@ -25,7 +25,7 @@ QtObject {
     readonly property var accentTextChoices: ({
         ember: "#C2461C",
         teal: "#0E7C74",
-        azure: "#2F6BD9",
+        azure: "#007AFF",
         lime: "#4D7A0A",
         rose: "#C21F5B",
         amber: "#A15C00"
@@ -55,9 +55,10 @@ QtObject {
 
     final readonly property ColorTokens colors: ColorTokens {
         dark: theme.dark
-        accent: theme.accentChoices[theme.accentName] ?? theme.accentChoices.ember
-        accentTextOnLight: theme.accentTextChoices[theme.accentName] ?? theme.accentTextChoices.ember
+        accent: theme.accentChoices[theme.accentName] ?? theme.accentChoices.azure
+        accentTextOnLight: theme.accentTextChoices[theme.accentName] ?? theme.accentTextChoices.azure
         overrides: (theme.dark ? theme.palette.dark : theme.palette.light) ?? ({})
+        glass: theme.glass
     }
     final readonly property Typography type: Typography {}
     final readonly property Size size: Size {}

@@ -5,13 +5,24 @@ QtObject {
     property color accent: "#FF6B3D"
     property color accentTextOnLight: "#C2461C"
     property var overrides: ({})
+    // Liquid Glass: the window behind is the system's blurred desktop, so the surfaces are tints over it rather
+    // than paint, and floating ones are thicker glass.
+    property bool glass: false
 
-    final readonly property color bgBase: overrides.bgBase ?? (dark ? "#0B0C0F" : "#E8EBEF")
-    final readonly property color bgRaised: overrides.bgRaised ?? (dark ? "#111317" : "#F4F5F8")
-    final readonly property color bgOverlay: overrides.bgOverlay ?? (dark ? "#171A1F" : "#FFFFFF")
-    final readonly property color bgElevated: overrides.bgElevated ?? (dark ? "#1D2127" : "#FFFFFF")
-    final readonly property color bgSunken: overrides.bgSunken ?? (dark ? "#08090B" : "#E7EAEF")
-    final readonly property color bgFrosted: overrides.bgFrosted ?? Qt.rgba(bgElevated.r, bgElevated.g, bgElevated.b, 0.86)
+    final readonly property color bgBase: overrides.bgBase ?? (glass ? (dark ? "#590B0C0F" : "#66F2F3F6")
+                                                                     : (dark ? "#0B0C0F" : "#E8EBEF"))
+    final readonly property color bgRaised: overrides.bgRaised ?? (glass ? (dark ? "#14FFFFFF" : "#8CFFFFFF")
+                                                                         : (dark ? "#111317" : "#F4F5F8"))
+    final readonly property color bgOverlay: overrides.bgOverlay ?? (glass ? (dark ? "#E61C1F26" : "#EBFFFFFF")
+                                                                           : (dark ? "#171A1F" : "#FFFFFF"))
+    final readonly property color bgElevated: overrides.bgElevated ?? (glass ? (dark ? "#EB22262E" : "#F2FFFFFF")
+                                                                             : (dark ? "#1D2127" : "#FFFFFF"))
+    final readonly property color bgSunken: overrides.bgSunken ?? (glass ? (dark ? "#33000000" : "#0F000000")
+                                                                         : (dark ? "#08090B" : "#E7EAEF"))
+    final readonly property color bgFrosted: overrides.bgFrosted ?? Qt.rgba(bgElevated.r, bgElevated.g, bgElevated.b,
+                                                                            glass ? 0.72 : 0.86)
+    // The light along the top edge of a glass surface.
+    final readonly property color glassEdge: overrides.glassEdge ?? (dark ? "#2EFFFFFF" : "#B3FFFFFF")
     final readonly property color bgCode: overrides.bgCode ?? (dark ? bgSunken : bgOverlay)
     final readonly property color bgEditor: overrides.bgEditor ?? (dark ? bgBase : bgOverlay)
 
