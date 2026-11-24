@@ -6,7 +6,11 @@
 
 #include <gs/tsstrip/Strip.h>
 
+#if defined(__APPLE__)
+#include <malloc/malloc.h>
+#else
 #include <malloc.h>
+#endif
 
 #include <algorithm>
 #include <cmath>
@@ -18,6 +22,23 @@
 #include <string_view>
 #include <system_error>
 #include <utility>
+
+#if !defined(_WIN32)
+namespace gs::script {
+namespace {
+
+std::size_t _msize(void* block) noexcept
+{
+#if defined(__APPLE__)
+    return malloc_size(block);
+#else
+    return malloc_usable_size(block);
+#endif
+}
+
+}
+}
+#endif
 
 namespace gs::script::detail {
 

@@ -2,9 +2,20 @@
 
 #include "Engine.h"
 
+#if defined(_WIN32)
 #include <windows.h>
 
 #include <process.h>
+#else
+#include "gs/platform/Thread.h"
+
+#include <pthread.h>
+#include <unistd.h>
+
+#include <chrono>
+#include <climits>
+#include <condition_variable>
+#endif
 
 #include <algorithm>
 #include <atomic>
@@ -17,6 +28,7 @@
 
 namespace gs::script {
 
+#if defined(_WIN32)
 namespace {
 
 constexpr std::size_t kStackMargin = std::size_t{1} << 20;
@@ -218,6 +230,9 @@ bool ScriptHost::started() const noexcept
 {
     return m_impl->thread != nullptr;
 }
+#else
+#include "posix/ScriptHostImpl.h"
+#endif
 
 std::string ScriptHost::problem() const
 {

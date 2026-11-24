@@ -94,9 +94,16 @@ gs_add_unit_test(gs_platform_tests
     SOURCES
         unit/platform/CryptoTests.cpp
         unit/platform/UdpSocketTests.cpp
+        unit/platform/posix/PosixPlatformTests.cpp
     LIBRARIES
         gs::platform
 )
+if(APPLE)
+    target_sources(gs_platform_tests PRIVATE unit/platform/mac/TextReaderMacTests.mm)
+    set_source_files_properties(unit/platform/mac/TextReaderMacTests.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
+    target_link_libraries(gs_platform_tests PRIVATE "-framework Foundation" "-framework CoreGraphics"
+                          "-framework CoreText")
+endif()
 
 gs_add_unit_test(gs_adb_tests
     SOURCES
@@ -167,3 +174,67 @@ target_compile_definitions(gs_session_device_tests PRIVATE
 gs_apply_compiler_policy(gs_session_device_tests)
 add_test(NAME gs_session_device_tests COMMAND gs_session_device_tests)
 set_tests_properties(gs_session_device_tests PROPERTIES SKIP_RETURN_CODE 77 LABELS device)
+
+# Scripts and extensions. Native extensions are Windows DLLs, so their checks (NativeCheckTests and the
+# test DLLs) stay Windows-only for now.
+gs_add_unit_test(gs_ext_tests
+    SOURCES
+        unit/ext/ArchiveTests.cpp
+        unit/ext/BundleTests.cpp
+        unit/ext/FilterSourceTests.cpp
+        unit/ext/ManifestTests.cpp
+        unit/ext/PackageTests.cpp
+        unit/ext/ResolutionTests.cpp
+        unit/ext/TestFiles.h
+        unit/ext/VersionTests.cpp
+        unit/ext/MinisignTests.cpp
+        unit/ext/SchemaTests.cpp
+        unit/ext/SigningTests.cpp
+        unit/ext/UpdateIndexTests.cpp
+    LIBRARIES
+        gs::ext
+        gs::miniz
+        gs::nlohmann_json
+)
+target_compile_definitions(gs_ext_tests PRIVATE GS_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
+
+gs_add_unit_test(gs_script_tests
+    SOURCES
+        unit/script/AiAskTests.cpp
+        unit/script/ExtensionNodeTests.cpp
+        unit/script/ExtensionServiceTests.cpp
+        unit/script/HardwareApiTests.cpp
+        unit/script/InputReadTests.cpp
+        unit/script/LoadMeterTests.cpp
+        unit/script/LogicHostTests.cpp
+        unit/script/MediaApiTests.cpp
+        unit/script/ModulePathTests.cpp
+        unit/script/NativeHeaderTests.cpp
+        unit/script/NetFilesApiTests.cpp
+        unit/script/ReportTests.cpp
+        unit/script/ResourcesTests.cpp
+        unit/script/ScriptApiTests.cpp
+        unit/script/ScriptFixture.h
+        unit/script/ScriptHostTests.cpp
+        unit/script/ScriptTimingTests.cpp
+        unit/script/SessionTests.cpp
+        unit/script/StackTraceTests.cpp
+        unit/script/SystemPanelApiTests.cpp
+        unit/script/TestRunTests.cpp
+        unit/script/TextSearchTests.cpp
+        unit/script/UiPanelTests.cpp
+        unit/script/VisionEngineTests.cpp
+        unit/script/WorldModelTests.cpp
+    LIBRARIES
+        gs::script
+        gs::platform
+        gs::nlohmann_json
+)
+target_include_directories(gs_script_tests BEFORE PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/compat/posix"
+    "${PROJECT_SOURCE_DIR}/src/script/src"
+)
+target_compile_definitions(gs_script_tests PRIVATE
+    GS_SDK_DIR="${PROJECT_SOURCE_DIR}/sdk"
+    GS_EXAMPLE_COMPONENTS_DIR="${PROJECT_SOURCE_DIR}/examples/components"
+)

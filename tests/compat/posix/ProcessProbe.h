@@ -61,6 +61,11 @@ inline int threadsNamed(std::string_view prefix)
     return count;
 }
 
+inline int allThreads()
+{
+    return threadsNamed("");
+}
+
 inline std::uint32_t openHandles()
 {
 #if defined(__APPLE__)

@@ -2,9 +2,13 @@
 
 #include <doctest/doctest.h>
 
+#if defined(_WIN32)
 #include <windows.h>
 
 #include <tlhelp32.h>
+#else
+#include "ProcessProbe.h"
+#endif
 
 #include <charconv>
 #include <memory>
@@ -32,6 +36,7 @@ using gs::script::test::taskEnded;
 
 namespace {
 
+#if defined(_WIN32)
 int threadsOfThisProcess()
 {
     const DWORD process = GetCurrentProcessId();
@@ -50,6 +55,12 @@ int threadsOfThisProcess()
     CloseHandle(snapshot);
     return count;
 }
+#else
+int threadsOfThisProcess()
+{
+    return gs::test::allThreads();
+}
+#endif
 
 double millisecondsIn(const std::string& text)
 {

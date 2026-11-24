@@ -8,7 +8,10 @@ project(GameScrcpy
 )
 
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    message(WARNING "Non-Windows build: experimental port probe")
+    message(STATUS "Non-Windows build: the macOS port")
+endif()
+if(APPLE)
+    enable_language(OBJC OBJCXX)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
