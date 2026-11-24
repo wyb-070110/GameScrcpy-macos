@@ -373,6 +373,8 @@ qt_add_qml_module(GameScrcpy
         OfflineNetwork.h
         PhoneFiles.cpp
         PhoneFiles.h
+        PhoneScreenWatch.cpp
+        PhoneScreenWatch.h
         PhoneStatus.cpp
         PhoneStatus.h
         PhoneVendors.cpp

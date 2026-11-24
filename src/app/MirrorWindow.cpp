@@ -188,7 +188,7 @@ QSize MirrorWindow::pictureSize() const
 
 QSize MirrorWindow::pictureChrome() const noexcept
 {
-    return {reservedRight(), reservedTop() + reservedBottom()};
+    return {reservedLeft() + reservedRight(), reservedTop() + reservedBottom()};
 }
 
 void MirrorWindow::attachOverlay(QQmlEngine& engine)
@@ -238,6 +238,9 @@ void MirrorWindow::attachOverlay(QQmlEngine& engine)
     overlay->setProperty("extensionNotice", m_extensionNotice);
     m_overlay = overlay;
     connect(overlay, SIGNAL(pinnedBarHeightChanged()), this, SLOT(followPinnedBar()));
+    connect(overlay, SIGNAL(pinnedLeftChanged()), this, SLOT(followPinnedBar()));
+    connect(overlay, SIGNAL(pinnedRightChanged()), this, SLOT(followPinnedBar()));
+    connect(overlay, SIGNAL(pinnedBottomChanged()), this, SLOT(followPinnedBar()));
     connect(overlay, SIGNAL(pictureFocusWanted()), this, SLOT(focusPicture()));
     connect(overlay, SIGNAL(companionHintLookChanged()), this, SLOT(followPhoneHints()));
     followPinnedBar();
@@ -679,14 +682,25 @@ int MirrorWindow::reservedTop() const noexcept
     return m_titleFixed && !m_fullScreen ? m_titleHeight : 0;
 }
 
+int MirrorWindow::reservedLeft() const noexcept
+{
+    return m_editor == nullptr && !m_mini && m_toolbarPinned ? m_pinnedSides.left() : 0;
+}
+
 int MirrorWindow::reservedRight() const noexcept
 {
-    return m_editor != nullptr ? m_editRight : 0;
+    if (m_editor != nullptr) {
+        return m_editRight;
+    }
+    return !m_mini && m_toolbarPinned ? m_pinnedSides.right() : 0;
 }
 
 int MirrorWindow::reservedBottom() const noexcept
 {
-    return m_editor != nullptr ? m_editBottom : 0;
+    if (m_editor != nullptr) {
+        return m_editBottom;
+    }
+    return !m_mini && m_toolbarPinned ? m_pinnedSides.bottom() : 0;
 }
 
 void MirrorWindow::setEditor(ProfileEditor* editor)
@@ -851,13 +865,28 @@ void MirrorWindow::followPinnedBar()
         return;
     }
     const int bar = m_overlay->property("pinnedBarHeight").toInt();
-    if (bar <= 0 || bar == m_pinnedBar) {
+    const QMargins sides(m_overlay->property("pinnedLeft").toInt(), 0, m_overlay->property("pinnedRight").toInt(),
+                         m_overlay->property("pinnedBottom").toInt());
+    if ((bar <= 0 || bar == m_pinnedBar) && sides == m_pinnedSides) {
         return;
     }
-    m_pinnedBar = bar;
+    const int oldWide = reservedLeft() + reservedRight();
+    const int oldTall = reservedTop() + reservedBottom();
+    const bool sidesMoved = sides != m_pinnedSides;
+    if (bar > 0) {
+        m_pinnedBar = bar;
+    }
+    m_pinnedSides = sides;
     if (m_toolbarPinned) {
         m_overlay->setProperty("reservedTop", reservedTop());
-        layoutContent();
+        // When the toolbar moves to another side, the window grows or shrinks by its strip so the picture keeps
+        // its size; a bar that only grows a row keeps the window as it is.
+        if (sidesMoved && isVisible() && plain(windowStates()) && !m_mini && m_editor == nullptr) {
+            resize(width() + reservedLeft() + reservedRight() - oldWide,
+                   height() + reservedTop() + reservedBottom() - oldTall);
+        } else {
+            layoutContent();
+        }
         updateHints();
     }
 }
@@ -878,7 +907,9 @@ void MirrorWindow::layoutContent()
 QRectF MirrorWindow::pictureView() const
 {
     const int top = reservedTop();
-    return {0, static_cast<qreal>(top), static_cast<qreal>(std::max(0, width() - reservedRight())),
+    const int left = reservedLeft();
+    return {static_cast<qreal>(left), static_cast<qreal>(top),
+            static_cast<qreal>(std::max(0, width() - left - reservedRight())),
             static_cast<qreal>(std::max(0, height() - top - reservedBottom()))};
 }
 
@@ -898,14 +929,16 @@ void MirrorWindow::setToolbarPinned(bool pinned)
     if (pinned == m_toolbarPinned) {
         return;
     }
-    const int oldTop = reservedTop();
+    const int oldTall = reservedTop() + reservedBottom();
+    const int oldWide = reservedLeft() + reservedRight();
     m_toolbarPinned = pinned;
     if (m_overlay != nullptr) {
         m_overlay->setProperty("reservedTop", reservedTop());
         m_overlay->setProperty("toolbarPinned", pinned);
     }
     if (isVisible() && plain(windowStates()) && !m_mini && m_editor == nullptr) {
-        resize(width(), height() + reservedTop() - oldTop);
+        resize(width() + reservedLeft() + reservedRight() - oldWide,
+               height() + reservedTop() + reservedBottom() - oldTall);
     } else {
         layoutContent();
     }
@@ -1329,7 +1362,7 @@ void MirrorWindow::fitToPicture()
     }
     m_aspect = aspect;
     const int top = reservedTop();
-    const int right = reservedRight();
+    const int right = reservedLeft() + reservedRight();
     const int bottom = reservedBottom();
     const QSizeF available = screen()->availableGeometry().size() * kScreenShare;
     const qreal height = std::min(available.height() - top - bottom, (available.width() - right) / aspect);

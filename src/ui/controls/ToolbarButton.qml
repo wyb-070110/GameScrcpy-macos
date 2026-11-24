@@ -12,6 +12,14 @@ T.AbstractButton {
     property bool selected: checked
     property bool compact: false
     property bool alert: false
+    // The side its tooltip opens on: the popupEdge of the FloatingToolbar it is in, below otherwise.
+    readonly property string popupEdge: {
+        for (let item = parent; item; item = item.parent) {
+            if (item.vertical !== undefined && item.popupEdge !== undefined)
+                return item.popupEdge
+        }
+        return "bottom"
+    }
 
     readonly property color foreground: {
         if (selected)
@@ -33,7 +41,10 @@ T.AbstractButton {
 
     Tooltip {
         objectName: "toolTip"
-        y: control.height + Theme.space.xs
+        x: control.popupEdge === "right" ? control.width + Theme.space.xs
+         : control.popupEdge === "left" ? -width - Theme.space.xs : (control.width - width) / 2
+        y: control.popupEdge === "bottom" ? control.height + Theme.space.xs
+         : control.popupEdge === "top" ? -height - Theme.space.xs : (control.height - height) / 2
         text: control.shortcut !== "" ? qsTr("%1 (%2)").arg(control.text).arg(control.shortcut) : control.text
         visible: control.text !== "" && control.hovered && !control.down
     }

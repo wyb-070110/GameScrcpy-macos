@@ -457,8 +457,12 @@ Item {
                     }
                     SelectSetting {
                         path: "display.toolbar"
-                        labels: ({ dwell: qsTr("Rest the pointer at the top"), pinned: qsTr("Pinned above the picture"),
+                        labels: ({ dwell: qsTr("Rest the pointer at the top"), pinned: qsTr("Pinned"),
                                    shortcut: qsTr("Shortcut only") })
+                    }
+                    SelectSetting {
+                        path: "display.toolbarSide"
+                        labels: ({ top: qsTr("Top"), bottom: qsTr("Bottom"), left: qsTr("Left"), right: qsTr("Right") })
                     }
                     SelectSetting {
                         path: "display.statusCapsule"
@@ -477,6 +481,11 @@ Item {
                         path: "display.closeWhileEditing"
                         labels: ({ ask: qsTr("Ask each time"), exitEditing: qsTr("Leave editing"),
                                    closeWindow: qsTr("Close the mirror window") })
+                    }
+                    SelectSetting {
+                        path: "display.phoneScreenOff"
+                        labels: ({ ask: qsTr("Ask the first time"), keep: qsTr("Keep mirroring"),
+                                   disconnect: qsTr("Stop mirroring") })
                     }
                 }
 

@@ -3,6 +3,7 @@
 #include "AoaTouchSink.h"
 #include "ControlChannel.h"
 #include "LatencyMeter.h"
+#include "PhoneScreenWatch.h"
 #include "SessionMetrics.h"
 #include "Settings.h"
 #include "TouchMethods.h"
@@ -133,6 +134,8 @@ signals:
     void uhidOutput(quint16 id, const QByteArray& data);
     void uhidStatus(quint16 id, bool recognized, bool vibration);
     void systemPanelFailed(bool unsupported);
+    // The phone's screen went off (sleep or Always On Display) while it was mirrored.
+    void phoneScreenOff();
 
 private:
     class Bridge;
@@ -160,6 +163,7 @@ private:
     void applyOrientation();
     void applyLaunch();
     void applyMouse();
+    void watchScreen(bool on);
     void sendScreen();
     void sendOrientation();
     void applyStatus();
@@ -198,6 +202,7 @@ private:
     std::shared_ptr<record::Recorder> m_recorder;
     std::optional<LatencyProgress> m_latency;
     QTimer m_latencyPoll;
+    std::unique_ptr<PhoneScreenWatch> m_screenWatch;
     std::chrono::steady_clock::time_point m_latencyDeadline;
     std::unique_ptr<Bridge> m_bridge;
     std::unique_ptr<session::Session> m_session;

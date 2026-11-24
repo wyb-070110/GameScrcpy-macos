@@ -1999,6 +1999,8 @@ void DeviceManager::connectDevice(const QString& serial)
         connectApps(serial, row.controller);
         connect(row.controller, &SessionController::deviceStatusArrived, this,
                 [this, serial](const protocol::DeviceStatus& status) { phoneStatusArrived(serial, status); });
+        connect(row.controller, &SessionController::phoneScreenOff, this,
+                [this, serial] { phoneScreenWentOff(serial); });
     }
     if (!row.controller->active()) {
         row.screenOff = false;
@@ -2016,6 +2018,27 @@ void DeviceManager::connectDevice(const QString& serial)
     row.controller->start(row.transport, m_settings.effective(row.deviceId.toStdString()));
     row.session = {session::SessionPhase::Deploying, std::nullopt};
     rowChanged(index);
+}
+
+void DeviceManager::phoneScreenWentOff(const QString& serial)
+{
+    const int index = indexOf(serial);
+    if (index < 0) {
+        return;
+    }
+    const Row& row = m_rows[static_cast<std::size_t>(index)];
+    const settings::Settings effective = m_settings.effective(row.deviceId.toStdString());
+    switch (effective.display.phoneScreenOff) {
+    case settings::ScreenOffAction::Keep:
+        return;
+    case settings::ScreenOffAction::Disconnect:
+        qInfo("%s: the phone's screen went off, so mirroring stops", qUtf8Printable(serial));
+        disconnectDevice(serial);
+        return;
+    case settings::ScreenOffAction::Ask:
+        emit phoneScreenOffAsked(serial);
+        return;
+    }
 }
 
 void DeviceManager::disconnectDevice(const QString& serial)

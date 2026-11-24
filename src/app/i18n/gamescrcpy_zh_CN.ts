@@ -10894,10 +10894,6 @@
         <translation>取消固定工具栏</translation>
     </message>
     <message>
-        <source>Pin the toolbar above the picture</source>
-        <translation>把工具栏固定在画面上方</translation>
-    </message>
-    <message>
         <source>Status capsule</source>
         <translation>状态胶囊</translation>
     </message>
@@ -11172,6 +11168,22 @@
     <message>
         <source>The recording is no longer there</source>
         <translation>录像不在了</translation>
+    </message>
+    <message>
+        <source>The phone&apos;s screen turned off</source>
+        <translation>手机屏幕熄灭了</translation>
+    </message>
+    <message>
+        <source>Stop mirroring</source>
+        <translation>停止投屏</translation>
+    </message>
+    <message>
+        <source>Keep mirroring</source>
+        <translation>继续投屏</translation>
+    </message>
+    <message>
+        <source>Stop mirroring whenever the phone&apos;s screen turns off? Your choice is remembered; you can change it in Settings, under Display.</source>
+        <translation>以后手机熄屏时都停止投屏吗？会记住你的选择，之后可以在“设置 → 显示”里修改。</translation>
     </message>
     <message>
         <source>Leave editing or close the window?</source>
@@ -18305,6 +18317,18 @@
         <translation>标题栏 标题 隐藏 边框 窗口 按钮</translation>
     </message>
     <message>
+        <source>Toolbar position</source>
+        <translation>工具栏位置</translation>
+    </message>
+    <message>
+        <source>Which side of the picture the pinned toolbar sits on. On the left or right its buttons stand in a column.</source>
+        <translation>固定的工具栏放在画面的哪一边。放在左边或右边时，按钮竖着排成一列。</translation>
+    </message>
+    <message>
+        <source>toolbar position side left right top bottom place column vertical</source>
+        <translation>工具栏 位置 边 左 右 上 下 放置 竖排 垂直</translation>
+    </message>
+    <message>
         <source>Status capsule</source>
         <translation>状态胶囊</translation>
     </message>
@@ -18351,6 +18375,18 @@
     <message>
         <source>close window edit editing key mapping exit leave ask remember</source>
         <translation>关闭 窗口 编辑 键位 退出 询问 记住</translation>
+    </message>
+    <message>
+        <source>When the phone&apos;s screen turns off</source>
+        <translation>手机熄屏时</translation>
+    </message>
+    <message>
+        <source>Stop mirroring when the phone goes to sleep or shows its Always On Display, or keep mirroring. Ask decides the first time it happens. Turning the screen off from GameScrcpy does not count. Needs adb.</source>
+        <translation>手机休眠或进入息屏显示（AOD）时停止投屏，或者继续投屏。选“第一次询问”时，第一次熄屏会问你。用 GameScrcpy 关掉手机屏幕不算。需要 adb 连接。</translation>
+    </message>
+    <message>
+        <source>screen off sleep lock aod always on display disconnect stop mirroring battery</source>
+        <translation>熄屏 息屏 休眠 锁屏 AOD 息屏显示 断开 停止投屏 省电</translation>
     </message>
     <message>
         <source>Sound</source>
@@ -18811,10 +18847,6 @@
         <translation>停一下出现</translation>
     </message>
     <message>
-        <source>Pinned above the picture</source>
-        <translation>固定在画面上方</translation>
-    </message>
-    <message>
         <source>Shortcut only</source>
         <translation>只用快捷键</translation>
     </message>
@@ -19193,6 +19225,38 @@
     <message>
         <source>Up to 16 fingers. On an independent display touches still go the normal way.</source>
         <translation>最多 16 指；独立显示器上仍用普通方式。</translation>
+    </message>
+    <message>
+        <source>Pinned</source>
+        <translation>固定</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>上边</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>下边</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>左边</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>右边</translation>
+    </message>
+    <message>
+        <source>Ask the first time</source>
+        <translation>第一次询问</translation>
+    </message>
+    <message>
+        <source>Keep mirroring</source>
+        <translation>继续投屏</translation>
+    </message>
+    <message>
+        <source>Stop mirroring</source>
+        <translation>停止投屏</translation>
     </message>
     <message>
         <source>A touch screen, mouse and keyboard on the USB cable that work even without USB debugging. On Windows USB debugging cannot be used while AOA is, so the picture comes over wireless debugging when the phone has it, otherwise there is no picture. Needs the WinUSB driver.</source>

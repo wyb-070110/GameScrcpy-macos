@@ -179,7 +179,9 @@ public:
                 controller->applyStatus();
                 controller->applyLaunch();
                 controller->applyMouse();
+                controller->watchScreen(true);
             } else {
+                controller->watchScreen(false);
                 controller->m_mouseReady = false;
                 controller->stopLatencyTest();
                 controller->endClipboardReads();
@@ -1172,6 +1174,27 @@ void SessionController::pressKey(std::uint32_t keycode)
     m_session->send(key);
     key.action = protocol::KeyAction::Up;
     m_session->send(key);
+}
+
+void SessionController::watchScreen(bool on)
+{
+    if (!on || showsAppDisplay()) {
+        m_screenWatch.reset();
+        return;
+    }
+    if (m_screenWatch != nullptr) {
+        return;
+    }
+    m_screenWatch = std::make_unique<PhoneScreenWatch>(m_adb, m_serial.toStdString(), [this] {
+        QMetaObject::invokeMethod(
+            this,
+            [this] {
+                if (m_phase == session::SessionPhase::Streaming) {
+                    emit phoneScreenOff();
+                }
+            },
+            Qt::QueuedConnection);
+    });
 }
 
 void SessionController::applyMouse()

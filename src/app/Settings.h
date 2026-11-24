@@ -193,8 +193,14 @@ inline constexpr std::array<std::string_view, 2> kTitleBarModeNames{"fixed", "au
 enum class ToolbarMode : std::uint8_t { Dwell, Pinned, Shortcut };
 inline constexpr std::array<std::string_view, 3> kToolbarModeNames{"dwell", "pinned", "shortcut"};
 
+enum class ToolbarSide : std::uint8_t { Top, Bottom, Left, Right };
+inline constexpr std::array<std::string_view, 4> kToolbarSideNames{"top", "bottom", "left", "right"};
+
 enum class StatusCapsule : std::uint8_t { Auto, Always, Hidden };
 inline constexpr std::array<std::string_view, 3> kStatusCapsuleNames{"auto", "always", "hidden"};
+
+enum class ScreenOffAction : std::uint8_t { Ask, Keep, Disconnect };
+inline constexpr std::array<std::string_view, 3> kScreenOffActionNames{"ask", "keep", "disconnect"};
 
 enum class EditingClose : std::uint8_t { Ask, ExitEditing, CloseWindow };
 inline constexpr std::array<std::string_view, 3> kEditingCloseNames{"ask", "exitEditing", "closeWindow"};
@@ -204,10 +210,12 @@ struct Display {
     std::int32_t sharpness = 0;
     TitleBarMode titleBar = TitleBarMode::Fixed;
     ToolbarMode toolbar = ToolbarMode::Pinned;
+    ToolbarSide toolbarSide = ToolbarSide::Top;
     StatusCapsule statusCapsule = StatusCapsule::Auto;
     bool phoneStatus = false;
     bool cameraGlow = true;
     EditingClose closeWhileEditing = EditingClose::Ask;
+    ScreenOffAction phoneScreenOff = ScreenOffAction::Ask;
 
     template <typename V, typename Self>
     static void visit(V& v, Self& m)
@@ -243,6 +251,13 @@ struct Display {
                                                                "above the picture."),
                   .keywords = GS_TRANSLATE_NOOP("Settings", "toolbar title bar pin buttons"),
                   .live = true});
+        v.choice("toolbarSide", m.toolbarSide, kToolbarSideNames,
+                 {.title = GS_TRANSLATE_NOOP("Settings", "Toolbar position"),
+                  .description = GS_TRANSLATE_NOOP("Settings", "Which side of the picture the pinned toolbar sits on. "
+                                                               "On the left or right its buttons stand in a column."),
+                  .keywords = GS_TRANSLATE_NOOP("Settings", "toolbar position side left right top bottom place "
+                                                            "column vertical"),
+                  .live = true});
         v.choice("statusCapsule", m.statusCapsule, kStatusCapsuleNames,
                  {.title = GS_TRANSLATE_NOOP("Settings", "Status capsule"),
                   .description = GS_TRANSLATE_NOOP("Settings", "Shows the frame rate, delay and connection method in "
@@ -274,6 +289,16 @@ struct Display {
                                                                "editing, or close the mirror window."),
                   .keywords = GS_TRANSLATE_NOOP("Settings", "close window edit editing key mapping exit leave ask "
                                                             "remember"),
+                  .live = true});
+        v.choice("phoneScreenOff", m.phoneScreenOff, kScreenOffActionNames,
+                 {.title = GS_TRANSLATE_NOOP("Settings", "When the phone's screen turns off"),
+                  .description = GS_TRANSLATE_NOOP("Settings", "Stop mirroring when the phone goes to sleep or shows "
+                                                               "its Always On Display, or keep mirroring. Ask decides "
+                                                               "the first time it happens. Turning the screen off "
+                                                               "from GameScrcpy does not count. Needs adb."),
+                  .keywords = GS_TRANSLATE_NOOP("Settings", "screen off sleep lock aod always on display disconnect "
+                                                            "stop mirroring battery"),
+                  .scope = Scope::Device,
                   .live = true});
     }
 

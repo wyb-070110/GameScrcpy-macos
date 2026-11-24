@@ -391,6 +391,8 @@ signals:
     void mainWindowWanted();
     void tasksPageWanted(const QString& task);
     void assistantWanted(const QString& serial);
+    // The phone's screen went off while "When the phone's screen turns off" is Ask: its mirror window asks.
+    void phoneScreenOffAsked(const QString& serial);
     void usbDriverReady(const QString& name);
     void recordingFinished(const QVariantMap& info);
     void recordingNotice(const QString& text, const QString& tone);
@@ -653,6 +655,7 @@ private:
     [[nodiscard]] bool phoneStatusOn(const Row& row) const;
     void syncPhoneStatus(Row& row);
     void phoneStatusArrived(const QString& serial, const protocol::DeviceStatus& status);
+    void phoneScreenWentOff(const QString& serial);
     [[nodiscard]] CompanionLink::Listener companionListener(const QString& serial, quint64 ticket);
     void startCompanionLink(Row& row, quint64 ticket, std::unique_ptr<CompanionLink> link);
     void syncCompanionLan(Row& row);
