@@ -448,6 +448,7 @@ struct Touch {
     bool trackpadInertia = true;
     std::int32_t trackpadInertiaStrength = 100;
     std::int32_t trackpadLongestSwipe = 50;
+    std::int32_t trackpadPageTurn = 25;
 
     template <typename V, typename Self>
     static void visit(V& v, Self& m)
@@ -515,6 +516,16 @@ struct Touch {
                    .description = GS_TRANSLATE_NOOP("Settings", "How far the finger keeps going after a quick swipe: "
                                                                 "100% follows the trackpad's momentum as it is."),
                    .keywords = GS_TRANSLATE_NOOP("Settings", "trackpad inertia momentum strength distance fling"),
+                   .scope = Scope::Device,
+                   .live = true});
+        v.integer("trackpadPageTurn", m.trackpadPageTurn, 0, 90,
+                  {.title = GS_TRANSLATE_NOOP("Settings", "Turn a page after"),
+                   .description = GS_TRANSLATE_NOOP("Settings", "A trackpad swipe that goes at least this far one way, "
+                                                                "as a share of the screen, without going back, ends "
+                                                                "in a short flick: the phone turns exactly one page. "
+                                                                "0% turns this off."),
+                   .keywords = GS_TRANSLATE_NOOP("Settings", "trackpad swipe page turn flick threshold one page "
+                                                             "home screen"),
                    .scope = Scope::Device,
                    .live = true});
         v.integer("trackpadLongestSwipe", m.trackpadLongestSwipe, 10, 100,

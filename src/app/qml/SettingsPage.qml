@@ -817,6 +817,13 @@ Item {
                     }
 
                     SliderSetting {
+                        path: "touch.trackpadPageTurn"
+                        unit: "%"
+                        step: 5
+                        marks: [15, 25, 40, 60]
+                    }
+
+                    SliderSetting {
                         path: "touch.trackpadLongestSwipe"
                         unit: "%"
                         step: 5

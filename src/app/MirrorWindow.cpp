@@ -162,6 +162,11 @@ void MirrorWindow::setTrackpad(double speed, bool inertia, double inertiaStrengt
     m_pointer->setTrackpad(speed, inertia, inertiaStrength, longest);
 }
 
+void MirrorWindow::setPageTurn(double turnFrom)
+{
+    m_pointer->setPageTurn(turnFrom);
+}
+
 void MirrorWindow::setSharpness(qreal sharpness)
 {
     m_video->setSharpness(sharpness);

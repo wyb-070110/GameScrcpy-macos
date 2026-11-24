@@ -18625,6 +18625,18 @@
         <translation>触控板 惯性 动量 强度 距离 甩动</translation>
     </message>
     <message>
+        <source>Turn a page after</source>
+        <translation>滑动超过多少翻页</translation>
+    </message>
+    <message>
+        <source>A trackpad swipe that goes at least this far one way, as a share of the screen, without going back, ends in a short flick: the phone turns exactly one page. 0% turns this off.</source>
+        <translation>触控板滑动朝一个方向走到这个比例（按屏幕算）且没有往回走时，结束时补一个短促的甩动：手机正好翻一页。0% 表示关闭。</translation>
+    </message>
+    <message>
+        <source>trackpad swipe page turn flick threshold one page home screen</source>
+        <translation>触控板 滑动 翻页 甩动 阈值 一页 桌面</translation>
+    </message>
+    <message>
         <source>Longest trackpad swipe</source>
         <translation>单次滑动上限</translation>
     </message>

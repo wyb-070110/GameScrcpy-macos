@@ -46,6 +46,8 @@ MirrorInputItem::MirrorInputItem(QQuickItem* parent)
     setAcceptedMouseButtons(Qt::AllButtons);
     m_coastIdle.setSingleShot(true);
     connect(&m_coastIdle, &QTimer::timeout, this, &MirrorInputItem::liftSwipe);
+    m_flickTimer.setInterval(8);
+    connect(&m_flickTimer, &QTimer::timeout, this, &MirrorInputItem::flickStep);
 }
 
 std::optional<input::Vec2> MirrorInputItem::normalized(const QRectF& content, QPointF position, bool clamped)
@@ -388,6 +390,69 @@ void MirrorInputItem::setTrackpad(double speed, bool inertia, double inertiaStre
     m_longestSwipe = std::clamp(longest, 0.05, 1.0);
 }
 
+void MirrorInputItem::setPageTurn(double turnFrom)
+{
+    m_turnFrom = std::clamp(turnFrom, 0.0, 1.0);
+}
+
+// The direction of a page turn, as a unit step along the axis the swipe mostly went: when it went at least the
+// turn distance that way and at least 90% of its path that way (no going back and forth).
+std::optional<QPointF> MirrorInputItem::pageTurn() const
+{
+    constexpr double kOneWay = 0.9;
+    if (m_turnFrom <= 0.0) {
+        return std::nullopt;
+    }
+    const double right = m_swipePath[0];
+    const double left = m_swipePath[1];
+    const double down = m_swipePath[2];
+    const double up = m_swipePath[3];
+    const bool sideways = right + left >= down + up;
+    const double forward = sideways ? std::max(right, left) : std::max(down, up);
+    const double back = sideways ? std::min(right, left) : std::min(down, up);
+    const double net = forward - back;
+    const double size = sideways ? m_content.width() : m_content.height();
+    if (forward + back <= 0.0 || forward / (forward + back) < kOneWay || net < m_turnFrom * size) {
+        return std::nullopt;
+    }
+    const double sign = sideways ? (right >= left ? 1.0 : -1.0) : (down >= up ? 1.0 : -1.0);
+    return sideways ? QPointF(sign, 0.0) : QPointF(0.0, sign);
+}
+
+// The flick: a few even steps 8 ms apart (2.5% of the picture each), then the finger lifts, moving. The phone
+// sees a quick, short fling, which turns one page, whatever the fingers did before.
+void MirrorInputItem::flickStep()
+{
+    if (m_flickSteps <= 0 || !m_swiping) {
+        m_flickTimer.stop();
+        m_flickSteps = 0;
+        return;
+    }
+    m_swipePoint += m_flickStep;
+    const std::optional<input::Vec2> at = normalized(m_content, m_swipePoint, true);
+    --m_flickSteps;
+    if (at) {
+        emit touched(m_flickSteps > 0 ? input::CursorPhase::Move : input::CursorPhase::Up, *at);
+    }
+    if (m_flickSteps == 0 || !at) {
+        m_flickTimer.stop();
+        m_swiping = false;
+        m_coasting = false;
+    }
+}
+
+void MirrorInputItem::startFlick(QPointF direction)
+{
+    constexpr int kFlickSteps = 3;
+    constexpr double kFlickStep = 0.025;
+    m_coastIdle.stop();
+    m_coasting = false;
+    m_flickStep = QPointF(direction.x() * kFlickStep * m_content.width(),
+                          direction.y() * kFlickStep * m_content.height());
+    m_flickSteps = kFlickSteps;
+    m_flickTimer.start();
+}
+
 void MirrorInputItem::moveSwipe(QPointF delta, bool ending)
 {
     if (m_swipeCapped) {
@@ -447,9 +512,20 @@ bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
         return false;
     }
     const QPointF delta = event->pixelDelta().toPointF() * m_trackpadSpeed;
+    if (event->phase() == Qt::ScrollBegin && m_flickSteps > 0) {
+        m_flickSteps = 1;
+        flickStep();
+    }
     if (event->phase() == Qt::ScrollMomentum) {
+        if (m_flickSteps > 0) {
+            return true;
+        }
         // Some systems send the momentum before the end of the swipe: the fingers have left all the same.
         if (m_swiping && !m_coasting) {
+            if (const std::optional<QPointF> turn = pageTurn()) {
+                startFlick(*turn);
+                return true;
+            }
             if (!m_inertia || m_swipeCapped || m_swipeSpeed < kCoastFrom) {
                 liftSwipe();
                 return true;
@@ -500,8 +576,13 @@ bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
         if (!at) {
             return false;
         }
+        if (m_flickSteps > 0) {
+            m_flickSteps = 1;
+            flickStep();
+        }
         m_swiping = true;
         m_swipeCapped = false;
+        m_swipePath = {};
         m_swipePoint = event->position();
         m_swipeStart = m_swipePoint;
         m_swipeSpeed = 0.0;
@@ -510,11 +591,17 @@ bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
         emit touched(input::CursorPhase::Down, *at);
     }
     if (!delta.isNull()) {
+        m_swipePath[delta.x() >= 0.0 ? 0 : 1] += std::abs(delta.x());
+        m_swipePath[delta.y() >= 0.0 ? 2 : 3] += std::abs(delta.y());
         const qint64 sinceMs = std::max<qint64>(m_swipeClock.restart(), 1);
         m_swipeSpeed = std::hypot(delta.x(), delta.y()) / static_cast<double>(sinceMs);
     }
     moveSwipe(delta, event->phase() == Qt::ScrollEnd);
     if (event->phase() == Qt::ScrollEnd && m_swiping) {
+        if (const std::optional<QPointF> turn = pageTurn()) {
+            startFlick(*turn);
+            return true;
+        }
         if (m_inertia && !m_swipeCapped && m_swipeSpeed >= kCoastFrom && m_inertiaStrength > 0.0) {
             m_coasting = true;
             m_coasted = 0.0;

@@ -15,6 +15,7 @@
 #include <QTimer>
 #include <QVariant>
 
+#include <array>
 #include <cstdint>
 #include <map>
 #include <optional>
@@ -41,6 +42,9 @@ public:
     // longest: the farthest one swipe, momentum included, moves the finger, as a share of the picture in the
     // direction it goes (1 = no limit).
     void setTrackpad(double speed, bool inertia, double inertiaStrength, double longest);
+    // A swipe that went at least turnFrom of the picture one way, with at least 90% of its path that way, ends in
+    // a short even flick that way, so the phone turns one page; 0 turns this off.
+    void setPageTurn(double turnFrom);
     [[nodiscard]] bool relativeMouse() const noexcept { return m_relative; }
 
     [[nodiscard]] static std::optional<input::Vec2> normalized(const QRectF& content, QPointF position, bool clamped);
@@ -92,6 +96,9 @@ private:
     void cancel();
     void moveSwipe(QPointF delta, bool ending);
     void liftSwipe();
+    [[nodiscard]] std::optional<QPointF> pageTurn() const;
+    void flickStep();
+    void startFlick(QPointF direction);
     void releaseKeys();
     void follow(QPointF position);
     [[nodiscard]] bool pressRelative(QMouseEvent* event, bool down);
@@ -117,6 +124,13 @@ private:
     // until the fingers leave, so the phone does not fling it farther).
     QPointF m_swipeStart;
     bool m_swipeCapped = false;
+    // This swipe's path, summed per direction (right, left, down, up), in points of the picture.
+    std::array<double, 4> m_swipePath{};
+    double m_turnFrom = 0.25;
+    // The page-turn flick under way: steps left, each step, and the clock between them.
+    int m_flickSteps = 0;
+    QPointF m_flickStep;
+    QTimer m_flickTimer;
     // How far the finger has coasted, in points of the picture.
     double m_coasted = 0.0;
     QPointF m_lastPress;
