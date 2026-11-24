@@ -14,8 +14,12 @@ using SOCKET = int;
 using WORD = std::uint16_t;
 using BOOL = int;
 
-inline constexpr BOOL TRUE = 1;
-inline constexpr BOOL FALSE = 0;
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
 
 inline constexpr SOCKET INVALID_SOCKET = -1;
 inline constexpr int SOCKET_ERROR = -1;

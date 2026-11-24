@@ -184,8 +184,9 @@ public:
         FD_ZERO(&ready);
         FD_SET(m_socket, &ready);
         const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(timeout);
-        timeval limit{static_cast<long>(seconds.count()),
-                      static_cast<long>(std::chrono::duration_cast<std::chrono::microseconds>(timeout - seconds).count())};
+        timeval limit{static_cast<decltype(timeval::tv_sec)>(seconds.count()),
+                      static_cast<decltype(timeval::tv_usec)>(
+                          std::chrono::duration_cast<std::chrono::microseconds>(timeout - seconds).count())};
         if (select(static_cast<int>(m_socket) + 1, &ready, nullptr, nullptr, &limit) != 1) {
             return INVALID_SOCKET;
         }
