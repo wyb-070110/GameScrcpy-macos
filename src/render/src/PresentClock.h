@@ -8,8 +8,6 @@
 #include <cstdint>
 #include <functional>
 
-struct IDXGISwapChain;
-struct IDXGISwapChainMedia;
 
 class QQuickWindow;
 
@@ -51,28 +49,14 @@ private:
         Sample sample;
     };
 
-    bool refreshSwapChain();
-
     Sink m_sink;
     ModeSink m_modeSink;
     DiscardSink m_discardSink;
-    bool m_newestFrame = false;
     QMetaObject::Connection m_connection;
     QQuickWindow* m_window = nullptr;
-    IDXGISwapChain* m_swapChain = nullptr;
-    IDXGISwapChainMedia* m_media = nullptr;
-    std::array<Pending, kMostPending> m_pending{};
-    std::size_t m_pendingCount = 0;
     bool m_drew = false;
     Sample m_drawn;
-    std::uint32_t m_lastPresentCount = 0;
-    bool m_presented = false;
     PresentationMode m_mode = PresentationMode::Unknown;
-    std::uint32_t m_lastSyncRefresh = 0;
-    std::int64_t m_lastSyncQpc = 0;
-    std::int64_t m_refreshQpc = 0;
-    std::uint32_t m_shownPresentCount = 0;
-    std::uint32_t m_shownPresentRefresh = 0;
 };
 
 }

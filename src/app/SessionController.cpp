@@ -68,7 +68,9 @@ public:
     void onVideoOpened() override
     {
         const render::GraphicsDevice* graphics = m_controller.m_graphics;
-        m_decoder = std::make_unique<media::VideoDecoder>(graphics != nullptr ? graphics->device() : nullptr);
+        // macOS: with a window to show it in, VideoToolbox decodes (the decoder falls back to software itself).
+        m_decoder = std::make_unique<media::VideoDecoder>(graphics != nullptr ? media::Decoding::Hardware
+                                                                               : media::Decoding::Software);
         m_thumbnailer = std::make_unique<media::Thumbnailer>(graphics != nullptr ? graphics->device() : nullptr);
         m_awaitingKeyFrame = false;
     }

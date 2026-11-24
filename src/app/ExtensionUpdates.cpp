@@ -1,5 +1,6 @@
 #include "ExtensionUpdates.h"
 
+#include <gs/base/UtcTime.h>
 #include "AiNetwork.h"
 #include "AppSettings.h"
 #include "ExtensionHost.h"
@@ -58,10 +59,7 @@ std::optional<std::chrono::sys_seconds> timeNamed(const std::string& text)
     if (text.empty()) {
         return std::nullopt;
     }
-    std::istringstream in(text);
-    std::chrono::sys_seconds at{};
-    in >> std::chrono::parse("%FT%TZ", at);
-    return in.fail() ? std::nullopt : std::optional<std::chrono::sys_seconds>(at);
+    return gs::parseUtcSeconds(text);
 }
 
 std::string textAt(const nlohmann::json& object, const char* key, std::size_t most)

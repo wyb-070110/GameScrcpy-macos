@@ -1007,8 +1007,7 @@ void ProfileLibrary::reveal(const QString& id) const
 {
     if (const ProfileEntry* entry = find(id); entry != nullptr && !entry->readOnly()) {
         const std::filesystem::path& shown = entry->folder.empty() ? entry->path : entry->folder;
-        QProcess::startDetached(QStringLiteral("explorer.exe"),
-                                {QStringLiteral("/select,"), QDir::toNativeSeparators(pathText(shown))});
+        QProcess::startDetached(QStringLiteral("/usr/bin/open"), {QStringLiteral("-R"), pathText(shown)});
     }
 }
 

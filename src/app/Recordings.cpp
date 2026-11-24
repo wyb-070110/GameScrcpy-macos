@@ -839,10 +839,10 @@ void Recordings::showInFolder(const QString& path) const
         return;
     }
     if (QFileInfo::exists(native)) {
-        QProcess::startDetached(QStringLiteral("explorer.exe"), {QStringLiteral("/select,"), native});
+        QProcess::startDetached(QStringLiteral("/usr/bin/open"), {QStringLiteral("-R"), native});
         return;
     }
-    QProcess::startDetached(QStringLiteral("explorer.exe"), {QDir::toNativeSeparators(location())});
+    QProcess::startDetached(QStringLiteral("/usr/bin/open"), {QDir::toNativeSeparators(location())});
 }
 
 QString Recordings::folderOf(const QUrl& url) const

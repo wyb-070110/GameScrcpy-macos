@@ -29,6 +29,10 @@ public:
     void setMenu(std::vector<TrayMenuItem> items);
 
 private:
+    // macOS: the menu bar item's Objective-C target calls back through these.
+    friend const std::function<void()>* trayActivated(void* owner);
+    friend void trayChose(void* owner, std::size_t index);
+
     struct Impl;
     std::unique_ptr<Impl> m_impl;
 };

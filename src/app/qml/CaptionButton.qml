@@ -9,7 +9,9 @@ Item {
 
     signal clicked()
 
-    implicitWidth: 46
+    // macOS: the window's own traffic lights minimize, zoom and close it; these Windows caption buttons are hidden.
+    visible: false
+    implicitWidth: 0
     implicitHeight: 40
 
     Rectangle {

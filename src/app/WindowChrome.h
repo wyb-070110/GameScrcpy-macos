@@ -72,6 +72,7 @@ private:
     QPointer<QQuickItem> m_closeButton;
     bool m_darkMode = true;
     QWK::QuickWindowAgent* m_agent = nullptr;
+    bool m_attached = false;
 };
 
 }

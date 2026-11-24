@@ -9,7 +9,7 @@ extern "C" {
 #include <libavutil/pixfmt.h>
 }
 
-#include <d3d11.h>
+#include <CoreVideo/CoreVideo.h>
 
 #include <algorithm>
 #include <chrono>
@@ -46,74 +46,109 @@ media::VideoColor colorOf(const AVFrame& frame) noexcept
     return color;
 }
 
+// The recording's pictures fitted into the demo card's 1280x720 frame with black bars, on the CPU (macOS keeps
+// capture frames in memory): the decoded NV12 or YUV 4:2:0 picture is scaled to fit by nearest sampling, then
+// placed in the middle of a black NV12 frame.
 class Framer final : public media::FrameSink
 {
 public:
-    Framer(ID3D11Device* device, capture::SampleSink& sink) : m_inner(device, kInnerDepth), m_outer(device), m_sink(sink)
-    {
-    }
+    Framer(ID3D11Device* device, capture::SampleSink& sink) : m_inner(device, kInnerDepth), m_sink(sink) {}
 
     void setShift(std::int64_t shift) noexcept { m_shift = shift; }
 
     void onFrame(media::VideoFrame frame) override
     {
         const AVFrame* picture = frame.avFrame();
-        if (picture == nullptr) {
+        if (picture == nullptr || picture->width <= 0 || picture->height <= 0) {
             return;
         }
         const media::FrameStamp stamp{.ptsUs = frame.ptsUs() + m_shift,
                                       .session = 1,
                                       .receivedUs = frame.receivedUs(),
                                       .color = colorOf(*picture)};
-        media::VideoFrame uploaded;
-        if (picture->format != AV_PIX_FMT_D3D11) {
-            uploaded = upload(*picture, stamp);
-            picture = uploaded.avFrame();
-            if (picture == nullptr || picture->format != AV_PIX_FMT_D3D11) {
+        if (picture->format == AV_PIX_FMT_VIDEOTOOLBOX) {
+            auto* buffer = reinterpret_cast<CVPixelBufferRef>(picture->data[3]);
+            const OSType type = buffer != nullptr ? CVPixelBufferGetPixelFormatType(buffer) : 0;
+            if ((type != kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange &&
+                 type != kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) ||
+                CVPixelBufferLockBaseAddress(buffer, kCVPixelBufferLock_ReadOnly) != kCVReturnSuccess) {
                 return;
             }
+            const Source source{.luma = static_cast<const std::uint8_t*>(CVPixelBufferGetBaseAddressOfPlane(buffer, 0)),
+                                .lumaPitch = static_cast<std::ptrdiff_t>(CVPixelBufferGetBytesPerRowOfPlane(buffer, 0)),
+                                .cb = static_cast<const std::uint8_t*>(CVPixelBufferGetBaseAddressOfPlane(buffer, 1)),
+                                .cr = nullptr,
+                                .chromaPitch =
+                                    static_cast<std::ptrdiff_t>(CVPixelBufferGetBytesPerRowOfPlane(buffer, 1)),
+                                .width = picture->width,
+                                .height = picture->height};
+            send(source, stamp);
+            CVPixelBufferUnlockBaseAddress(buffer, kCVPixelBufferLock_ReadOnly);
+            return;
         }
-        auto* texture = reinterpret_cast<ID3D11Texture2D*>(picture->data[0]);
-        const auto slice = static_cast<UINT>(reinterpret_cast<std::intptr_t>(picture->data[1]));
-        D3D11_TEXTURE2D_DESC description{};
-        texture->GetDesc(&description);
-        media::VideoFrame framed =
-            m_outer.fitted(texture, D3D11CalcSubresource(0, slice, description.MipLevels), picture->width,
-                           picture->height, CaptureDemoSource::kOuterWidth, CaptureDemoSource::kOuterHeight, stamp);
+        if (picture->format == AV_PIX_FMT_NV12) {
+            send({.luma = picture->data[0], .lumaPitch = picture->linesize[0], .cb = picture->data[1], .cr = nullptr,
+                  .chromaPitch = picture->linesize[1], .width = picture->width, .height = picture->height},
+                 stamp);
+        } else if (picture->format == AV_PIX_FMT_YUV420P || picture->format == AV_PIX_FMT_YUVJ420P) {
+            send({.luma = picture->data[0], .lumaPitch = picture->linesize[0], .cb = picture->data[1],
+                  .cr = picture->data[2], .chromaPitch = picture->linesize[1], .width = picture->width,
+                  .height = picture->height},
+                 stamp);
+        }
+    }
+
+private:
+    // A 4:2:0 picture: NV12 when cr is null (cb holds Cb and Cr interleaved), else three planes.
+    struct Source {
+        const std::uint8_t* luma = nullptr;
+        std::ptrdiff_t lumaPitch = 0;
+        const std::uint8_t* cb = nullptr;
+        const std::uint8_t* cr = nullptr;
+        std::ptrdiff_t chromaPitch = 0;
+        int width = 0;
+        int height = 0;
+    };
+
+    void send(const Source& source, const media::FrameStamp& stamp)
+    {
+        constexpr int kWidth = CaptureDemoSource::kOuterWidth;
+        constexpr int kHeight = CaptureDemoSource::kOuterHeight;
+        const double scale = std::min(static_cast<double>(kWidth) / source.width,
+                                      static_cast<double>(kHeight) / source.height);
+        const int fitWidth = std::max(2, static_cast<int>(source.width * scale) & ~1);
+        const int fitHeight = std::max(2, static_cast<int>(source.height * scale) & ~1);
+        const int left = ((kWidth - fitWidth) / 2) & ~1;
+        const int top = ((kHeight - fitHeight) / 2) & ~1;
+        m_luma.assign(static_cast<std::size_t>(kWidth) * kHeight, 16);
+        m_chroma.assign(static_cast<std::size_t>(kWidth) * (kHeight / 2), 128);
+        for (int y = 0; y < fitHeight; ++y) {
+            const std::uint8_t* row = source.luma + static_cast<std::ptrdiff_t>(y * source.height / fitHeight) * source.lumaPitch;
+            std::uint8_t* out = m_luma.data() + static_cast<std::ptrdiff_t>(top + y) * kWidth + left;
+            for (int x = 0; x < fitWidth; ++x) {
+                out[x] = row[x * source.width / fitWidth];
+            }
+        }
+        const int chromaWidth = (source.width + 1) / 2;
+        const int chromaHeight = (source.height + 1) / 2;
+        for (int y = 0; y < fitHeight / 2; ++y) {
+            const std::ptrdiff_t from = static_cast<std::ptrdiff_t>(y * chromaHeight / (fitHeight / 2)) * source.chromaPitch;
+            std::uint8_t* out = m_chroma.data() + static_cast<std::ptrdiff_t>(top / 2 + y) * kWidth + left;
+            for (int x = 0; x < fitWidth / 2; ++x) {
+                const int column = x * chromaWidth / (fitWidth / 2);
+                out[2 * x] = source.cr == nullptr ? source.cb[from + 2 * column] : source.cb[from + column];
+                out[2 * x + 1] = source.cr == nullptr ? source.cb[from + 2 * column + 1] : source.cr[from + column];
+            }
+        }
+        media::VideoFrame framed = m_inner.nv12({m_luma.data(), kWidth, m_chroma.data(), kWidth}, kWidth, kHeight, stamp);
         if (framed) {
             m_sink.frame(std::move(framed));
         }
     }
 
-private:
-    media::VideoFrame upload(const AVFrame& picture, const media::FrameStamp& stamp)
-    {
-        if (picture.format == AV_PIX_FMT_NV12) {
-            return m_inner.nv12({picture.data[0], picture.linesize[0], picture.data[1], picture.linesize[1]},
-                                picture.width, picture.height, stamp);
-        }
-        if (picture.format != AV_PIX_FMT_YUV420P && picture.format != AV_PIX_FMT_YUVJ420P) {
-            return {};
-        }
-        const int chromaWidth = (picture.width + 1) / 2;
-        const int chromaHeight = (picture.height + 1) / 2;
-        m_chroma.resize(static_cast<std::size_t>(2 * chromaWidth) * static_cast<std::size_t>(chromaHeight));
-        for (int row = 0; row < chromaHeight; ++row) {
-            const std::uint8_t* cb = picture.data[1] + static_cast<std::ptrdiff_t>(row) * picture.linesize[1];
-            const std::uint8_t* cr = picture.data[2] + static_cast<std::ptrdiff_t>(row) * picture.linesize[2];
-            std::uint8_t* out = m_chroma.data() + static_cast<std::ptrdiff_t>(row) * 2 * chromaWidth;
-            for (int column = 0; column < chromaWidth; ++column) {
-                out[2 * column] = cb[column];
-                out[2 * column + 1] = cr[column];
-            }
-        }
-        return m_inner.nv12({picture.data[0], picture.linesize[0], m_chroma.data(), 2 * chromaWidth}, picture.width,
-                            picture.height, stamp);
-    }
-
     media::FrameUploader m_inner;
-    media::FrameUploader m_outer;
     capture::SampleSink& m_sink;
+    std::vector<std::uint8_t> m_luma;
     std::vector<std::uint8_t> m_chroma;
     std::int64_t m_shift = 0;
 };
@@ -224,7 +259,7 @@ std::string CaptureDemoSource::load()
 
 void CaptureDemoSource::run(const std::stop_token& stop, capture::SampleSink& sink)
 {
-    media::VideoDecoder decoder(m_device);
+    media::VideoDecoder decoder(media::Decoding::Hardware);
     Framer framer(m_device, sink);
     const capture::CaptureFormat format{.width = kOuterWidth,
                                         .height = kOuterHeight,

@@ -69,6 +69,15 @@
       "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     },
     {
+      "name": "mac-app",
+      "displayName": "macOS: the app with Qt 6.10 (~/Qt/6.10.3/macos)",
+      "inherits": "posix-core",
+      "cacheVariables": {
+        "GS_BUILD_APP": "ON",
+        "CMAKE_PREFIX_PATH": "$env{HOME}/Qt/6.10.3/macos"
+      }
+    },
+    {
       "name": "ci",
       "displayName": "CI (Release without LTO, warnings as errors)",
       "inherits": "msvc-release",
@@ -85,6 +94,7 @@
     { "name": "core-only", "configurePreset": "core-only" },
     { "name": "posix-core", "configurePreset": "posix-core" },
     { "name": "posix-core-release", "configurePreset": "posix-core-release" },
+    { "name": "mac-app", "configurePreset": "mac-app" },
     { "name": "ci", "configurePreset": "ci" }
   ],
   "testPresets": [
@@ -94,6 +104,7 @@
     { "name": "core-only", "configurePreset": "core-only", "output": { "outputOnFailure": true } },
     { "name": "posix-core", "configurePreset": "posix-core", "output": { "outputOnFailure": true } },
     { "name": "posix-core-release", "configurePreset": "posix-core-release", "output": { "outputOnFailure": true } },
+    { "name": "mac-app", "configurePreset": "mac-app", "output": { "outputOnFailure": true } },
     {
       "name": "ci",
       "configurePreset": "ci",

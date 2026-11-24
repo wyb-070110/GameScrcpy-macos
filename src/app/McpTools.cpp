@@ -3792,7 +3792,7 @@ bool McpTools::drafted(const QString& client, const QString& target) const
 
 QString McpTools::program() const
 {
-    return m_setup.program.empty() ? QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("gs.exe"))
+    return m_setup.program.empty() ? QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("gs"))
                                    : pathText(m_setup.program);
 }
 

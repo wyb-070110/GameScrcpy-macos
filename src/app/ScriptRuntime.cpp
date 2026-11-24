@@ -3248,6 +3248,10 @@ void ScriptRuntime::handle(const script::Report& report)
             emit ended(QStringLiteral("failed"), problemOf(report));
         }
         return;
+    case script::ReportKind::DebugHits:
+    case script::ReportKind::DebugPaused:
+    case script::ReportKind::DebugResumed:
+        return;
     }
 }
 

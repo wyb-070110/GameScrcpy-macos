@@ -1,5 +1,9 @@
 #pragma once
 
+// The video picture in Qt Quick on macOS (PLAN 4.5): a render node drawing with QRhi, which Qt Quick runs on Metal.
+// Each new frame's planes are uploaded into textures (VideoToolbox surfaces are read in place, software pictures
+// from their planes); video.vert with video_nv12.frag or video_planar.frag turns them into RGB, sharpened when asked.
+
 #include "FilterChain.h"
 #include "PresentClock.h"
 
@@ -10,19 +14,22 @@
 #include <QSGRenderNode>
 #include <QSize>
 
-#include <d3d11.h>
-#include <wrl/client.h>
-
 #include <array>
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-#include <map>
 #include <memory>
-#include <utility>
 #include <vector>
 
 class QQuickWindow;
+class QRhi;
+class QRhiBuffer;
+class QRhiGraphicsPipeline;
+class QRhiRenderPassDescriptor;
+class QRhiResourceUpdateBatch;
+class QRhiSampler;
+class QRhiShaderResourceBindings;
+class QRhiTexture;
 
 namespace gs::render {
 
@@ -52,47 +59,21 @@ public:
     [[nodiscard]] QRectF rect() const override;
 
 private:
-    template <typename T>
-    using ComPtr = Microsoft::WRL::ComPtr<T>;
-
-    struct SurfaceViews {
-        ComPtr<ID3D11Texture2D> texture;
-        ComPtr<ID3D11ShaderResourceView> luma;
-        ComPtr<ID3D11ShaderResourceView> chroma;
-        UINT width = 0;
-        UINT height = 0;
-    };
-
+    // One plane of the picture as a texture, made again when its size or format changes.
     struct Plane {
-        ComPtr<ID3D11Texture2D> texture;
-        ComPtr<ID3D11ShaderResourceView> view;
-        int width = 0;
-        int height = 0;
-        DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
+        std::unique_ptr<QRhiTexture> texture;
+        QSize size;
+        int format = 0;
     };
-
-    struct GpuQuerySet {
-        ComPtr<ID3D11Query> disjoint;
-        ComPtr<ID3D11Query> begin;
-        ComPtr<ID3D11Query> end;
-    };
-
-    static constexpr std::size_t kGpuQuerySets = 6;
 
     void takeFrame();
     void installWake();
     void postWake();
-    bool createPipeline(ID3D11Device* device);
-    void createGpuQueries(ID3D11Device* device);
-    void startGpuTiming(ID3D11DeviceContext* context);
-    void markGpuBegin(ID3D11DeviceContext* context);
-    void finishGpuTiming(ID3D11DeviceContext* context);
-    void readGpuSamples(ID3D11DeviceContext* context);
-    bool bindSurface(ID3D11Device* device);
-    bool uploadPlanes(ID3D11Device* device, ID3D11DeviceContext* context);
-    void bindWindow(ID3D11DeviceContext* context, const RenderState* state, QSize target);
-    void draw(ID3D11DeviceContext* context, ID3D11Buffer* parameters, ID3D11PixelShader* shader,
-              ID3D11ShaderResourceView* const* views, UINT count);
+    bool ensureShared(QRhi* rhi);
+    bool ensurePipeline(QRhi* rhi);
+    bool uploadFrame(QRhi* rhi, QRhiResourceUpdateBatch* updates);
+    bool uploadPlane(QRhi* rhi, QRhiResourceUpdateBatch* updates, std::size_t index, int format, QSize size,
+                     const void* data, std::size_t stride, std::size_t bytesPerTexel);
 
     QQuickWindow* m_window;
     std::shared_ptr<FrameSlot> m_slot;
@@ -112,37 +93,22 @@ private:
     std::int64_t m_takenReceivedUs = 0;
     std::int64_t m_takenUs = 0;
     bool m_drewFrame = false;
+    bool m_unsupportedLogged = false;
 
-    ComPtr<ID3D11VertexShader> m_vertexShader;
-    ComPtr<ID3D11PixelShader> m_nv12Shader;
-    ComPtr<ID3D11PixelShader> m_planarShader;
-    ComPtr<ID3D11PixelShader> m_copyShader;
-    ComPtr<ID3D11Buffer> m_parameters;
-    ComPtr<ID3D11Buffer> m_offscreenParameters;
-    ComPtr<ID3D11Buffer> m_finalParameters;
-    ComPtr<ID3D11SamplerState> m_sampler;
-    std::array<ComPtr<ID3D11RasterizerState>, 2> m_rasterizers;
-    ComPtr<ID3D11BlendState> m_blend;
-    ComPtr<ID3D11DepthStencilState> m_depthStencil;
-
-    std::map<std::pair<ID3D11Texture2D*, UINT>, SurfaceViews> m_surfaces;
-    std::uint16_t m_surfacesSession = 0;
+    std::unique_ptr<QRhiBuffer> m_parameters;
+    std::unique_ptr<QRhiSampler> m_sampler;
+    std::unique_ptr<QRhiShaderResourceBindings> m_bindings;
+    std::unique_ptr<QRhiGraphicsPipeline> m_pipeline;
+    std::unique_ptr<QRhiRenderPassDescriptor> m_pipelinePass;
+    int m_pipelineSamples = 0;
+    bool m_pipelineNv12 = false;
+    bool m_bindingsStale = true;
     std::array<Plane, 3> m_planes;
-
-    std::array<ID3D11ShaderResourceView*, 3> m_views{};
-    UINT m_viewCount = 0;
+    std::size_t m_planeCount = 0;
     bool m_nv12 = false;
-    float m_visibleWidth = 1.0F;
-    float m_visibleHeight = 1.0F;
     float m_texelWidth = 0.0F;
     float m_texelHeight = 0.0F;
     FilterChain m_filters;
-    std::array<GpuQuerySet, kGpuQuerySets> m_gpuQueries;
-    std::uint64_t m_gpuIssued = 0;
-    std::uint64_t m_gpuRead = 0;
-    bool m_gpuQueriesReady = false;
-    bool m_gpuMeasuring = false;
-    bool m_gpuActive = false;
 };
 
 }

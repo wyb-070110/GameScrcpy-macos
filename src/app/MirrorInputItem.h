@@ -70,6 +70,7 @@ protected:
     void hoverMoveEvent(QHoverEvent* event) override;
     void hoverLeaveEvent(QHoverEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
+    bool swipeWithTrackpad(QWheelEvent* event);
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
     void inputMethodEvent(QInputMethodEvent* event) override;
@@ -87,6 +88,11 @@ private:
     [[nodiscard]] bool pressRelative(QMouseEvent* event, bool down);
 
     QRectF m_content;
+    // A trackpad swipe (scroll phases) under way as one finger on the phone, and where that finger is.
+    bool m_swiping = false;
+    // The finger reached the phone's edge and was lifted; the rest of this swipe is dropped.
+    bool m_swipeSpent = false;
+    QPointF m_swipePoint;
     QPointF m_lastPress;
     bool m_capturing = false;
     bool m_typing = false;

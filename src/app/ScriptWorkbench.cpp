@@ -921,7 +921,7 @@ std::vector<ScriptProblem> ScriptWorkbench::problemsFor(const QString& path) con
 
 QString ScriptWorkbench::tool() const
 {
-    return QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("gs.exe"));
+    return QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("gs"));
 }
 
 QString ScriptWorkbench::fingerprint() const

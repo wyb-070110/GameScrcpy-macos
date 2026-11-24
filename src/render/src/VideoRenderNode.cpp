@@ -4,17 +4,15 @@
 
 #include <gs/media/ColorMatrix.h>
 
-#include "video_ps_copy.h"
-#include "video_ps_nv12.h"
-#include "video_ps_planar.h"
-#include "video_vs.h"
-
 extern "C" {
 #include <libavutil/frame.h>
 #include <libavutil/pixfmt.h>
 }
 
+#include <CoreVideo/CoreVideo.h>
+
 #include <QDebug>
+#include <QFile>
 #include <QMatrix4x4>
 #include <QQuickWindow>
 #include <QRunnable>
@@ -37,30 +35,10 @@ struct Parameters {
 };
 static_assert(sizeof(Parameters) % 16 == 0);
 
-void setCropOf(Parameters& parameters, const QRectF& crop)
+QShader shaderAt(const QString& name)
 {
-    parameters.crop[0] = static_cast<float>(crop.x());
-    parameters.crop[1] = static_cast<float>(crop.y());
-    parameters.crop[2] = static_cast<float>(crop.width());
-    parameters.crop[3] = static_cast<float>(crop.height());
-}
-
-constexpr std::size_t kMaxCachedSurfaces = 64;
-std::atomic<bool> gpuQueriesMissingLogged{false};
-constexpr float kFullScreen[4][4] = {{-1.0F, 1.0F, 0.0F, 1.0F},
-                                     {1.0F, 1.0F, 0.0F, 1.0F},
-                                     {-1.0F, -1.0F, 0.0F, 1.0F},
-                                     {1.0F, -1.0F, 0.0F, 1.0F}};
-
-bool upload(ID3D11DeviceContext* context, ID3D11Buffer* buffer, const Parameters& parameters)
-{
-    D3D11_MAPPED_SUBRESOURCE mapped{};
-    if (FAILED(context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) {
-        return false;
-    }
-    std::memcpy(mapped.pData, &parameters, sizeof(parameters));
-    context->Unmap(buffer, 0);
-    return true;
+    QFile file(QStringLiteral(":/gs/render/shaders/") + name + QStringLiteral(".qsb"));
+    return file.open(QIODevice::ReadOnly) ? QShader::fromSerialized(file.readAll()) : QShader();
 }
 
 class RepaintJob final : public QRunnable
@@ -123,7 +101,6 @@ void VideoRenderNode::setSource(std::shared_ptr<FrameSlot> slot, bool frozen)
             m_slot->clearRenderWaker(this);
         }
         m_slot = std::move(slot);
-        m_gpuMeasuring = false;
         installWake();
     }
     m_frozen = frozen;
@@ -213,26 +190,20 @@ void VideoRenderNode::prepare()
     m_wake->posted.store(false, std::memory_order_release);
     takeFrame();
     m_drawnRect = fitted(croppedSize(frameSize(), m_crop), m_bounds);
-    if (m_window == nullptr) {
-        return;
-    }
-    QSGRendererInterface* renderer = m_window->rendererInterface();
-    if (renderer == nullptr) {
+    QRhi* rhi = m_window != nullptr ? m_window->rhi() : nullptr;
+    QRhiCommandBuffer* commands = commandBuffer();
+    if (rhi == nullptr || commands == nullptr || renderTarget() == nullptr || !m_frame || !ensureShared(rhi)) {
         m_ready = false;
         return;
     }
-    auto* device = static_cast<ID3D11Device*>(renderer->getResource(m_window, QSGRendererInterface::DeviceResource));
-    auto* context = static_cast<ID3D11DeviceContext*>(
-        renderer->getResource(m_window, QSGRendererInterface::DeviceContextResource));
-    if (device == nullptr || context == nullptr || !m_frame || (!m_vertexShader && !createPipeline(device))) {
-        m_ready = false;
-        return;
-    }
+    QRhiResourceUpdateBatch* updates = rhi->nextResourceUpdateBatch();
     if (m_frameChanged) {
         m_frameChanged = false;
-        m_ready = m_frame.hardware() ? bindSurface(device) : uploadPlanes(device, context);
+        m_ready = uploadFrame(rhi, updates);
     }
-    if (!m_ready) {
+    if (!m_ready || !ensurePipeline(rhi)) {
+        m_ready = false;
+        updates->release();
         return;
     }
 
@@ -253,144 +224,61 @@ void VideoRenderNode::prepare()
         std::memcpy(parameters.toRgb[row], color.rows[row].data(), sizeof(parameters.toRgb[row]));
     }
     parameters.extra[0] = static_cast<float>(inheritedOpacity());
-    parameters.extra[1] = m_visibleWidth;
-    parameters.extra[2] = m_visibleHeight;
+    parameters.extra[1] = 1.0F;
+    parameters.extra[2] = 1.0F;
     parameters.sharpen[0] = m_sharpness;
     parameters.sharpen[1] = m_texelWidth;
     parameters.sharpen[2] = m_texelHeight;
-    setCropOf(parameters, m_crop);
-    if (!upload(context, m_parameters.Get(), parameters)) {
-        m_ready = false;
-        return;
-    }
-    const AVFrame* frame = m_frame.avFrame();
-    if (!m_filters.prepare(device, context, QSize(frame->width, frame->height))) {
-        return;
-    }
-    Parameters offscreen = parameters;
-    std::memcpy(offscreen.corners, kFullScreen, sizeof(kFullScreen));
-    setCropOf(offscreen, QRectF(0.0, 0.0, 1.0, 1.0));
-    offscreen.extra[0] = 1.0F;
-    Parameters shown = parameters;
-    shown.extra[1] = 1.0F;
-    shown.extra[2] = 1.0F;
-    if (!upload(context, m_offscreenParameters.Get(), offscreen) ||
-        !upload(context, m_finalParameters.Get(), shown)) {
-        m_ready = false;
-    }
+    parameters.crop[0] = static_cast<float>(m_crop.x());
+    parameters.crop[1] = static_cast<float>(m_crop.y());
+    parameters.crop[2] = static_cast<float>(m_crop.width());
+    parameters.crop[3] = static_cast<float>(m_crop.height());
+    updates->updateDynamicBuffer(m_parameters.get(), 0, sizeof(parameters), &parameters);
+    commands->resourceUpdate(updates);
 }
 
 void VideoRenderNode::render(const RenderState* state)
 {
-    if (!m_ready) {
+    if (!m_ready || m_pipeline == nullptr || m_bindings == nullptr) {
         return;
     }
     if (m_drewFrame) {
         m_drewFrame = false;
         m_present.drew(m_takenPtsUs, m_takenReceivedUs, m_takenUs);
     }
-    auto* context = static_cast<ID3D11DeviceContext*>(
-        m_window->rendererInterface()->getResource(m_window, QSGRendererInterface::DeviceContextResource));
+    QRhiCommandBuffer* commands = commandBuffer();
     const QSize target = renderTarget()->pixelSize();
-    ID3D11PixelShader* const picture = m_nv12 ? m_nv12Shader.Get() : m_planarShader.Get();
-    startGpuTiming(context);
-    markGpuBegin(context);
-    if (!m_filters.active()) {
-        bindWindow(context, state, target);
-        draw(context, m_parameters.Get(), picture, m_views.data(), m_viewCount);
-        finishGpuTiming(context);
-        return;
-    }
-    ComPtr<ID3D11RenderTargetView> window;
-    ComPtr<ID3D11DepthStencilView> depth;
-    context->OMGetRenderTargets(1, window.GetAddressOf(), depth.GetAddressOf());
-    ID3D11RenderTargetView* const original = m_filters.originalTarget();
-    context->OMSetRenderTargets(1, &original, nullptr);
-    const QSize size = m_filters.originalSize();
-    const D3D11_VIEWPORT viewport{0.0F, 0.0F, static_cast<float>(size.width()), static_cast<float>(size.height()),
-                                  0.0F, 1.0F};
-    context->RSSetViewports(1, &viewport);
-    context->RSSetState(m_rasterizers[0].Get());
-    constexpr float kBlendFactor[4] = {};
-    context->OMSetBlendState(m_blend.Get(), kBlendFactor, 0xFFFFFFFFU);
-    context->OMSetDepthStencilState(m_depthStencil.Get(), 0);
-    draw(context, m_offscreenParameters.Get(), picture, m_views.data(), m_viewCount);
-    ID3D11ShaderResourceView* const filtered = m_filters.run(context);
-    context->OMSetRenderTargets(1, window.GetAddressOf(), depth.Get());
-    bindWindow(context, state, target);
-    draw(context, m_finalParameters.Get(), m_copyShader.Get(), &filtered, 1);
-    finishGpuTiming(context);
-}
-
-void VideoRenderNode::bindWindow(ID3D11DeviceContext* context, const RenderState* state, QSize target)
-{
-    const D3D11_VIEWPORT viewport{0.0F, 0.0F, static_cast<float>(target.width()), static_cast<float>(target.height()),
-                                  0.0F, 1.0F};
-    context->RSSetViewports(1, &viewport);
-    const bool scissor = state->scissorEnabled();
-    if (scissor) {
+    commands->setGraphicsPipeline(m_pipeline.get());
+    commands->setViewport(QRhiViewport(0.0F, 0.0F, static_cast<float>(target.width()),
+                                       static_cast<float>(target.height())));
+    if (state->scissorEnabled()) {
         const QRect clip = state->scissorRect();
-        const D3D11_RECT rect{clip.x(), target.height() - (clip.y() + clip.height()), clip.x() + clip.width(),
-                              target.height() - clip.y()};
-        context->RSSetScissorRects(1, &rect);
+        commands->setScissor(QRhiScissor(clip.x(), clip.y(), clip.width(), clip.height()));
+    } else {
+        commands->setScissor(QRhiScissor(0, 0, target.width(), target.height()));
     }
-    context->RSSetState(m_rasterizers[scissor ? 1 : 0].Get());
-    constexpr float kBlendFactor[4] = {};
-    context->OMSetBlendState(m_blend.Get(), kBlendFactor, 0xFFFFFFFFU);
-    context->OMSetDepthStencilState(m_depthStencil.Get(), 0);
-}
-
-void VideoRenderNode::draw(ID3D11DeviceContext* context, ID3D11Buffer* parameters, ID3D11PixelShader* shader,
-                           ID3D11ShaderResourceView* const* views, UINT count)
-{
-    context->IASetInputLayout(nullptr);
-    context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-    context->VSSetShader(m_vertexShader.Get(), nullptr, 0);
-    context->VSSetConstantBuffers(0, 1, &parameters);
-    context->PSSetShader(shader, nullptr, 0);
-    context->PSSetConstantBuffers(0, 1, &parameters);
-    context->PSSetShaderResources(0, count, views);
-    context->PSSetSamplers(0, 1, m_sampler.GetAddressOf());
-    context->Draw(4, 0);
-    ID3D11ShaderResourceView* const unbound[3] = {};
-    context->PSSetShaderResources(0, 3, unbound);
+    commands->setShaderResources(m_bindings.get());
+    commands->draw(4);
 }
 
 void VideoRenderNode::releaseResources()
 {
     m_ready = false;
     m_frameChanged = static_cast<bool>(m_frame);
-    m_views = {};
-    m_viewCount = 0;
-    m_surfaces.clear();
+    m_pipeline.reset();
+    m_pipelinePass.reset();
+    m_bindings.reset();
+    m_bindingsStale = true;
     m_planes = {};
-    m_vertexShader.Reset();
-    m_nv12Shader.Reset();
-    m_planarShader.Reset();
-    m_copyShader.Reset();
-    m_parameters.Reset();
-    m_offscreenParameters.Reset();
-    m_finalParameters.Reset();
-    m_sampler.Reset();
-    m_rasterizers = {};
-    m_blend.Reset();
-    m_depthStencil.Reset();
+    m_planeCount = 0;
+    m_parameters.reset();
+    m_sampler.reset();
     m_filters.release();
-    for (GpuQuerySet& set : m_gpuQueries) {
-        set.disjoint.Reset();
-        set.begin.Reset();
-        set.end.Reset();
-    }
-    m_gpuQueriesReady = false;
-    m_gpuMeasuring = false;
-    m_gpuActive = false;
-    m_gpuIssued = 0;
-    m_gpuRead = 0;
 }
 
 QSGRenderNode::StateFlags VideoRenderNode::changedStates() const
 {
-    return ViewportState | ScissorState | RenderTargetState;
+    return ViewportState | ScissorState;
 }
 
 QSGRenderNode::RenderingFlags VideoRenderNode::flags() const
@@ -403,259 +291,174 @@ QRectF VideoRenderNode::rect() const
     return m_bounds;
 }
 
-bool VideoRenderNode::createPipeline(ID3D11Device* device)
+bool VideoRenderNode::ensureShared(QRhi* rhi)
 {
-    D3D11_BUFFER_DESC buffer{};
-    buffer.ByteWidth = sizeof(Parameters);
-    buffer.Usage = D3D11_USAGE_DYNAMIC;
-    buffer.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    buffer.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    if (m_parameters == nullptr) {
+        m_parameters.reset(rhi->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::UniformBuffer, sizeof(Parameters)));
+        if (!m_parameters->create()) {
+            m_parameters.reset();
+            return false;
+        }
+    }
+    if (m_sampler == nullptr) {
+        m_sampler.reset(rhi->newSampler(QRhiSampler::Linear, QRhiSampler::Linear, QRhiSampler::None,
+                                        QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge));
+        if (!m_sampler->create()) {
+            m_sampler.reset();
+            return false;
+        }
+    }
+    return true;
+}
 
-    D3D11_SAMPLER_DESC sampler{};
-    sampler.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    sampler.AddressU = sampler.AddressV = sampler.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-    sampler.MaxLOD = D3D11_FLOAT32_MAX;
-
-    D3D11_RASTERIZER_DESC rasterizer{};
-    rasterizer.FillMode = D3D11_FILL_SOLID;
-    rasterizer.CullMode = D3D11_CULL_NONE;
-    rasterizer.DepthClipEnable = TRUE;
-
-    D3D11_BLEND_DESC blend{};
-    blend.RenderTarget[0].BlendEnable = TRUE;
-    blend.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-    blend.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-    blend.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-    blend.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-    blend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-    blend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-    blend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-
-    const D3D11_DEPTH_STENCIL_DESC depthStencil{};
-
-    bool created = SUCCEEDED(device->CreateVertexShader(kVideoVertexShader, sizeof(kVideoVertexShader), nullptr,
-                                                        &m_vertexShader)) &&
-                   SUCCEEDED(device->CreatePixelShader(kVideoPixelShaderNv12, sizeof(kVideoPixelShaderNv12), nullptr,
-                                                       &m_nv12Shader)) &&
-                   SUCCEEDED(device->CreatePixelShader(kVideoPixelShaderPlanar, sizeof(kVideoPixelShaderPlanar),
-                                                       nullptr, &m_planarShader)) &&
-                   SUCCEEDED(device->CreatePixelShader(kVideoPixelShaderCopy, sizeof(kVideoPixelShaderCopy), nullptr,
-                                                       &m_copyShader)) &&
-                   SUCCEEDED(device->CreateBuffer(&buffer, nullptr, &m_parameters)) &&
-                   SUCCEEDED(device->CreateBuffer(&buffer, nullptr, &m_offscreenParameters)) &&
-                   SUCCEEDED(device->CreateBuffer(&buffer, nullptr, &m_finalParameters)) &&
-                   SUCCEEDED(device->CreateSamplerState(&sampler, &m_sampler)) &&
-                   SUCCEEDED(device->CreateRasterizerState(&rasterizer, &m_rasterizers[0])) &&
-                   SUCCEEDED(device->CreateBlendState(&blend, &m_blend)) &&
-                   SUCCEEDED(device->CreateDepthStencilState(&depthStencil, &m_depthStencil));
-    rasterizer.ScissorEnable = TRUE;
-    created = created && SUCCEEDED(device->CreateRasterizerState(&rasterizer, &m_rasterizers[1]));
-    if (!created) {
-        releaseResources();
+bool VideoRenderNode::ensurePipeline(QRhi* rhi)
+{
+    if (m_bindingsStale || m_bindings == nullptr) {
+        QVarLengthArray<QRhiShaderResourceBinding, 4> entries;
+        entries.append(QRhiShaderResourceBinding::uniformBuffer(
+            0, QRhiShaderResourceBinding::VertexStage | QRhiShaderResourceBinding::FragmentStage, m_parameters.get()));
+        for (std::size_t index = 0; index < m_planeCount; ++index) {
+            entries.append(QRhiShaderResourceBinding::sampledTexture(static_cast<int>(index) + 1,
+                                                                     QRhiShaderResourceBinding::FragmentStage,
+                                                                     m_planes[index].texture.get(), m_sampler.get()));
+        }
+        m_bindings.reset(rhi->newShaderResourceBindings());
+        m_bindings->setBindings(entries.cbegin(), entries.cend());
+        if (!m_bindings->create()) {
+            m_bindings.reset();
+            return false;
+        }
+        m_bindingsStale = false;
+        m_pipeline.reset();
+    }
+    QRhiRenderPassDescriptor* pass = renderTarget()->renderPassDescriptor();
+    const int samples = renderTarget()->sampleCount();
+    if (m_pipeline != nullptr && m_pipelineNv12 == m_nv12 && m_pipelineSamples == samples && m_pipelinePass &&
+        m_pipelinePass->isCompatible(pass)) {
+        return true;
+    }
+    const QShader vertex = shaderAt(QStringLiteral("video.vert"));
+    const QShader fragment = shaderAt(m_nv12 ? QStringLiteral("video_nv12.frag") : QStringLiteral("video_planar.frag"));
+    if (!vertex.isValid() || !fragment.isValid()) {
+        qWarning() << "video shaders are missing from the resources";
         return false;
     }
-    createGpuQueries(device);
-    return true;
-}
-
-void VideoRenderNode::createGpuQueries(ID3D11Device* device)
-{
-    const D3D11_QUERY_DESC disjoint{D3D11_QUERY_TIMESTAMP_DISJOINT, 0};
-    const D3D11_QUERY_DESC stamp{D3D11_QUERY_TIMESTAMP, 0};
-    bool created = true;
-    for (GpuQuerySet& set : m_gpuQueries) {
-        created = created && SUCCEEDED(device->CreateQuery(&disjoint, &set.disjoint));
-    }
-    for (GpuQuerySet& set : m_gpuQueries) {
-        created = created && SUCCEEDED(device->CreateQuery(&stamp, &set.begin));
-        created = created && SUCCEEDED(device->CreateQuery(&stamp, &set.end));
-    }
-    m_gpuQueriesReady = created;
-    if (!created) {
-        for (GpuQuerySet& set : m_gpuQueries) {
-            set.disjoint.Reset();
-            set.begin.Reset();
-            set.end.Reset();
-        }
-        if (!gpuQueriesMissingLogged.exchange(true, std::memory_order_relaxed)) {
-            qDebug() << "video render node: the device has no timestamp queries, the graphics card time is not "
-                        "measured";
-        }
-    }
-}
-
-void VideoRenderNode::startGpuTiming(ID3D11DeviceContext* context)
-{
-    if (!m_gpuQueriesReady || !m_slot || !m_slot->gpuTiming()) {
-        m_gpuActive = false;
-        m_gpuMeasuring = false;
-        return;
-    }
-    if (!m_gpuMeasuring) {
-        m_gpuMeasuring = true;
-        m_gpuIssued = 0;
-        m_gpuRead = 0;
-    } else {
-        readGpuSamples(context);
-    }
-    context->Begin(m_gpuQueries[m_gpuIssued % kGpuQuerySets].disjoint.Get());
-    m_gpuActive = true;
-}
-
-void VideoRenderNode::markGpuBegin(ID3D11DeviceContext* context)
-{
-    if (!m_gpuActive) {
-        return;
-    }
-    context->End(m_gpuQueries[m_gpuIssued % kGpuQuerySets].begin.Get());
-}
-
-void VideoRenderNode::finishGpuTiming(ID3D11DeviceContext* context)
-{
-    if (!m_gpuActive) {
-        return;
-    }
-    GpuQuerySet& set = m_gpuQueries[m_gpuIssued % kGpuQuerySets];
-    context->End(set.end.Get());
-    context->End(set.disjoint.Get());
-    ++m_gpuIssued;
-    m_gpuActive = false;
-}
-
-void VideoRenderNode::readGpuSamples(ID3D11DeviceContext* context)
-{
-    while (m_gpuRead < m_gpuIssued) {
-        GpuQuerySet& set = m_gpuQueries[m_gpuRead % kGpuQuerySets];
-        D3D11_QUERY_DATA_TIMESTAMP_DISJOINT disjoint{};
-        const HRESULT state =
-            context->GetData(set.disjoint.Get(), &disjoint, sizeof(disjoint), D3D11_ASYNC_GETDATA_DONOTFLUSH);
-        if (state == S_FALSE && m_gpuIssued - m_gpuRead < kGpuQuerySets) {
-            return;
-        }
-        ++m_gpuRead;
-        if (state != S_OK || disjoint.Disjoint || disjoint.Frequency == 0) {
-            continue;
-        }
-        UINT64 startTicks = 0;
-        UINT64 endTicks = 0;
-        if (context->GetData(set.begin.Get(), &startTicks, sizeof(startTicks), D3D11_ASYNC_GETDATA_DONOTFLUSH) !=
-                S_OK ||
-            context->GetData(set.end.Get(), &endTicks, sizeof(endTicks), D3D11_ASYNC_GETDATA_DONOTFLUSH) != S_OK ||
-            endTicks <= startTicks) {
-            continue;
-        }
-        if (m_slot) {
-            m_slot->recordGpuTime(static_cast<double>(endTicks - startTicks) * 1000.0 /
-                                  static_cast<double>(disjoint.Frequency));
-        }
-    }
-}
-
-bool VideoRenderNode::bindSurface(ID3D11Device* device)
-{
-    const AVFrame* frame = m_frame.avFrame();
-    auto* texture = reinterpret_cast<ID3D11Texture2D*>(frame->data[0]);
-    const auto slice = static_cast<UINT>(reinterpret_cast<std::uintptr_t>(frame->data[1]));
-    if (m_frame.session() != m_surfacesSession || m_surfaces.size() >= kMaxCachedSurfaces) {
-        m_surfaces.clear();
-        m_surfacesSession = m_frame.session();
-    }
-    SurfaceViews& views = m_surfaces[{texture, slice}];
-    if (!views.luma) {
-        D3D11_TEXTURE2D_DESC description{};
-        texture->GetDesc(&description);
-        if (description.Format != DXGI_FORMAT_NV12 || (description.BindFlags & D3D11_BIND_SHADER_RESOURCE) == 0) {
-            return false;
-        }
-        D3D11_SHADER_RESOURCE_VIEW_DESC view{};
-        view.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-        view.Texture2DArray.MipLevels = 1;
-        view.Texture2DArray.FirstArraySlice = slice;
-        view.Texture2DArray.ArraySize = 1;
-        view.Format = DXGI_FORMAT_R8_UNORM;
-        if (FAILED(device->CreateShaderResourceView(texture, &view, &views.luma))) {
-            return false;
-        }
-        view.Format = DXGI_FORMAT_R8G8_UNORM;
-        if (FAILED(device->CreateShaderResourceView(texture, &view, &views.chroma))) {
-            views.luma.Reset();
-            return false;
-        }
-        views.texture = texture;
-        views.width = description.Width;
-        views.height = description.Height;
-    }
-    m_views = {views.luma.Get(), views.chroma.Get(), nullptr};
-    m_viewCount = 2;
-    m_nv12 = true;
-    m_visibleWidth = static_cast<float>(frame->width) / static_cast<float>(views.width);
-    m_visibleHeight = static_cast<float>(frame->height) / static_cast<float>(views.height);
-    m_texelWidth = 1.0F / static_cast<float>(views.width);
-    m_texelHeight = 1.0F / static_cast<float>(views.height);
-    return true;
-}
-
-bool VideoRenderNode::uploadPlanes(ID3D11Device* device, ID3D11DeviceContext* context)
-{
-    const AVFrame* frame = m_frame.avFrame();
-    const bool interleaved = frame->format == AV_PIX_FMT_NV12;
-    if (!interleaved && frame->format != AV_PIX_FMT_YUV420P && frame->format != AV_PIX_FMT_YUVJ420P) {
+    m_pipeline.reset(rhi->newGraphicsPipeline());
+    m_pipeline->setTopology(QRhiGraphicsPipeline::TriangleStrip);
+    m_pipeline->setShaderStages({{QRhiShaderStage::Vertex, vertex}, {QRhiShaderStage::Fragment, fragment}});
+    m_pipeline->setVertexInputLayout({});
+    m_pipeline->setShaderResourceBindings(m_bindings.get());
+    m_pipeline->setRenderPassDescriptor(pass);
+    m_pipeline->setSampleCount(samples);
+    m_pipeline->setFlags(QRhiGraphicsPipeline::UsesScissor);
+    QRhiGraphicsPipeline::TargetBlend blend;
+    blend.enable = true;
+    blend.srcColor = QRhiGraphicsPipeline::One;
+    blend.dstColor = QRhiGraphicsPipeline::OneMinusSrcAlpha;
+    blend.srcAlpha = QRhiGraphicsPipeline::One;
+    blend.dstAlpha = QRhiGraphicsPipeline::OneMinusSrcAlpha;
+    m_pipeline->setTargetBlends({blend});
+    if (!m_pipeline->create()) {
+        m_pipeline.reset();
         return false;
     }
-    const std::size_t count = interleaved ? 2 : m_planes.size();
-    for (std::size_t i = 0; i < count; ++i) {
-        const int width = i == 0 ? frame->width : (frame->width + 1) / 2;
-        const int height = i == 0 ? frame->height : (frame->height + 1) / 2;
-        const DXGI_FORMAT format = interleaved && i == 1 ? DXGI_FORMAT_R8G8_UNORM : DXGI_FORMAT_R8_UNORM;
-        const std::size_t rowBytes = static_cast<std::size_t>(width) * (format == DXGI_FORMAT_R8G8_UNORM ? 2U : 1U);
-        Plane& plane = m_planes[i];
-        if (plane.width != width || plane.height != height || plane.format != format) {
-            plane = {};
-            D3D11_TEXTURE2D_DESC description{};
-            description.Width = static_cast<UINT>(width);
-            description.Height = static_cast<UINT>(height);
-            description.MipLevels = 1;
-            description.ArraySize = 1;
-            description.Format = format;
-            description.SampleDesc.Count = 1;
-            description.Usage = D3D11_USAGE_DYNAMIC;
-            description.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-            description.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-            D3D11_SHADER_RESOURCE_VIEW_DESC view{};
-            view.Format = format;
-            view.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-            view.Texture2DArray.MipLevels = 1;
-            view.Texture2DArray.ArraySize = 1;
-            if (FAILED(device->CreateTexture2D(&description, nullptr, &plane.texture)) ||
-                FAILED(device->CreateShaderResourceView(plane.texture.Get(), &view, &plane.view))) {
-                plane = {};
-                return false;
-            }
-            plane.width = width;
-            plane.height = height;
-            plane.format = format;
-        }
-        D3D11_MAPPED_SUBRESOURCE mapped{};
-        if (FAILED(context->Map(plane.texture.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) {
+    m_pipelinePass.reset(pass->newCompatibleRenderPassDescriptor());
+    m_pipelineNv12 = m_nv12;
+    m_pipelineSamples = samples;
+    return true;
+}
+
+bool VideoRenderNode::uploadPlane(QRhi* rhi, QRhiResourceUpdateBatch* updates, std::size_t index, int format,
+                                  QSize size, const void* data, std::size_t stride, std::size_t bytesPerTexel)
+{
+    Plane& plane = m_planes[index];
+    if (plane.texture == nullptr || plane.size != size || plane.format != format) {
+        plane.texture.reset(rhi->newTexture(static_cast<QRhiTexture::Format>(format), size));
+        if (!plane.texture->create()) {
+            plane.texture.reset();
             return false;
         }
-        for (int row = 0; row < height; ++row) {
-            std::memcpy(static_cast<std::uint8_t*>(mapped.pData) + static_cast<std::size_t>(row) * mapped.RowPitch,
-                        frame->data[i] + static_cast<std::ptrdiff_t>(row) * frame->linesize[i], rowBytes);
-        }
-        context->Unmap(plane.texture.Get(), 0);
-        m_views[i] = plane.view.Get();
+        plane.size = size;
+        plane.format = format;
+        m_bindingsStale = true;
     }
-    if (interleaved) {
-        m_views[2] = nullptr;
-    }
-    m_viewCount = static_cast<UINT>(count);
-    m_nv12 = interleaved;
-    m_visibleWidth = 1.0F;
-    m_visibleHeight = 1.0F;
-    m_texelWidth = 1.0F / static_cast<float>(m_planes[0].width);
-    m_texelHeight = 1.0F / static_cast<float>(m_planes[0].height);
+    const std::size_t rowBytes = static_cast<std::size_t>(size.width()) * bytesPerTexel;
+    QRhiTextureSubresourceUploadDescription part(data, static_cast<quint32>(stride * (size.height() - 1) + rowBytes));
+    part.setDataStride(static_cast<quint32>(stride));
+    updates->uploadTexture(plane.texture.get(), QRhiTextureUploadDescription({0, 0, part}));
     return true;
+}
+
+bool VideoRenderNode::uploadFrame(QRhi* rhi, QRhiResourceUpdateBatch* updates)
+{
+    const AVFrame* frame = m_frame.avFrame();
+    const QSize full(frame->width, frame->height);
+    const QSize half((frame->width + 1) / 2, (frame->height + 1) / 2);
+    m_texelWidth = frame->width > 0 ? 1.0F / static_cast<float>(frame->width) : 0.0F;
+    m_texelHeight = frame->height > 0 ? 1.0F / static_cast<float>(frame->height) : 0.0F;
+    const bool wasNv12 = m_nv12;
+    const std::size_t hadPlanes = m_planeCount;
+    bool uploaded = false;
+    switch (static_cast<AVPixelFormat>(frame->format)) {
+    case AV_PIX_FMT_VIDEOTOOLBOX: {
+        // A decoder surface: NV12 in an IOSurface-backed pixel buffer, 8 or 10 bits (P010 layout).
+        auto* buffer = reinterpret_cast<CVPixelBufferRef>(frame->data[3]);
+        if (buffer == nullptr || CVPixelBufferGetPlaneCount(buffer) != 2 ||
+            CVPixelBufferLockBaseAddress(buffer, kCVPixelBufferLock_ReadOnly) != kCVReturnSuccess) {
+            break;
+        }
+        const OSType type = CVPixelBufferGetPixelFormatType(buffer);
+        const bool deep = type == kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange ||
+                          type == kCVPixelFormatType_420YpCbCr10BiPlanarFullRange;
+        const std::size_t texel = deep ? 2 : 1;
+        const QSize luma(static_cast<int>(CVPixelBufferGetWidthOfPlane(buffer, 0)),
+                         static_cast<int>(CVPixelBufferGetHeightOfPlane(buffer, 0)));
+        const QSize chroma(static_cast<int>(CVPixelBufferGetWidthOfPlane(buffer, 1)),
+                           static_cast<int>(CVPixelBufferGetHeightOfPlane(buffer, 1)));
+        uploaded = uploadPlane(rhi, updates, 0, deep ? QRhiTexture::R16 : QRhiTexture::R8, luma,
+                               CVPixelBufferGetBaseAddressOfPlane(buffer, 0), CVPixelBufferGetBytesPerRowOfPlane(buffer, 0),
+                               texel) &&
+                   uploadPlane(rhi, updates, 1, deep ? QRhiTexture::RG16 : QRhiTexture::RG8, chroma,
+                               CVPixelBufferGetBaseAddressOfPlane(buffer, 1), CVPixelBufferGetBytesPerRowOfPlane(buffer, 1),
+                               texel * 2);
+        CVPixelBufferUnlockBaseAddress(buffer, kCVPixelBufferLock_ReadOnly);
+        m_nv12 = true;
+        m_planeCount = 2;
+        break;
+    }
+    case AV_PIX_FMT_NV12:
+    case AV_PIX_FMT_P010LE: {
+        const bool deep = frame->format == AV_PIX_FMT_P010LE;
+        uploaded = uploadPlane(rhi, updates, 0, deep ? QRhiTexture::R16 : QRhiTexture::R8, full, frame->data[0],
+                               static_cast<std::size_t>(frame->linesize[0]), deep ? 2 : 1) &&
+                   uploadPlane(rhi, updates, 1, deep ? QRhiTexture::RG16 : QRhiTexture::RG8, half, frame->data[1],
+                               static_cast<std::size_t>(frame->linesize[1]), deep ? 4 : 2);
+        m_nv12 = true;
+        m_planeCount = 2;
+        break;
+    }
+    case AV_PIX_FMT_YUV420P:
+    case AV_PIX_FMT_YUVJ420P:
+        uploaded = uploadPlane(rhi, updates, 0, QRhiTexture::R8, full, frame->data[0],
+                               static_cast<std::size_t>(frame->linesize[0]), 1) &&
+                   uploadPlane(rhi, updates, 1, QRhiTexture::R8, half, frame->data[1],
+                               static_cast<std::size_t>(frame->linesize[1]), 1) &&
+                   uploadPlane(rhi, updates, 2, QRhiTexture::R8, half, frame->data[2],
+                               static_cast<std::size_t>(frame->linesize[2]), 1);
+        m_nv12 = false;
+        m_planeCount = 3;
+        break;
+    default:
+        if (!m_unsupportedLogged) {
+            m_unsupportedLogged = true;
+            qWarning() << "video frames in pixel format" << frame->format << "are not drawn on macOS";
+        }
+        break;
+    }
+    if (m_nv12 != wasNv12 || m_planeCount != hadPlanes) {
+        m_bindingsStale = true;
+    }
+    return uploaded;
 }
 
 }

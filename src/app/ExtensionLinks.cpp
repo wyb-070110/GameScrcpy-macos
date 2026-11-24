@@ -20,9 +20,12 @@
 #include <QUuid>
 #include <QVariant>
 
-#include <windows.h>
+#include <QProcess>
 
-#include <shellapi.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <crt_externs.h>
+#include <CoreServices/CoreServices.h>
+
 
 #include <algorithm>
 #include <array>
@@ -55,17 +58,10 @@ bool isLink(const QString& argument)
 
 QStringList qtArgumentsOf(const QString& commandLine)
 {
-    const std::wstring text = commandLine.toStdWString();
-    int count = 0;
-    wchar_t** const split = CommandLineToArgvW(text.c_str(), &count);
-    if (split == nullptr) {
-        return {};
+    QStringList arguments = QProcess::splitCommand(commandLine);
+    if (!arguments.isEmpty()) {
+        arguments.removeFirst();
     }
-    QStringList arguments;
-    for (int index = 1; index < count; ++index) {
-        arguments.append(QString::fromWCharArray(split[index]));
-    }
-    LocalFree(split);
     return arguments;
 }
 
@@ -107,57 +103,32 @@ std::optional<ExtensionLink> installLink(const QString& query)
                          .id = {}};
 }
 
-std::optional<QString> readDefault(HKEY root, const QString& key)
+// The bundle of this program, which macOS names as the handler of gamescrcpy:// links (Info.plist declares the
+// scheme; LaunchServices keeps the user's choice of handler).
+QString ownBundle()
 {
-    const std::wstring path = key.toStdWString();
-    DWORD size = 0;
-    if (RegGetValueW(root, path.c_str(), nullptr, RRF_RT_REG_SZ, nullptr, nullptr, &size) != ERROR_SUCCESS ||
-        size == 0) {
-        return std::nullopt;
-    }
-    std::wstring value(size / sizeof(wchar_t), L'\0');
-    if (RegGetValueW(root, path.c_str(), nullptr, RRF_RT_REG_SZ, nullptr, value.data(), &size) != ERROR_SUCCESS) {
-        return std::nullopt;
-    }
-    value.resize(std::wcslen(value.c_str()));
-    return QString::fromStdWString(value);
+    const CFStringRef identifier = CFBundleGetIdentifier(CFBundleGetMainBundle());
+    return identifier != nullptr ? QString::fromCFString(identifier) : QString();
 }
 
-bool writeValue(const QString& key, const wchar_t* name, const QString& value)
+QString linkHandler()
 {
-    const std::wstring path = key.toStdWString();
-    HKEY opened = nullptr;
-    if (RegCreateKeyExW(HKEY_CURRENT_USER, path.c_str(), 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr,
-                        &opened, nullptr) != ERROR_SUCCESS) {
-        return false;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    const CFStringRef handler = LSCopyDefaultHandlerForURLScheme(CFSTR("gamescrcpy"));
+#pragma clang diagnostic pop
+    if (handler == nullptr) {
+        return {};
     }
-    const std::wstring text = value.toStdWString();
-    const LSTATUS status = RegSetValueExW(opened, name, 0, REG_SZ, reinterpret_cast<const BYTE*>(text.c_str()),
-                                          static_cast<DWORD>((text.size() + 1) * sizeof(wchar_t)));
-    RegCloseKey(opened);
-    return status == ERROR_SUCCESS;
+    const QString named = QString::fromCFString(handler);
+    CFRelease(handler);
+    return named;
 }
 
-QString commandKey(const QString& classesKey)
+// A QLocalSocket is a Unix socket on macOS: it only ever comes from this computer.
+bool fromAnotherComputer(const QLocalSocket&)
 {
-    return classesKey + QStringLiteral("\\gamescrcpy\\shell\\open\\command");
-}
-
-bool fromAnotherComputer(const QLocalSocket& socket)
-{
-    const auto handle = reinterpret_cast<HANDLE>(socket.socketDescriptor());
-    std::array<wchar_t, 256> client{};
-    if (handle == nullptr || handle == INVALID_HANDLE_VALUE ||
-        GetNamedPipeClientComputerNameW(handle, client.data(), static_cast<ULONG>(client.size() * sizeof(wchar_t))) ==
-            FALSE) {
-        return false;
-    }
-    std::array<wchar_t, 256> own{};
-    auto length = static_cast<DWORD>(own.size());
-    if (GetComputerNameExW(ComputerNameNetBIOS, own.data(), &length) == FALSE) {
-        return true;
-    }
-    return CompareStringOrdinal(client.data(), -1, own.data(), -1, TRUE) != CSTR_EQUAL;
+    return false;
 }
 
 }
@@ -207,9 +178,18 @@ std::optional<QString> linkArgument(const QStringList& arguments, const QString&
     return qtArguments.front();
 }
 
+// macOS has no command line apart from the arguments: they are joined again, each one quoted (a quote inside as
+// three quotes, as QProcess::splitCommand reads it), for qtArgumentsOf.
 QString ownCommandLine()
 {
-    return QString::fromWCharArray(GetCommandLineW());
+    QStringList quoted;
+    char** const words = *_NSGetArgv();
+    for (int index = 0; index < *_NSGetArgc(); ++index) {
+        QString argument = QString::fromUtf8(words[index]);
+        argument.replace(QLatin1Char('"'), QStringLiteral("\"\"\""));
+        quoted.append(QLatin1Char('"') + argument + QLatin1Char('"'));
+    }
+    return quoted.join(QLatin1Char(' '));
 }
 
 QString shownHost(const QUrl& url)
@@ -225,40 +205,35 @@ QString linkPipeName(const std::filesystem::path& dataDirectory)
     return QStringLiteral("GameScrcpy-links-") + QString::fromLatin1(digest);
 }
 
-QString schemeCommand(const QString& program)
+SchemeRegistration schemeRegistration(const QString&, const QString&)
 {
-    return QStringLiteral("\"") + QDir::toNativeSeparators(program) + QStringLiteral("\" \"%1\"");
-}
-
-SchemeRegistration schemeRegistration(const QString& classesKey, const QString& program)
-{
-    const std::optional<QString> command = readDefault(HKEY_CURRENT_USER, commandKey(classesKey));
-    if (!command) {
+    const QString handler = linkHandler();
+    if (handler.isEmpty()) {
         return SchemeRegistration::None;
     }
-    return command->compare(schemeCommand(program), Qt::CaseInsensitive) == 0 ? SchemeRegistration::This
-                                                                              : SchemeRegistration::Other;
+    return handler.compare(ownBundle(), Qt::CaseInsensitive) == 0 ? SchemeRegistration::This
+                                                                   : SchemeRegistration::Other;
 }
 
-bool registerScheme(const QString& classesKey, const QString& program)
+bool registerScheme(const QString&, const QString&)
 {
-    const QString base = classesKey + QStringLiteral("\\gamescrcpy");
-    return writeValue(base, nullptr, QStringLiteral("URL:GameScrcpy")) &&
-           writeValue(base, L"URL Protocol", QString()) &&
-           writeValue(base + QStringLiteral("\\DefaultIcon"), nullptr,
-                      QStringLiteral("\"") + QDir::toNativeSeparators(program) + QStringLiteral("\",0")) &&
-           writeValue(commandKey(classesKey), nullptr, schemeCommand(program));
-}
-
-bool unregisterScheme(const QString& classesKey, const QString& program)
-{
-    if (schemeRegistration(classesKey, program) != SchemeRegistration::This) {
+    const QString bundle = ownBundle();
+    if (bundle.isEmpty()) {
         return false;
     }
-    const std::wstring base = (classesKey + QStringLiteral("\\gamescrcpy")).toStdWString();
-    RegDeleteTreeW(HKEY_CURRENT_USER, base.c_str());
-    RegDeleteKeyW(HKEY_CURRENT_USER, base.c_str());
-    return schemeRegistration(classesKey, program) == SchemeRegistration::None;
+    const CFStringRef named = bundle.toCFString();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    const OSStatus status = LSSetDefaultHandlerForURLScheme(CFSTR("gamescrcpy"), named);
+#pragma clang diagnostic pop
+    CFRelease(named);
+    return status == noErr;
+}
+
+// macOS has no way to give up being a scheme's handler; only another program taking it over ends it.
+bool unregisterScheme(const QString& classesKey, const QString& program)
+{
+    return schemeRegistration(classesKey, program) != SchemeRegistration::This;
 }
 
 LinkHandover::LinkHandover(QString name, QObject* parent) : QObject(parent), m_name(std::move(name))
@@ -294,7 +269,6 @@ bool LinkHandover::send(const QString& name, const QString& link, std::chrono::m
     if (!socket.waitForConnected(left())) {
         return false;
     }
-    AllowSetForegroundWindow(ASFW_ANY);
     socket.write(message + '\n');
     while (socket.bytesToWrite() > 0) {
         if (!socket.waitForBytesWritten(left())) {
@@ -437,12 +411,6 @@ QString ExtensionLinks::registration() const
         return QStringLiteral("other");
     case SchemeRegistration::None:
         break;
-    }
-    if (m_classesKey == kDefaultClasses) {
-        if (const std::optional<QString> shared = readDefault(HKEY_LOCAL_MACHINE, commandKey(m_classesKey))) {
-            return shared->compare(schemeCommand(m_program), Qt::CaseInsensitive) == 0 ? QStringLiteral("this")
-                                                                                       : QStringLiteral("other");
-        }
     }
     return QStringLiteral("none");
 }

@@ -18,6 +18,6 @@ QtObject {
 
     final readonly property string iconFamily: installedFamilies.indexOf("Segoe Fluent Icons") >= 0
                                          ? "Segoe Fluent Icons" : "Segoe MDL2 Assets"
-    final readonly property string monoFamily: installedFamilies.indexOf("Cascadia Mono") >= 0
-                                         ? "Cascadia Mono" : "Consolas"
+    final readonly property string monoFamily: installedFamilies.indexOf("SF Mono") >= 0
+                                         ? "SF Mono" : "Menlo"
 }

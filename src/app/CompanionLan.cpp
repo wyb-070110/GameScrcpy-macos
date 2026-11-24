@@ -1,8 +1,16 @@
 #include "CompanionLan.h"
 
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <windows.h>
+#include <arpa/inet.h>
+#include <dns_sd.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <fcntl.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+#include <cerrno>
+#include <cstring>
 
 #include <gs/base/Log.h>
 #include <gs/platform/Crypto.h>
@@ -61,15 +69,6 @@ constexpr std::string_view kPageChinese =
     "<p>下载并安装后，打开 GameScrcpy 伴侣，点“扫码连接”，再扫一次电脑上的二维码。</p><a href=\"";
 constexpr std::string_view kPageChineseEnd = "\">下载 GameScrcpy 伴侣</a></body></html>\n";
 
-bool ensureWinsock() noexcept
-{
-    static const bool ready = [] {
-        WSADATA data{};
-        return WSAStartup(MAKEWORD(2, 2), &data) == 0;
-    }();
-    return ready;
-}
-
 std::string_view trimmed(std::string_view text) noexcept
 {
     const std::size_t begin = text.find_first_not_of(" \t\r\n");
@@ -102,22 +101,26 @@ std::string headOf(std::string_view status, std::string_view type, std::size_t l
 class LanSocket final
 {
 public:
-    explicit LanSocket(SOCKET handle) noexcept
+    explicit LanSocket(int handle) noexcept
         : m_handle(handle)
     {
-        const BOOL noDelay = TRUE;
-        setsockopt(m_handle, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&noDelay), sizeof(noDelay));
+        const int on = 1;
+        setsockopt(m_handle, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
+        setsockopt(m_handle, SOL_SOCKET, SO_NOSIGPIPE, &on, sizeof(on));
     }
 
-    ~LanSocket() { closesocket(m_handle); }
+    ~LanSocket() { ::close(m_handle); }
     LanSocket(const LanSocket&) = delete;
     LanSocket& operator=(const LanSocket&) = delete;
 
     void setTimeouts(std::chrono::milliseconds read, std::chrono::milliseconds write) noexcept
     {
         const auto option = [this](int name, std::chrono::milliseconds timeout) {
-            const auto value = static_cast<DWORD>(std::clamp<std::chrono::milliseconds::rep>(timeout.count(), 0, MAXDWORD));
-            setsockopt(m_handle, SOL_SOCKET, name, reinterpret_cast<const char*>(&value), sizeof(value));
+            const auto ms = std::clamp<std::chrono::milliseconds::rep>(timeout.count(), 0, INT_MAX);
+            timeval value{};
+            value.tv_sec = static_cast<time_t>(ms / 1000);
+            value.tv_usec = static_cast<suseconds_t>((ms % 1000) * 1000);
+            setsockopt(m_handle, SOL_SOCKET, name, &value, sizeof(value));
         };
         option(SO_RCVTIMEO, read);
         option(SO_SNDTIMEO, write);
@@ -126,8 +129,10 @@ public:
     [[nodiscard]] bool writeAll(std::span<const std::uint8_t> bytes) noexcept
     {
         while (!bytes.empty()) {
-            const int length = static_cast<int>(std::min<std::size_t>(bytes.size(), INT_MAX));
-            const int sent = ::send(m_handle, reinterpret_cast<const char*>(bytes.data()), length, 0);
+            const ssize_t sent = ::send(m_handle, bytes.data(), std::min<std::size_t>(bytes.size(), INT_MAX), 0);
+            if (sent < 0 && errno == EINTR) {
+                continue;
+            }
             if (sent <= 0) {
                 return false;
             }
@@ -138,9 +143,11 @@ public:
 
     [[nodiscard]] std::size_t readSome(std::span<std::uint8_t> bytes) noexcept
     {
-        const int length = static_cast<int>(std::min<std::size_t>(bytes.size(), INT_MAX));
-        const int received = ::recv(m_handle, reinterpret_cast<char*>(bytes.data()), length, 0);
-        m_timedOut = received == SOCKET_ERROR && WSAGetLastError() == WSAETIMEDOUT;
+        ssize_t received = 0;
+        do {
+            received = ::recv(m_handle, bytes.data(), std::min<std::size_t>(bytes.size(), INT_MAX), 0);
+        } while (received < 0 && errno == EINTR);
+        m_timedOut = received < 0 && (errno == EAGAIN || errno == EWOULDBLOCK);
         return received > 0 ? static_cast<std::size_t>(received) : 0;
     }
 
@@ -158,11 +165,11 @@ public:
 
     [[nodiscard]] bool timedOut() const noexcept { return m_timedOut; }
 
-    void interrupt() noexcept { shutdown(m_handle, SD_BOTH); }
+    void interrupt() noexcept { shutdown(m_handle, SHUT_RDWR); }
 
     void finish() noexcept
     {
-        shutdown(m_handle, SD_SEND);
+        shutdown(m_handle, SHUT_WR);
         setTimeouts(kDrainTimeout, kDrainTimeout);
         std::array<std::uint8_t, 512> scratch{};
         while (readSome(scratch) > 0) {
@@ -170,7 +177,7 @@ public:
     }
 
 private:
-    SOCKET m_handle;
+    int m_handle;
     std::atomic<bool> m_timedOut{false};
 };
 
@@ -271,69 +278,6 @@ Greeting provenWelcome(CompanionChannel& channel, std::uint16_t version)
         return {.welcome = *welcome};
     }
     return {.olderApp = version > 1 && companionRefusesVersion(*message)};
-}
-
-struct MdnsInstance {
-    LPWSTR instanceName;
-    LPWSTR hostName;
-    DWORD* ip4Address;
-    void* ip6Address;
-    WORD port;
-    WORD priority;
-    WORD weight;
-    DWORD propertyCount;
-    PWSTR* keys;
-    PWSTR* values;
-    DWORD interfaceIndex;
-};
-
-using MdnsComplete = void(WINAPI*)(DWORD status, PVOID context, MdnsInstance* instance);
-
-struct MdnsRequest {
-    ULONG version;
-    ULONG interfaceIndex;
-    MdnsInstance* instance;
-    MdnsComplete completed;
-    PVOID context;
-    HANDLE credentials;
-    BOOL unicastEnabled;
-};
-
-using MdnsConstruct = MdnsInstance*(WINAPI*)(PCWSTR name, PCWSTR host, DWORD* ip4, void* ip6, WORD port,
-                                              WORD priority, WORD weight, DWORD count, PCWSTR* keys, PCWSTR* values);
-using MdnsRegister = DWORD(WINAPI*)(MdnsRequest* request, void* cancel);
-using MdnsFree = void(WINAPI*)(MdnsInstance* instance);
-
-constexpr ULONG kMdnsRequestVersion = 1;
-constexpr DWORD kMdnsPending = 9506;
-
-std::atomic<MdnsFree> g_mdnsFree{nullptr};
-
-void WINAPI mdnsCompleted(DWORD status, PVOID, MdnsInstance* instance)
-{
-    if (instance != nullptr) {
-        if (const MdnsFree release = g_mdnsFree.load()) {
-            release(instance);
-        }
-    }
-    if (status != ERROR_SUCCESS) {
-        log::info(kLog, "an mDNS announcement for the companion finished with status {}", status);
-    }
-}
-
-std::wstring widened(std::string_view ascii)
-{
-    return {ascii.begin(), ascii.end()};
-}
-
-std::wstring dnsHostName()
-{
-    std::array<wchar_t, 256> name{};
-    DWORD size = static_cast<DWORD>(name.size());
-    if (GetComputerNameExW(ComputerNameDnsHostname, name.data(), &size) == FALSE || size == 0) {
-        return L"gamescrcpy.local";
-    }
-    return std::wstring(name.data(), size) + L".local";
 }
 
 HttpRoute routeAmong(const HttpRequest& request, const std::vector<std::string>& tokens, const CompanionApk* apk,
@@ -499,25 +443,12 @@ std::string lanAddress()
     return best.toStdString();
 }
 
+// Announcing the computer to the companion over mDNS with Bonjour (dns_sd): one service per paired companion,
+// named after it, on the port the companion listens to; macOS answers with this computer's name and addresses.
 class CompanionLan::Announcer final
 {
 public:
-    Announcer()
-    {
-        HMODULE dns = LoadLibraryExW(L"dnsapi.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
-        if (dns == nullptr) {
-            return;
-        }
-        m_construct = reinterpret_cast<MdnsConstruct>(reinterpret_cast<void*>(GetProcAddress(dns, "DnsServiceConstructInstance")));
-        m_register = reinterpret_cast<MdnsRegister>(reinterpret_cast<void*>(GetProcAddress(dns, "DnsServiceRegister")));
-        m_deregister = reinterpret_cast<MdnsRegister>(reinterpret_cast<void*>(GetProcAddress(dns, "DnsServiceDeRegister")));
-        g_mdnsFree = reinterpret_cast<MdnsFree>(reinterpret_cast<void*>(GetProcAddress(dns, "DnsServiceFreeInstance")));
-        m_host = dnsHostName();
-        if (m_construct == nullptr || m_register == nullptr || m_deregister == nullptr || g_mdnsFree.load() == nullptr) {
-            log::info(kLog, "this Windows cannot announce over mDNS; the companion reconnects to the last address only");
-        }
-    }
-
+    Announcer() = default;
     ~Announcer() { announce({}, 0); }
     Announcer(const Announcer&) = delete;
     Announcer& operator=(const Announcer&) = delete;
@@ -526,68 +457,42 @@ public:
     {
         const std::lock_guard lock(m_mutex);
         for (auto it = m_registered.begin(); it != m_registered.end();) {
-            if (names.contains(it->first) && it->second->port == port) {
+            if (names.contains(it->first) && it->second.port == port) {
                 ++it;
                 continue;
             }
-            if (m_deregister != nullptr) {
-                static_cast<void>(m_deregister(&it->second->request, nullptr));
-            }
-            m_retired.push_back(std::move(it->second));
+            DNSServiceRefDeallocate(it->second.reference);
             it = m_registered.erase(it);
         }
-        if (m_construct == nullptr || m_register == nullptr || port == 0) {
+        if (port == 0) {
             return;
         }
-        const std::string address = lanAddress();
-        in_addr ip{};
-        const bool haveIp = !address.empty() && inet_pton(AF_INET, address.c_str(), &ip) == 1;
+        const std::string type = std::string(kMdnsService);
         for (const std::string& name : names) {
             if (m_registered.contains(name)) {
                 continue;
             }
-            auto entry = std::make_unique<Entry>();
-            entry->service = widened(std::format("{}.{}.local", name, kMdnsService));
-            entry->ip = ip.S_un.S_addr;
-            entry->port = port;
-            entry->instance = m_construct(entry->service.c_str(), m_host.c_str(), haveIp ? &entry->ip : nullptr, nullptr,
-                                          port, 0, 0, 0, nullptr, nullptr);
-            if (entry->instance == nullptr) {
-                continue;
-            }
-            entry->request = MdnsRequest{.version = kMdnsRequestVersion,
-                                         .interfaceIndex = 0,
-                                         .instance = entry->instance,
-                                         .completed = &mdnsCompleted,
-                                         .context = nullptr,
-                                         .credentials = nullptr,
-                                         .unicastEnabled = FALSE};
-            if (const DWORD status = m_register(&entry->request, nullptr); status != kMdnsPending) {
+            DNSServiceRef reference = nullptr;
+            const DNSServiceErrorType status =
+                DNSServiceRegister(&reference, 0, kDNSServiceInterfaceIndexAny, name.c_str(), type.c_str(), nullptr,
+                                   nullptr, htons(port), 0, nullptr, nullptr, nullptr);
+            if (status != kDNSServiceErr_NoError) {
                 log::info(kLog, "the companion could not be announced over mDNS (status {})", status);
-                m_retired.push_back(std::move(entry));
                 continue;
             }
             log::info(kLog, "announcing {} over mDNS on port {}", name, port);
-            m_registered.emplace(name, std::move(entry));
+            m_registered.emplace(name, Entry{reference, port});
         }
     }
 
 private:
     struct Entry {
-        std::wstring service;
-        DWORD ip = 0;
+        DNSServiceRef reference = nullptr;
         std::uint16_t port = 0;
-        MdnsInstance* instance = nullptr;
-        MdnsRequest request{};
     };
 
     std::mutex m_mutex;
-    MdnsConstruct m_construct = nullptr;
-    MdnsRegister m_register = nullptr;
-    MdnsRegister m_deregister = nullptr;
-    std::wstring m_host;
-    std::map<std::string, std::unique_ptr<Entry>> m_registered;
-    std::vector<std::unique_ptr<Entry>> m_retired;
+    std::map<std::string, Entry> m_registered;
 };
 
 struct CompanionLan::Slot {
@@ -601,17 +506,11 @@ CompanionLan::CompanionLan(std::shared_ptr<const CompanionApk> apk, Arrived arri
                            bool loopbackOnly)
     : m_apk(std::move(apk)), m_arrived(std::move(arrived)), m_loopbackOnly(loopbackOnly)
 {
-    if (!ensureWinsock()) {
-        log::warning(kLog, "the companion cannot listen on the local network: Winsock did not start");
+    const int listener = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (listener < 0) {
         return;
     }
-    const SOCKET listener =
-        WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, nullptr, 0, WSA_FLAG_OVERLAPPED | WSA_FLAG_NO_HANDLE_INHERIT);
-    if (listener == INVALID_SOCKET) {
-        return;
-    }
-    const BOOL exclusive = TRUE;
-    setsockopt(listener, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, reinterpret_cast<const char*>(&exclusive), sizeof(exclusive));
+    ::fcntl(listener, F_SETFD, FD_CLOEXEC);
     sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = htonl(m_loopbackOnly ? INADDR_LOOPBACK : INADDR_ANY);
@@ -622,11 +521,11 @@ CompanionLan::CompanionLan(std::shared_ptr<const CompanionApk> apk, Arrived arri
         bound = bind(listener, reinterpret_cast<const sockaddr*>(&address), sizeof(address)) == 0;
     }
     if (!bound || listen(listener, static_cast<int>(kMostConnections)) != 0) {
-        log::warning(kLog, "the companion cannot listen on the local network (error {})", WSAGetLastError());
-        closesocket(listener);
+        log::warning(kLog, "the companion cannot listen on the local network ({})", std::strerror(errno));
+        ::close(listener);
         return;
     }
-    int size = sizeof(address);
+    socklen_t size = sizeof(address);
     getsockname(listener, reinterpret_cast<sockaddr*>(&address), &size);
     m_port = ntohs(address.sin_port);
     m_listener = static_cast<std::uintptr_t>(listener);
@@ -640,11 +539,11 @@ CompanionLan::CompanionLan(std::shared_ptr<const CompanionApk> apk, Arrived arri
 CompanionLan::~CompanionLan()
 {
     m_closing = true;
-    if (m_listener != kNoSocket) {
-        closesocket(static_cast<SOCKET>(m_listener));
-    }
     if (m_acceptor.joinable()) {
         m_acceptor.join();
+    }
+    if (m_listener != kNoSocket) {
+        ::close(static_cast<int>(m_listener));
     }
     std::vector<std::shared_ptr<Slot>> taken;
     {
@@ -688,16 +587,24 @@ void CompanionLan::expect(std::vector<LanExpectation> expectations)
 void CompanionLan::acceptLoop()
 {
     platform::setCurrentThreadName("gs-companion-lan");
-    const auto listener = static_cast<SOCKET>(m_listener);
+    const auto listener = static_cast<int>(m_listener);
     for (;;) {
-        const SOCKET client = accept(listener, nullptr, nullptr);
-        if (client == INVALID_SOCKET) {
-            const int error = WSAGetLastError();
-            if (m_closing || error == WSAENOTSOCK || error == WSAEINVAL || error == WSAEINTR) {
+        // Closing a listening socket does not wake accept() on macOS: wait in short steps and look at m_closing.
+        pollfd ready{listener, POLLIN, 0};
+        if (m_closing) {
+            return;
+        }
+        if (::poll(&ready, 1, 200) <= 0) {
+            continue;
+        }
+        const int client = accept(listener, nullptr, nullptr);
+        if (client < 0) {
+            if (m_closing || errno == EBADF || errno == EINVAL) {
                 return;
             }
             continue;
         }
+        ::fcntl(client, F_SETFD, FD_CLOEXEC);
         auto slot = std::make_shared<Slot>();
         slot->socket = std::make_shared<LanSocket>(client);
         {

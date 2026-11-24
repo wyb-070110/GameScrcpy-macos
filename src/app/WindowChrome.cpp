@@ -1,4 +1,5 @@
 #include "WindowChrome.h"
+#include "WindowChromeMac.h"
 
 #include <QLoggingCategory>
 #include <QWKQuick/quickwindowagent.h>
@@ -28,17 +29,13 @@ bool WindowChrome::attach()
         return false;
     }
 
-    m_agent = new QWK::QuickWindowAgent(this);
-    if (!m_agent->setup(m_window)) {
-        qCWarning(lcChrome) << "QWindowKit could not take over the window frame";
-        delete m_agent;
-        m_agent = nullptr;
+    // macOS: the system's own title bar, transparent over the content (WindowChromeMac.mm), not QWindowKit.
+    m_attached = styleMacWindow(m_window);
+    if (!m_attached) {
+        qCWarning(lcChrome) << "the window has no native window to style";
         return false;
     }
-
     applyDarkMode();
-    applyTitleBar();
-    applySystemButtons();
     return true;
 }
 
@@ -137,8 +134,8 @@ void WindowChrome::applySystemButtons()
 
 void WindowChrome::applyDarkMode()
 {
-    if (m_agent != nullptr) {
-        m_agent->setWindowAttribute(QStringLiteral("dark-mode"), m_darkMode);
+    if (m_attached) {
+        setMacWindowDark(m_window, m_darkMode);
     }
 }
 

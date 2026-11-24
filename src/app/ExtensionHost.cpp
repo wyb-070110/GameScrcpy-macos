@@ -910,7 +910,7 @@ ExtensionHost::ExtensionHost(AppSettings& settings, ExtensionRoots roots, QObjec
     connect(&m_settings, &AppSettings::languageChanged, this, &ExtensionHost::bisectChanged);
     fs::path program = m_roots.hostProgram;
     if (program.empty() && QCoreApplication::instance() != nullptr) {
-        program = (QCoreApplication::applicationDirPath() + QStringLiteral("/gs-exthost.exe")).toStdWString();
+        program = (QCoreApplication::applicationDirPath() + QStringLiteral("/gs-exthost")).toStdWString();
     }
     const fs::path crashRoot = m_roots.data.empty() ? fs::path() : m_roots.data / "crashes" / "extensions";
     if (!crashRoot.empty()) {

@@ -1,5 +1,6 @@
 #include "ExtensionHealth.h"
 
+#include <gs/base/UtcTime.h>
 #include <gs/base/Log.h>
 #include <gs/platform/AtomicFile.h>
 
@@ -40,10 +41,7 @@ std::optional<HealthKind> kindNamed(std::string_view name)
 
 std::optional<std::chrono::sys_seconds> timeNamed(const std::string& text)
 {
-    std::istringstream in(text);
-    std::chrono::sys_seconds at{};
-    in >> std::chrono::parse("%FT%TZ", at);
-    return in.fail() ? std::nullopt : std::optional<std::chrono::sys_seconds>(at);
+    return gs::parseUtcSeconds(text);
 }
 
 bool plainName(std::string_view name)

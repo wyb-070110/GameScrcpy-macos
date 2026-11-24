@@ -371,8 +371,66 @@ void MirrorInputItem::hoverLeaveEvent(QHoverEvent* event)
     event->accept();
 }
 
+// A two-finger swipe on a Mac trackpad comes as scroll events with phases, then momentum. Sent as scroll events it
+// turns the phone's pages again and again; here the whole swipe is one finger dragged on the phone instead (down at
+// the pointer, moved as the content moves, up when the fingers leave), and the momentum is dropped: one swipe, one
+// page, as with a finger. A swipe is often longer than the phone's picture is wide: when the finger reaches the
+// edge it is lifted there, moving, which the phone takes as a fling, and the rest of the swipe is dropped. Wheels
+// without phases still scroll.
+bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
+{
+    if (event->phase() == Qt::NoScrollPhase || m_capturing || m_relative) {
+        return false;
+    }
+    if (event->phase() == Qt::ScrollMomentum) {
+        return true;
+    }
+    if (m_swipeSpent) {
+        if (event->phase() == Qt::ScrollEnd || event->phase() == Qt::ScrollBegin) {
+            m_swipeSpent = false;
+        }
+        if (event->phase() != Qt::ScrollBegin) {
+            return true;
+        }
+    }
+    if (!m_swiping) {
+        if (event->phase() == Qt::ScrollEnd || m_touching) {
+            return true;
+        }
+        const std::optional<input::Vec2> at = normalized(m_content, event->position(), false);
+        if (!at) {
+            return false;
+        }
+        m_swiping = true;
+        m_swipePoint = event->position();
+        forceActiveFocus(Qt::MouseFocusReason);
+        emit touched(input::CursorPhase::Down, *at);
+    }
+    m_swipePoint += event->pixelDelta().toPointF();
+    const std::optional<input::Vec2> inside = normalized(m_content, m_swipePoint, false);
+    const std::optional<input::Vec2> at = normalized(m_content, m_swipePoint, true);
+    if (!inside && at) {
+        emit touched(input::CursorPhase::Move, *at);
+        emit touched(input::CursorPhase::Up, *at);
+        m_swiping = false;
+        m_swipeSpent = event->phase() != Qt::ScrollEnd;
+        return true;
+    }
+    if (event->phase() == Qt::ScrollEnd) {
+        m_swiping = false;
+        emit touched(at ? input::CursorPhase::Up : input::CursorPhase::Cancel, at.value_or(input::Vec2{}));
+    } else if (at) {
+        emit touched(input::CursorPhase::Move, *at);
+    }
+    return true;
+}
+
 void MirrorInputItem::wheelEvent(QWheelEvent* event)
 {
+    if (swipeWithTrackpad(event)) {
+        event->accept();
+        return;
+    }
     const std::optional<input::Vec2> at = m_capturing ? std::nullopt : normalized(m_content, event->position(), false);
     if (!at) {
         event->ignore();

@@ -493,7 +493,7 @@ QVariantMap DebugRecord::timeline() const
                    kind == QStringLiteral("vision") ? QStringLiteral("vision") : QStringLiteral("custom"));
     }
     QVariantList steps;
-    const auto shown = [this, &steps](const std::vector<Block>& blocks, const QString& lane, bool actions) {
+    const auto shown = [&steps](const std::vector<Block>& blocks, const QString& lane, bool actions) {
         for (const Block& block : blocks) {
             const QString mixed = actions ? tr("%n action(s)", "", block.count) : tr("%n step(s)", "", block.count);
             steps.push_back(QVariantMap{{QStringLiteral("lane"), lane},

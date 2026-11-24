@@ -153,6 +153,8 @@ def collect(third_party: Path, extras: Path, qt_version: str, msvc_version: str,
     versions = {"Qt": qt_version, "Microsoft Visual C++ runtime": msvc_version,
                 PLATFORM_TOOLS: pinned_version(platform_tools)}
     for extra in EXTRAS:
+        if not versions[extra.name]:
+            continue  # not shipped with this build (the MSVC runtime off Windows)
         path = extras / extra.file
         if not path.is_file():
             raise LicenseError(f"{extra.name}: license file missing: {path}")
@@ -169,6 +171,8 @@ def collect(third_party: Path, extras: Path, qt_version: str, msvc_version: str,
 
 
 def toolset_of(msvc_version: str) -> str:
+    if not msvc_version:
+        return ""
     number = int(msvc_version)
     return f"14.{number - 1900}" if number >= 1900 else msvc_version
 

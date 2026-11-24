@@ -1,10 +1,10 @@
-qt_add_executable(GameScrcpy WIN32
-    GameScrcpy.manifest
+qt_add_executable(GameScrcpy MACOSX_BUNDLE
     main.cpp
 )
-set(GS_APP_ICON "${CMAKE_CURRENT_SOURCE_DIR}/resources/GameScrcpy.ico")
-configure_file(GameScrcpy.rc.in "${CMAKE_CURRENT_BINARY_DIR}/GameScrcpy.rc" @ONLY)
-target_sources(GameScrcpy PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/GameScrcpy.rc")
+set_target_properties(GameScrcpy PROPERTIES
+    MACOSX_BUNDLE_BUNDLE_NAME "GameScrcpy"
+    MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.nuoran.gamescrcpy"
+)
 
 qt_add_qml_module(GameScrcpy
     URI GameScrcpy.App
@@ -460,6 +460,8 @@ qt_add_qml_module(GameScrcpy
         VisionWorkbench.h
         WindowChrome.cpp
         WindowChrome.h
+        WindowChromeMac.h
+        WindowChromeMac.mm
         WindowFit.cpp
         WindowFit.h
         WirelessController.cpp
@@ -567,9 +569,10 @@ target_link_libraries(GameScrcpy PRIVATE
     Qt6::Qml
     Qt6::Quick
     gs::blueprint
-    ws2_32
 )
 target_compile_definitions(GameScrcpy PRIVATE GS_BUILD_CONFIG="$<CONFIG>")
+set_source_files_properties(WindowChromeMac.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
+target_link_libraries(GameScrcpy PRIVATE "-framework AppKit")
 gs_apply_compiler_policy(GameScrcpy)
 
 qt_add_translations(GameScrcpy
@@ -580,26 +583,16 @@ qt_add_translations(GameScrcpy
     LUPDATE_OPTIONS -no-obsolete -locations none -tr-function-alias QT_TRANSLATE_NOOP+=GS_TRANSLATE_NOOP
 )
 
-option(GS_DEPLOY_QT_ON_BUILD "Copy the Qt runtime next to GameScrcpy.exe after each build" ON)
-if(GS_DEPLOY_QT_ON_BUILD)
-    find_program(GS_WINDEPLOYQT windeployqt
-        HINTS "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_BINS}"
-        NO_DEFAULT_PATH
-        REQUIRED
-    )
-    add_custom_command(TARGET GameScrcpy POST_BUILD
-        COMMAND "${GS_WINDEPLOYQT}"
-            --verbose 0
-            --no-translations
-            --no-system-d3d-compiler
-            --no-opengl-sw
-            --no-compiler-runtime
-            --qmldir "${PROJECT_SOURCE_DIR}/src"
-            "$<TARGET_FILE:GameScrcpy>"
-        COMMENT "Deploying the Qt runtime next to GameScrcpy.exe"
-        VERBATIM
-    )
-endif()
+# The helper programs and the TypeScript compiler go inside the app, next to its executable, where it looks for them.
+add_dependencies(GameScrcpy gs_exthost_program gs_scripthost_program gs_cli gs_typescript)
+add_custom_command(TARGET GameScrcpy POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:gs_exthost_program>"
+            "$<TARGET_FILE:gs_scripthost_program>" "$<TARGET_FILE:gs_cli>" "$<TARGET_FILE_DIR:GameScrcpy>"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory_if_different "${PROJECT_SOURCE_DIR}/third_party/typescript/lib"
+            "$<TARGET_FILE_DIR:GameScrcpy>/typescript"
+    COMMENT "Placing gs-exthost, gs-scripthost, gs and the TypeScript compiler inside GameScrcpy.app"
+    VERBATIM
+)
 
 add_custom_target(gs_server_package ALL
     COMMAND "${CMAKE_COMMAND}"

@@ -296,7 +296,9 @@ std::shared_ptr<record::Recorder> DemoFeed::recorder() const
 
 void DemoFeed::run(const std::stop_token& token, std::promise<QString>& opened)
 {
-    media::VideoDecoder decoder(m_graphics.device());
+    // macOS: the graphics device is Metal's, which decoding does not need; VideoToolbox decodes on the GPU.
+    static_cast<void>(m_graphics);
+    media::VideoDecoder decoder(media::Decoding::Hardware);
     PublishingSink sink(*m_slot, *m_snapshots, m_framesPerSecond, *m_bench, m_benchFed);
     record::MediaHead head;
     std::weak_ptr<record::Recorder> primed;

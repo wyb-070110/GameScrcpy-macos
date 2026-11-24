@@ -108,7 +108,7 @@ std::filesystem::path dataDirectory()
     if (QFileInfo::exists(programDirectory + QStringLiteral("/portable.flag"))) {
         return (programDirectory + QStringLiteral("/data")).toStdWString();
     }
-    return (qEnvironmentVariable("APPDATA") + QStringLiteral("/GameScrcpy")).toStdWString();
+    return (qEnvironmentVariable("HOME") + QStringLiteral("/Library/Application Support/GameScrcpy")).toStdWString();
 }
 
 AppSettings::AppSettings(const std::filesystem::path& directory, QObject* parent)

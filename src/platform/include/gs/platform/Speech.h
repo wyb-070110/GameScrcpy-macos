@@ -62,6 +62,8 @@ public:
     static constexpr int kRecordedRate = 16000;
 
 private:
+    // macOS: the synthesizer's Objective-C delegate calls back through this.
+    friend void speechFinished(void* owner, void* synthesizer, bool finished);
     struct Impl;
     std::unique_ptr<Impl> m_impl;
 };

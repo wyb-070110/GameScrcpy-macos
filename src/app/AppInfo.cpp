@@ -42,11 +42,11 @@ QString AppInfo::revision() const
 
 QString AppInfo::build() const
 {
-    return QStringLiteral("%1 · MSVC %2.%3.%4 · Qt %5")
+    return QStringLiteral("%1 · Clang %2.%3.%4 · Qt %5")
         .arg(QStringLiteral(GS_BUILD_CONFIG))
-        .arg(_MSC_VER / 100)
-        .arg(_MSC_VER % 100)
-        .arg(_MSC_FULL_VER % 100000)
+        .arg(__clang_major__)
+        .arg(__clang_minor__)
+        .arg(__clang_patchlevel__)
         .arg(QString::fromLatin1(qVersion()));
 }
 

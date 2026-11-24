@@ -19,7 +19,6 @@
 #include <QLocalSocket>
 #include <QSaveFile>
 
-#include <windows.h>
 
 #include <algorithm>
 #include <array>
@@ -77,30 +76,20 @@ QString cleanName(const QString& given)
     return name.trimmed();
 }
 
-bool fromAnotherComputer(const QLocalSocket& socket)
+// A QLocalSocket is a Unix socket on macOS: it only ever comes from this computer.
+bool fromAnotherComputer(const QLocalSocket&)
 {
-    const auto handle = reinterpret_cast<HANDLE>(socket.socketDescriptor());
-    std::array<wchar_t, 256> client{};
-    if (handle == nullptr || handle == INVALID_HANDLE_VALUE ||
-        GetNamedPipeClientComputerNameW(handle, client.data(), static_cast<ULONG>(client.size() * sizeof(wchar_t))) ==
-            FALSE) {
-        return false;
-    }
-    std::array<wchar_t, 256> own{};
-    auto length = static_cast<DWORD>(own.size());
-    if (GetComputerNameExW(ComputerNameNetBIOS, own.data(), &length) == FALSE) {
-        return true;
-    }
-    return CompareStringOrdinal(client.data(), -1, own.data(), -1, TRUE) != CSTR_EQUAL;
+    return false;
 }
 
+// Whether another program (another GameScrcpy) already listens under this name: it answers a connection.
 bool pipeTaken(const QString& pipe)
 {
-    const std::wstring path = L"\\\\.\\pipe\\" + pipe.toStdWString();
-    if (WaitNamedPipeW(path.c_str(), 1) != FALSE) {
-        return true;
-    }
-    return GetLastError() == ERROR_SEM_TIMEOUT;
+    QLocalSocket probe;
+    probe.connectToServer(pipe);
+    const bool taken = probe.waitForConnected(50);
+    probe.abort();
+    return taken;
 }
 
 QString textOf(const QByteArray& bytes)
@@ -360,7 +349,7 @@ QString McpServer::configuration() const
 {
     QJsonObject server{
         {QStringLiteral("command"),
-         QDir::toNativeSeparators(QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("gs.exe")))},
+         QDir::toNativeSeparators(QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("gs")))},
         {QStringLiteral("args"), QJsonArray{QStringLiteral("mcp")}}};
     if (m_pipe != kDefaultPipe) {
         server.insert(QStringLiteral("env"), QJsonObject{{QStringLiteral("GS_MCP_PIPE"), m_pipe}});

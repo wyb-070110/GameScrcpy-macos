@@ -202,12 +202,12 @@ private:
 
 void applyDefaultFont()
 {
-    QFont font = QGuiApplication::font();
-    font.setFamilies({u"Segoe UI Variable Text"_s, u"Segoe UI"_s, u"Microsoft YaHei UI"_s});
+    // macOS: the system's interface font (SF Pro), and PingFang for Chinese.
+    QFont font = QFontDatabase::systemFont(QFontDatabase::GeneralFont);
+    font.setFamilies({font.family(), u"PingFang SC"_s});
     font.setPixelSize(14);
-    font.setHintingPreference(QFont::PreferNoHinting);
     QGuiApplication::setFont(font);
-    const QStringList chinese{u"Microsoft YaHei UI"_s, u"Microsoft YaHei"_s};
+    const QStringList chinese{u"PingFang SC"_s};
     QFontDatabase::setApplicationFallbackFontFamilies(QChar::Script_Han, chinese);
     QFontDatabase::setApplicationFallbackFontFamilies(QChar::Script_Common, chinese);
 }
@@ -270,16 +270,20 @@ void loadInputProfile(gs::app::DeviceManager& devices, const QString& path)
                                           : std::filesystem::path());
 }
 
+// adb on macOS: the one in the app, the Android SDK's (ANDROID_HOME, or where Android Studio puts it), Homebrew's,
+// then the PATH. A program opened from the Finder gets a short PATH without Homebrew, so the usual places come first.
 std::filesystem::path findAdb()
 {
-    const QString bundled = QCoreApplication::applicationDirPath() + u"/adb/adb.exe"_s;
-    if (QFileInfo::exists(bundled)) {
-        return bundled.toStdWString();
-    }
+    QStringList places{QCoreApplication::applicationDirPath() + u"/adb/adb"_s};
     if (const QString sdk = qEnvironmentVariable("ANDROID_HOME"); !sdk.isEmpty()) {
-        const QString fromSdk = QDir(sdk).filePath(u"platform-tools/adb.exe"_s);
-        if (QFileInfo::exists(fromSdk)) {
-            return fromSdk.toStdWString();
+        places.append(QDir(sdk).filePath(u"platform-tools/adb"_s));
+    }
+    places.append(QDir::homePath() + u"/Library/Android/sdk/platform-tools/adb"_s);
+    places.append(u"/opt/homebrew/bin/adb"_s);
+    places.append(u"/usr/local/bin/adb"_s);
+    for (const QString& place : places) {
+        if (QFileInfo(place).isExecutable()) {
+            return place.toStdWString();
         }
     }
     return QStandardPaths::findExecutable(u"adb"_s).toStdWString();
@@ -329,11 +333,7 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    QQuickWindow::setGraphicsApi(QSGRendererInterface::Direct3D11);
-    qputenv("QT_QPA_DISABLE_REDIRECTION_SURFACE", "1");
-    if (!qEnvironmentVariableIsSet("QT_D3D_NO_VBLANK_THREAD")) {
-        qputenv("QT_D3D_NO_VBLANK_THREAD", "1");
-    }
+    QQuickWindow::setGraphicsApi(QSGRendererInterface::Metal);
     if (!qEnvironmentVariableIsSet("QT_QPA_UPDATE_IDLE_TIME")) {
         qputenv("QT_QPA_UPDATE_IDLE_TIME", "0");
     }
