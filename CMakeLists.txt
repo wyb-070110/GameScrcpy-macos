@@ -8,7 +8,7 @@ project(GameScrcpy
 )
 
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    message(FATAL_ERROR "GameScrcpy v2 targets Windows 10/11 only for now (ADR-0010).")
+    message(WARNING "Non-Windows build: experimental port probe")
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")

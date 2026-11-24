@@ -44,5 +44,17 @@ function(gs_apply_compiler_policy target)
             UNICODE
             _UNICODE
         )
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+        target_compile_options(${target} PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Wno-missing-field-initializers
+            -Wno-trigraphs
+            $<$<CXX_COMPILER_ID:GNU>:-Wno-maybe-uninitialized>
+        )
+        if(GS_WARNINGS_AS_ERRORS)
+            target_compile_options(${target} PRIVATE -Werror)
+        endif()
     endif()
 endfunction()

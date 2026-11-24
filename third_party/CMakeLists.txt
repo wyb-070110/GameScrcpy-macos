@@ -36,6 +36,7 @@ target_compile_definitions(gs_third_party_miniz
 
 add_subdirectory(quickjs-ng)
 
+if(WIN32)
 # Video and audio decoding (ADR-0015, ADR-0046): the minimal LGPL build that
 # tools/build_ffmpeg.ps1 makes from pinned sources. Every executable lands in one directory, so
 # the DLLs are copied there once.
@@ -75,6 +76,8 @@ set_target_properties(libusb::libusb PROPERTIES
 )
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/libusb/bin/libusb-1.0.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libusb-1.0.dll"
                COPYONLY)
+
+endif()
 
 if(GS_BUILD_APP)
     # QR codes for wireless pairing (ADR-0059): Nayuki's QR Code generator as released. Its warnings

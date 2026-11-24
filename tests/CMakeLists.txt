@@ -1,3 +1,8 @@
+if(NOT WIN32)
+    include(PortProbe.cmake)
+    return()
+endif()
+
 # Source rules that review alone does not hold (tools/check_source_rules.py: ADR-0037 R5, R9).
 find_package(Python3 3.10 REQUIRED COMPONENTS Interpreter)
 add_test(NAME gs_source_rules_selftest

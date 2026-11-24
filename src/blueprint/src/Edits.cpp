@@ -1259,11 +1259,6 @@ std::string wrap(PinType from, const Pin& to, std::string text)
     return text;
 }
 
-bool insideRange(const Node* node, std::uint32_t start, std::uint32_t end)
-{
-    return node != nullptr && node->start >= start && node->end <= end;
-}
-
 bool escapesLoop(const Node* node)
 {
     bool found = false;
