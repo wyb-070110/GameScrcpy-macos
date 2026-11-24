@@ -44,6 +44,10 @@ MirrorInputItem::MirrorInputItem(QQuickItem* parent)
     : QQuickItem(parent)
 {
     setAcceptedMouseButtons(Qt::AllButtons);
+    m_coastIdle.setSingleShot(true);
+    connect(&m_coastIdle, &QTimer::timeout, this, &MirrorInputItem::liftSwipe);
+    m_flickTimer.setInterval(8);
+    connect(&m_flickTimer, &QTimer::timeout, this, &MirrorInputItem::flickStep);
 }
 
 std::optional<input::Vec2> MirrorInputItem::normalized(const QRectF& content, QPointF position, bool clamped)
@@ -373,17 +377,188 @@ void MirrorInputItem::hoverLeaveEvent(QHoverEvent* event)
 
 // A two-finger swipe on a Mac trackpad comes as scroll events with phases, then momentum. Sent as scroll events it
 // turns the phone's pages again and again; here the whole swipe is one finger dragged on the phone instead (down at
-// the pointer, moved as the content moves, up when the fingers leave), and the momentum is dropped: one swipe, one
-// page, as with a finger. A swipe is often longer than the phone's picture is wide: when the finger reaches the
-// edge it is lifted there, moving, which the phone takes as a fling, and the rest of the swipe is dropped. Wheels
-// without phases still scroll.
+// the pointer, moved as the content moves, scaled by the trackpad speed). With inertia the finger then keeps
+// going with the momentum, scaled by its strength, and lifts when the momentum ends; without it, it lifts as the
+// fingers leave. A swipe is often longer than the phone's picture is wide: when the finger reaches the edge it is
+// lifted there, moving, which the phone takes as a fling, and the rest of the swipe is dropped. Wheels without
+// phases still scroll.
+void MirrorInputItem::setTrackpad(double speed, bool inertia, double inertiaStrength, double longest)
+{
+    m_trackpadSpeed = std::clamp(speed, 0.1, 10.0);
+    m_inertia = inertia;
+    m_inertiaStrength = std::clamp(inertiaStrength, 0.0, 10.0);
+    m_longestSwipe = std::clamp(longest, 0.05, 1.0);
+}
+
+void MirrorInputItem::setPageTurn(double turnFrom)
+{
+    m_turnFrom = std::clamp(turnFrom, 0.0, 1.0);
+}
+
+// The direction of a page turn, as a unit step along the axis the swipe mostly went: when it went at least the
+// turn distance that way and at least 90% of its path that way (no going back and forth).
+std::optional<QPointF> MirrorInputItem::pageTurn() const
+{
+    constexpr double kOneWay = 0.9;
+    if (m_turnFrom <= 0.0) {
+        return std::nullopt;
+    }
+    const double right = m_swipePath[0];
+    const double left = m_swipePath[1];
+    const double down = m_swipePath[2];
+    const double up = m_swipePath[3];
+    const bool sideways = right + left >= down + up;
+    const double forward = sideways ? std::max(right, left) : std::max(down, up);
+    const double back = sideways ? std::min(right, left) : std::min(down, up);
+    const double net = forward - back;
+    const double size = sideways ? m_content.width() : m_content.height();
+    if (forward + back <= 0.0 || forward / (forward + back) < kOneWay || net < m_turnFrom * size) {
+        return std::nullopt;
+    }
+    const double sign = sideways ? (right >= left ? 1.0 : -1.0) : (down >= up ? 1.0 : -1.0);
+    return sideways ? QPointF(sign, 0.0) : QPointF(0.0, sign);
+}
+
+// The flick: a few even steps 8 ms apart (2.5% of the picture each), then the finger lifts, moving. The phone
+// sees a quick, short fling, which turns one page, whatever the fingers did before.
+void MirrorInputItem::flickStep()
+{
+    if (m_flickSteps <= 0 || !m_swiping) {
+        m_flickTimer.stop();
+        m_flickSteps = 0;
+        return;
+    }
+    m_swipePoint += m_flickStep;
+    const std::optional<input::Vec2> at = normalized(m_content, m_swipePoint, true);
+    --m_flickSteps;
+    if (at) {
+        emit touched(m_flickSteps > 0 ? input::CursorPhase::Move : input::CursorPhase::Up, *at);
+    }
+    if (m_flickSteps == 0 || !at) {
+        m_flickTimer.stop();
+        m_swiping = false;
+        m_coasting = false;
+    }
+}
+
+void MirrorInputItem::startFlick(QPointF direction)
+{
+    constexpr int kFlickSteps = 3;
+    constexpr double kFlickStep = 0.025;
+    m_coastIdle.stop();
+    m_coasting = false;
+    m_flickStep = QPointF(direction.x() * kFlickStep * m_content.width(),
+                          direction.y() * kFlickStep * m_content.height());
+    m_flickSteps = kFlickSteps;
+    m_flickTimer.start();
+}
+
+void MirrorInputItem::moveSwipe(QPointF delta, bool ending)
+{
+    if (m_swipeCapped) {
+        return;
+    }
+    m_swipePoint += delta;
+    if (m_longestSwipe < 1.0) {
+        // The swipe's travel along each axis stops at the longest swipe; the finger then stays there.
+        const double mostX = m_longestSwipe * m_content.width();
+        const double mostY = m_longestSwipe * m_content.height();
+        const QPointF travel = m_swipePoint - m_swipeStart;
+        if (std::abs(travel.x()) > mostX || std::abs(travel.y()) > mostY) {
+            m_swipePoint = m_swipeStart + QPointF(std::clamp(travel.x(), -mostX, mostX),
+                                                  std::clamp(travel.y(), -mostY, mostY));
+            m_swipeCapped = true;
+        }
+    }
+    const std::optional<input::Vec2> inside = normalized(m_content, m_swipePoint, false);
+    const std::optional<input::Vec2> at = normalized(m_content, m_swipePoint, true);
+    if (!inside && at) {
+        emit touched(input::CursorPhase::Move, *at);
+        emit touched(input::CursorPhase::Up, *at);
+        m_swiping = false;
+        m_coasting = false;
+        m_coastIdle.stop();
+        m_swipeSpent = !ending;
+        return;
+    }
+    if (at) {
+        emit touched(input::CursorPhase::Move, *at);
+    }
+}
+
+void MirrorInputItem::liftSwipe()
+{
+    m_coastIdle.stop();
+    m_coasting = false;
+    if (!m_swiping) {
+        return;
+    }
+    m_swiping = false;
+    const std::optional<input::Vec2> at = normalized(m_content, m_swipePoint, true);
+    emit touched(at ? input::CursorPhase::Up : input::CursorPhase::Cancel, at.value_or(input::Vec2{}));
+}
+
 bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
 {
+    // Below this speed (points a millisecond) when the fingers leave, the swipe ends there without inertia.
+    constexpr double kCoastFrom = 0.3;
+    // Momentum longer than this, farther than kFarthestCoast of the picture's width at full strength, or a pause
+    // in it longer than kCoastPauseMs, ends the coasting: the phone adds its own fling when the finger lifts, and
+    // the two together must not throw the page much farther than the swipe meant.
+    constexpr qint64 kLongestCoastMs = 300;
+    constexpr double kFarthestCoast = 0.25;
+    constexpr int kCoastPauseMs = 80;
     if (event->phase() == Qt::NoScrollPhase || m_capturing || m_relative) {
         return false;
     }
+    const QPointF delta = event->pixelDelta().toPointF() * m_trackpadSpeed;
+    if (event->phase() == Qt::ScrollBegin && m_flickSteps > 0) {
+        m_flickSteps = 1;
+        flickStep();
+    }
     if (event->phase() == Qt::ScrollMomentum) {
+        if (m_flickSteps > 0) {
+            return true;
+        }
+        // Some systems send the momentum before the end of the swipe: the fingers have left all the same.
+        if (m_swiping && !m_coasting) {
+            if (const std::optional<QPointF> turn = pageTurn()) {
+                startFlick(*turn);
+                return true;
+            }
+            if (!m_inertia || m_swipeCapped || m_swipeSpeed < kCoastFrom) {
+                liftSwipe();
+                return true;
+            }
+            m_coasting = true;
+            m_coasted = 0.0;
+            m_coastClock.start();
+        }
+        if (!m_coasting) {
+            return true;
+        }
+        if (m_coastClock.elapsed() > kLongestCoastMs) {
+            liftSwipe();
+            return true;
+        }
+        const QPointF step = delta * m_inertiaStrength;
+        m_coasted += std::hypot(step.x(), step.y());
+        if (m_coasted > kFarthestCoast * m_content.width() * std::min(m_inertiaStrength, 1.0)) {
+            liftSwipe();
+            return true;
+        }
+        m_coastIdle.start(kCoastPauseMs);
+        moveSwipe(step, true);
+        if (m_swipeCapped) {
+            liftSwipe();
+        }
         return true;
+    }
+    if (m_coasting) {
+        liftSwipe();
+        if (event->phase() != Qt::ScrollBegin) {
+            return true;
+        }
     }
     if (m_swipeSpent) {
         if (event->phase() == Qt::ScrollEnd || event->phase() == Qt::ScrollBegin) {
@@ -401,26 +576,40 @@ bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
         if (!at) {
             return false;
         }
+        if (m_flickSteps > 0) {
+            m_flickSteps = 1;
+            flickStep();
+        }
         m_swiping = true;
+        m_swipeCapped = false;
+        m_swipePath = {};
         m_swipePoint = event->position();
+        m_swipeStart = m_swipePoint;
+        m_swipeSpeed = 0.0;
+        m_swipeClock.start();
         forceActiveFocus(Qt::MouseFocusReason);
         emit touched(input::CursorPhase::Down, *at);
     }
-    m_swipePoint += event->pixelDelta().toPointF();
-    const std::optional<input::Vec2> inside = normalized(m_content, m_swipePoint, false);
-    const std::optional<input::Vec2> at = normalized(m_content, m_swipePoint, true);
-    if (!inside && at) {
-        emit touched(input::CursorPhase::Move, *at);
-        emit touched(input::CursorPhase::Up, *at);
-        m_swiping = false;
-        m_swipeSpent = event->phase() != Qt::ScrollEnd;
-        return true;
+    if (!delta.isNull()) {
+        m_swipePath[delta.x() >= 0.0 ? 0 : 1] += std::abs(delta.x());
+        m_swipePath[delta.y() >= 0.0 ? 2 : 3] += std::abs(delta.y());
+        const qint64 sinceMs = std::max<qint64>(m_swipeClock.restart(), 1);
+        m_swipeSpeed = std::hypot(delta.x(), delta.y()) / static_cast<double>(sinceMs);
     }
-    if (event->phase() == Qt::ScrollEnd) {
-        m_swiping = false;
-        emit touched(at ? input::CursorPhase::Up : input::CursorPhase::Cancel, at.value_or(input::Vec2{}));
-    } else if (at) {
-        emit touched(input::CursorPhase::Move, *at);
+    moveSwipe(delta, event->phase() == Qt::ScrollEnd);
+    if (event->phase() == Qt::ScrollEnd && m_swiping) {
+        if (const std::optional<QPointF> turn = pageTurn()) {
+            startFlick(*turn);
+            return true;
+        }
+        if (m_inertia && !m_swipeCapped && m_swipeSpeed >= kCoastFrom && m_inertiaStrength > 0.0) {
+            m_coasting = true;
+            m_coasted = 0.0;
+            m_coastClock.start();
+            m_coastIdle.start(kCoastPauseMs);
+        } else {
+            liftSwipe();
+        }
     }
     return true;
 }

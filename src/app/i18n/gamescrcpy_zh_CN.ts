@@ -5279,14 +5279,6 @@
         <translation>帮助 版本 许可</translation>
     </message>
     <message>
-        <source>Sponsor…</source>
-        <translation>赞助…</translation>
-    </message>
-    <message>
-        <source>sponsor donate support afdian thanks</source>
-        <translation>赞助 打赏 支持 爱发电 感谢</translation>
-    </message>
-    <message>
         <source>Help</source>
         <translation>帮助</translation>
     </message>
@@ -8341,10 +8333,6 @@
         <translation>搜索帮助</translation>
     </message>
     <message>
-        <source>Sponsor</source>
-        <translation>赞助</translation>
-    </message>
-    <message>
         <source>Home</source>
         <translation>首页</translation>
     </message>
@@ -10470,10 +10458,6 @@
         <translation>关闭</translation>
     </message>
     <message>
-        <source>Sponsor</source>
-        <translation>赞助</translation>
-    </message>
-    <message>
         <source>Version %1 · %2</source>
         <translation>版本 %1 · %2</translation>
     </message>
@@ -10910,10 +10894,6 @@
         <translation>取消固定工具栏</translation>
     </message>
     <message>
-        <source>Pin the toolbar above the picture</source>
-        <translation>把工具栏固定在画面上方</translation>
-    </message>
-    <message>
         <source>Status capsule</source>
         <translation>状态胶囊</translation>
     </message>
@@ -11188,6 +11168,22 @@
     <message>
         <source>The recording is no longer there</source>
         <translation>录像不在了</translation>
+    </message>
+    <message>
+        <source>The phone&apos;s screen turned off</source>
+        <translation>手机屏幕熄灭了</translation>
+    </message>
+    <message>
+        <source>Stop mirroring</source>
+        <translation>停止投屏</translation>
+    </message>
+    <message>
+        <source>Keep mirroring</source>
+        <translation>继续投屏</translation>
+    </message>
+    <message>
+        <source>Stop mirroring whenever the phone&apos;s screen turns off? Your choice is remembered; you can change it in Settings, under Display.</source>
+        <translation>以后手机熄屏时都停止投屏吗？会记住你的选择，之后可以在“设置 → 显示”里修改。</translation>
     </message>
     <message>
         <source>Leave editing or close the window?</source>
@@ -18321,6 +18317,18 @@
         <translation>标题栏 标题 隐藏 边框 窗口 按钮</translation>
     </message>
     <message>
+        <source>Toolbar position</source>
+        <translation>工具栏位置</translation>
+    </message>
+    <message>
+        <source>Which side of the picture the pinned toolbar sits on. On the left or right its buttons stand in a column.</source>
+        <translation>固定的工具栏放在画面的哪一边。放在左边或右边时，按钮竖着排成一列。</translation>
+    </message>
+    <message>
+        <source>toolbar position side left right top bottom place column vertical</source>
+        <translation>工具栏 位置 边 左 右 上 下 放置 竖排 垂直</translation>
+    </message>
+    <message>
         <source>Status capsule</source>
         <translation>状态胶囊</translation>
     </message>
@@ -18367,6 +18375,18 @@
     <message>
         <source>close window edit editing key mapping exit leave ask remember</source>
         <translation>关闭 窗口 编辑 键位 退出 询问 记住</translation>
+    </message>
+    <message>
+        <source>When the phone&apos;s screen turns off</source>
+        <translation>手机熄屏时</translation>
+    </message>
+    <message>
+        <source>Stop mirroring when the phone goes to sleep or shows its Always On Display, or keep mirroring. Ask decides the first time it happens. Turning the screen off from GameScrcpy does not count. Needs adb.</source>
+        <translation>手机休眠或进入息屏显示（AOD）时停止投屏，或者继续投屏。选“第一次询问”时，第一次熄屏会问你。用 GameScrcpy 关掉手机屏幕不算。需要 adb 连接。</translation>
+    </message>
+    <message>
+        <source>screen off sleep lock aod always on display disconnect stop mirroring battery</source>
+        <translation>熄屏 息屏 休眠 锁屏 AOD 息屏显示 断开 停止投屏 省电</translation>
     </message>
     <message>
         <source>Sound</source>
@@ -18567,6 +18587,66 @@
     <message>
         <source>touch send rate frequency hz moves latency aim camera smooth polling</source>
         <translation>touch send rate frequency hz moves latency aim camera smooth polling 触控 发送 频率 回报率 移动 延迟 转视角 跟手 平滑</translation>
+    </message>
+    <message>
+        <source>Trackpad swipe speed</source>
+        <translation>触控板滑动速度</translation>
+    </message>
+    <message>
+        <source>How far a two-finger swipe on the trackpad moves the finger on the phone: 100% moves it as far as the fingers move over the picture.</source>
+        <translation>触控板双指滑动时，手机上的手指移动多远：100% 表示和手指在画面上滑过的距离一样。</translation>
+    </message>
+    <message>
+        <source>trackpad touchpad swipe speed sensitivity scroll two fingers</source>
+        <translation>触控板 滑动 速度 灵敏度 滚动 双指</translation>
+    </message>
+    <message>
+        <source>Trackpad swipe inertia</source>
+        <translation>触控板滑动惯性</translation>
+    </message>
+    <message>
+        <source>After a quick swipe the finger on the phone keeps going with the trackpad&apos;s momentum, then lifts. Off lifts it as soon as your fingers leave the trackpad.</source>
+        <translation>快速滑动后，手机上的手指会跟着触控板的惯性继续滑一段再抬起。关闭后，手指离开触控板就立刻抬起。</translation>
+    </message>
+    <message>
+        <source>trackpad touchpad swipe inertia momentum fling glide</source>
+        <translation>触控板 滑动 惯性 动量 甩动 滑行</translation>
+    </message>
+    <message>
+        <source>Inertia strength</source>
+        <translation>惯性强度</translation>
+    </message>
+    <message>
+        <source>How far the finger keeps going after a quick swipe: 100% follows the trackpad&apos;s momentum as it is.</source>
+        <translation>快速滑动后手指继续滑多远：100% 表示按触控板原本的惯性滑行。</translation>
+    </message>
+    <message>
+        <source>trackpad inertia momentum strength distance fling</source>
+        <translation>触控板 惯性 动量 强度 距离 甩动</translation>
+    </message>
+    <message>
+        <source>Turn a page after</source>
+        <translation>滑动超过多少翻页</translation>
+    </message>
+    <message>
+        <source>A trackpad swipe that goes at least this far one way, as a share of the screen, without going back, ends in a short flick: the phone turns exactly one page. 0% turns this off.</source>
+        <translation>触控板滑动朝一个方向走到这个比例（按屏幕算）且没有往回走时，结束时补一个短促的甩动：手机正好翻一页。0% 表示关闭。</translation>
+    </message>
+    <message>
+        <source>trackpad swipe page turn flick threshold one page home screen</source>
+        <translation>触控板 滑动 翻页 甩动 阈值 一页 桌面</translation>
+    </message>
+    <message>
+        <source>Longest trackpad swipe</source>
+        <translation>单次滑动上限</translation>
+    </message>
+    <message>
+        <source>The farthest one swipe moves the finger on the phone, inertia included, as a share of the screen in its direction. Once there the finger stops until your fingers leave, so a page turns once instead of flying on. 100% sets no limit.</source>
+        <translation>一次滑动（含惯性）最多让手机上的手指移动多远，按滑动方向上屏幕的比例算。到达上限后手指停住，直到你的手指离开触控板，这样一次只翻一页，不会一路飞过去。100% 表示不限制。</translation>
+    </message>
+    <message>
+        <source>trackpad swipe longest limit maximum distance page once overshoot</source>
+        <translation>触控板 滑动 上限 最大 距离 翻页 一次 过冲</translation>
     </message>
     <message>
         <source>Picture source</source>
@@ -18825,10 +18905,6 @@
     <message>
         <source>Rest the pointer at the top</source>
         <translation>停一下出现</translation>
-    </message>
-    <message>
-        <source>Pinned above the picture</source>
-        <translation>固定在画面上方</translation>
     </message>
     <message>
         <source>Shortcut only</source>
@@ -19211,6 +19287,38 @@
         <translation>最多 16 指；独立显示器上仍用普通方式。</translation>
     </message>
     <message>
+        <source>Pinned</source>
+        <translation>固定</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>上边</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>下边</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>左边</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>右边</translation>
+    </message>
+    <message>
+        <source>Ask the first time</source>
+        <translation>第一次询问</translation>
+    </message>
+    <message>
+        <source>Keep mirroring</source>
+        <translation>继续投屏</translation>
+    </message>
+    <message>
+        <source>Stop mirroring</source>
+        <translation>停止投屏</translation>
+    </message>
+    <message>
         <source>A touch screen, mouse and keyboard on the USB cable that work even without USB debugging. On Windows USB debugging cannot be used while AOA is, so the picture comes over wireless debugging when the phone has it, otherwise there is no picture. Needs the WinUSB driver.</source>
         <translation>数据线上的触摸屏、鼠标和键盘，不开 USB 调试也能用。Windows 上用 AOA 时不能同时用 USB 调试，手机开了无线调试时画面走无线，否则没有画面。需要 WinUSB 驱动。</translation>
     </message>
@@ -19493,61 +19601,6 @@
     <message>
         <source>Windows has no speech recognizer; add a speech language under Time &amp; language, Speech.</source>
         <translation>Windows 没有语音识别器；可以在 Windows 设置的「时间和语言 → 语音」里添加一种语音语言。</translation>
-    </message>
-</context>
-<context>
-    <name>SponsorDialog</name>
-    <message>
-        <source>Sponsor GameScrcpy</source>
-        <translation>赞助 GameScrcpy</translation>
-    </message>
-    <message>
-        <source>%1 launches. We&apos;re old friends now</source>
-        <translation>%1 次了，我们已经是老朋友啦</translation>
-    </message>
-    <message>
-        <source>A full %1 launches. Thank you for staying</source>
-        <translation>整整 %1 次，谢谢你一直陪着它</translation>
-    </message>
-    <message>
-        <source>%1 launches! It seems to really help</source>
-        <translation>%1 次了！看来它真的帮上了忙</translation>
-    </message>
-    <message>
-        <source>You&apos;ve opened GameScrcpy %1 times</source>
-        <translation>你已经打开 GameScrcpy %1 次啦</translation>
-    </message>
-    <message>
-        <source>Sponsor</source>
-        <translation>赞助一下</translation>
-    </message>
-    <message>
-        <source>Sponsor on Afdian</source>
-        <translation>去爱发电赞助</translation>
-    </message>
-    <message>
-        <source>Heartlessly decline</source>
-        <translation>狠心拒绝</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>关闭</translation>
-    </message>
-    <message>
-        <source>GameScrcpy is free and has no ads, and I build it by directing AI. So far that has used up about 10 billion Opus 5.5 tokens, all paid out of my own pocket… and my wallet is starting to feel it.</source>
-        <translation>GameScrcpy 免费、没有广告，是我指挥 AI 一点点写出来的。到现在已经烧掉了约 100 亿个 Opus 5.5 的 token，全是我自掏腰包……钱包有点扛不住了。</translation>
-    </message>
-    <message>
-        <source>If it works well for you, would you consider sponsoring a little? (bows)</source>
-        <translation>如果它还算好用，能不能考虑赞助一下？（鞠躬）</translation>
-    </message>
-    <message>
-        <source>If not, no worries. Thank you for using it!</source>
-        <translation>不方便也没关系，谢谢你一直在用它！</translation>
-    </message>
-    <message>
-        <source>Afdian: %1</source>
-        <translation>爱发电：%1</translation>
     </message>
 </context>
 <context>

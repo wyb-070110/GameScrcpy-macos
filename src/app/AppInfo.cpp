@@ -1,7 +1,6 @@
 #include "AppInfo.h"
 
 #include "QtConversions.h"
-#include "SponsorPrompt.h"
 
 #include <gs/base/BuildInfo.h>
 
@@ -54,11 +53,6 @@ QVariantList AppInfo::licenses() const
 {
     static const QVariantList cached = readLicenses();
     return cached;
-}
-
-QString AppInfo::sponsorUrl() const
-{
-    return QString::fromLatin1(kSponsorUrl);
 }
 
 }

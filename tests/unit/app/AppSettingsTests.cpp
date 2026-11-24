@@ -1,6 +1,5 @@
 #include "AppSettings.h"
 #include "SettingsCatalog.h"
-#include "SponsorPrompt.h"
 
 #include <doctest/doctest.h>
 
@@ -291,22 +290,7 @@ TEST_CASE("the mirror toolbar hint is due until marked shown, and stays shown af
     CHECK(reloaded.mirrorToolbarHintShown());
 }
 
-TEST_CASE("ADR-0109: the sponsor question is due at the 10th, 50th, 100th and 200th launch, each once")
-{
-    using gs::app::sponsorMilestoneDue;
-    CHECK(sponsorMilestoneDue(0, 0) == 0);
-    CHECK(sponsorMilestoneDue(9, 0) == 0);
-    CHECK(sponsorMilestoneDue(10, 0) == 10);
-    CHECK(sponsorMilestoneDue(10, 10) == 0);
-    CHECK(sponsorMilestoneDue(49, 10) == 0);
-    CHECK(sponsorMilestoneDue(50, 10) == 50);
-    CHECK(sponsorMilestoneDue(57, 10) == 50);
-    CHECK(sponsorMilestoneDue(120, 0) == 100);
-    CHECK(sponsorMilestoneDue(200, 100) == 200);
-    CHECK(sponsorMilestoneDue(5000, 200) == 0);
-}
-
-TEST_CASE("ADR-0109: launches are counted in settings.json, and the sponsor question comes once at each of its launches")
+TEST_CASE("ADR-0109: launches are counted in settings.json as a hint, not a setting")
 {
     const TemporaryDirectory directory;
     {
@@ -319,37 +303,16 @@ TEST_CASE("ADR-0109: launches are counted in settings.json, and the sponsor ques
             settings.countLaunch();
         }
         CHECK(settings.launches() == 9);
-        CHECK(settings.sponsorMilestone() == 0);
         CHECK(hints == 9);
         CHECK(values == 0);
         for (const QString& path : settings.values().keys()) {
             CHECK_FALSE(path.startsWith(QStringLiteral("hints")));
         }
     }
-    {
-        AppSettings settings(directory.path());
-        CHECK(settings.launches() == 9);
-        settings.countLaunch();
-        CHECK(settings.sponsorMilestone() == 10);
-        settings.markSponsorAsked(10);
-        CHECK(settings.sponsorMilestone() == 0);
-    }
     AppSettings settings(directory.path());
+    CHECK(settings.launches() == 9);
+    settings.countLaunch();
     CHECK(settings.launches() == 10);
-    CHECK(settings.sponsorMilestone() == 0);
-    std::vector<int> asked{10};
-    for (int launch = 11; launch <= 260; ++launch) {
-        settings.countLaunch();
-        if (const int milestone = settings.sponsorMilestone(); milestone != 0) {
-            CHECK(milestone == launch);
-            asked.push_back(milestone);
-            settings.markSponsorAsked(milestone);
-        }
-    }
-    CHECK(asked == std::vector<int>{10, 50, 100, 200});
-    settings.markSponsorAsked(50);
-    CHECK(settings.sponsorMilestone() == 0);
-    CHECK(settings.launches() == 260);
 }
 
 TEST_CASE("ADR-0107: the other video devices row starts folded, and its folding is remembered and is no setting")

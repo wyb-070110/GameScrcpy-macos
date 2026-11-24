@@ -10,6 +10,7 @@
 
 #include <QAbstractNativeEventFilter>
 #include <QList>
+#include <QMargins>
 #include <QPoint>
 #include <QPointF>
 #include <QPointer>
@@ -54,6 +55,8 @@ public:
 
     [[nodiscard]] const QString& serial() const noexcept { return m_serial; }
     void setDiagnostics(const QStringList& lines);
+    void setTrackpad(double speed, bool inertia, double inertiaStrength, double longest);
+    void setPageTurn(double turnFrom);
     void setSharpness(qreal sharpness);
     void setFilters(std::vector<render::VideoFilter> filters);
     [[nodiscard]] const std::vector<render::FilterStatus>& filterStatus() const;
@@ -166,6 +169,7 @@ private:
     [[nodiscard]] QRect miniGeometry() const;
     void layoutContent();
     [[nodiscard]] int reservedTop() const noexcept;
+    [[nodiscard]] int reservedLeft() const noexcept;
     [[nodiscard]] int reservedRight() const noexcept;
     [[nodiscard]] int reservedBottom() const noexcept;
     [[nodiscard]] QRectF pictureInWindow() const;
@@ -198,6 +202,9 @@ private:
     bool m_fullScreen = false;
     bool m_toolbarPinned = false;
     int m_pinnedBar = 0;
+    // The pinned toolbar's strip when it sits left, right or below the picture (MirrorOverlay's pinnedLeft,
+    // pinnedRight and pinnedBottom); the top is m_pinnedBar.
+    QMargins m_pinnedSides;
     bool m_titleFixed = true;
     int m_titleHeight = 40;
     bool m_restingOnTitle = false;

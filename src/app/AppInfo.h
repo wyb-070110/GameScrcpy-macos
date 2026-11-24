@@ -16,7 +16,6 @@ class AppInfo : public QObject
     Q_PROPERTY(QString revision READ revision CONSTANT FINAL)
     Q_PROPERTY(QString build READ build CONSTANT FINAL)
     Q_PROPERTY(QVariantList licenses READ licenses CONSTANT FINAL)
-    Q_PROPERTY(QString sponsorUrl READ sponsorUrl CONSTANT FINAL)
 
 public:
     explicit AppInfo(QObject* parent = nullptr);
@@ -25,7 +24,6 @@ public:
     [[nodiscard]] QString revision() const;
     [[nodiscard]] QString build() const;
     [[nodiscard]] QVariantList licenses() const;
-    [[nodiscard]] QString sponsorUrl() const;
 };
 
 }

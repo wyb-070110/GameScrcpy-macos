@@ -6,6 +6,10 @@ Item {
     id: toolbar
 
     default property alias content: row.data
+    // Buttons in a column instead of a row, for a toolbar on the left or right of the picture.
+    property bool vertical: false
+    // Where tooltips and menus of the buttons open: away from the edge the toolbar sits on.
+    property string popupEdge: "bottom"
     property bool pinned: false
     property bool blocked: false
     property bool flat: false
@@ -27,13 +31,16 @@ Item {
         internal.revealed = false
     }
 
-    implicitWidth: row.implicitWidth + 2 * Theme.space.xs
-    implicitHeight: Theme.size.toolbar
+    implicitWidth: vertical ? Math.max(Theme.size.toolbar, column.implicitWidth + 2 * Theme.space.xs)
+                            : row.implicitWidth + 2 * Theme.space.xs
+    implicitHeight: vertical ? column.implicitHeight + 2 * Theme.space.xs : Theme.size.toolbar
     opacity: internal.revealed ? 1 : 0
     visible: opacity > 0
 
     Accessible.role: Accessible.ToolBar
 
+    onVerticalChanged: internal.arrange()
+    Component.onCompleted: internal.arrange()
     onPinnedChanged: internal.schedule()
     onHideDelayChanged: internal.schedule()
     onHoveredChanged: {
@@ -57,6 +64,21 @@ Item {
 
         property bool revealed: false
 
+        function arrange() {
+            const from = toolbar.vertical ? row : column
+            const to = toolbar.vertical ? column : row
+            for (const item of Array.from(from.children)) {
+                item.parent = to
+                // A row places x and a column y; the other one is left from before and set here.
+                if (toolbar.vertical) {
+                    item.anchors.horizontalCenter = column.horizontalCenter
+                } else {
+                    item.anchors.horizontalCenter = undefined
+                    item.y = 0
+                }
+            }
+        }
+
         function schedule() {
             if (revealed && !toolbar.pinned && !toolbar.hovered)
                 idle.restart()
@@ -79,7 +101,8 @@ Item {
     Item {
         anchors.fill: parent
         transform: Translate {
-            y: (toolbar.opacity - 1) * (Theme.space.xs + Theme.space.xxs)
+            x: toolbar.vertical ? (toolbar.opacity - 1) * (Theme.space.xs + Theme.space.xxs) : 0
+            y: toolbar.vertical ? 0 : (toolbar.opacity - 1) * (Theme.space.xs + Theme.space.xxs)
         }
 
         RectangularShadow {
@@ -97,7 +120,7 @@ Item {
             objectName: "face"
             anchors.fill: parent
             visible: !toolbar.flat
-            radius: height / 2
+            radius: Math.min(width, height) / 2
             color: Theme.reducedTransparency ? Theme.colors.bgElevated : Theme.colors.bgFrosted
             border.width: Theme.size.stroke
             border.color: Theme.colors.strokeStrong
@@ -105,6 +128,14 @@ Item {
 
         Row {
             id: row
+
+            anchors.centerIn: parent
+            spacing: Theme.space.xxs
+        }
+
+        // The buttons move here while the toolbar is vertical, in the same order.
+        Column {
+            id: column
 
             anchors.centerIn: parent
             spacing: Theme.space.xxs

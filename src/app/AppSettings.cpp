@@ -3,7 +3,6 @@
 #include "AppEvents.h"
 #include "QtConversions.h"
 #include "SettingVariant.h"
-#include "SponsorPrompt.h"
 #include "WindowFit.h"
 
 #include <gs/platform/Accessibility.h>
@@ -692,23 +691,6 @@ void AppSettings::countLaunch()
     }
     settings::Settings next = m_file.document();
     ++next.hints.launches;
-    m_file.update(next);
-    emit hintsChanged();
-}
-
-int AppSettings::sponsorMilestone() const
-{
-    const settings::Hints& hints = m_file.document().hints;
-    return sponsorMilestoneDue(hints.launches, hints.sponsorAsked);
-}
-
-void AppSettings::markSponsorAsked(int milestone)
-{
-    if (milestone <= m_file.document().hints.sponsorAsked || milestone > settings::Hints::kMaxLaunches) {
-        return;
-    }
-    settings::Settings next = m_file.document();
-    next.hints.sponsorAsked = milestone;
     m_file.update(next);
     emit hintsChanged();
 }

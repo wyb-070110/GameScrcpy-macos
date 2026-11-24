@@ -43,6 +43,10 @@ public:
     using GpuTimeListener = std::function<void(double ms)>;
 
     static constexpr std::size_t kMostQueued = 2;
+    // While frames are timed to the screen (a known refresh, not immediate): how many wait at most, and how many
+    // recent transit times (arrival minus the phone's timestamp) decide how long each one is held.
+    static constexpr std::size_t kMostHeld = 4;
+    static constexpr std::size_t kTransitSamples = 120;
     static constexpr std::size_t kMostScreenSamples = 1024;
     static constexpr std::size_t kMostGpuSamples = 1024;
 
@@ -84,6 +88,8 @@ private:
     };
 
     [[nodiscard]] bool pacedLocked() const noexcept;
+    [[nodiscard]] bool timedLocked() const noexcept;
+    void addTransitLocked(std::int64_t transitUs);
     void addScreenLocked(const ScreenSample& sample);
     void addGpuLocked(double ms);
 
@@ -102,6 +108,11 @@ private:
     std::int64_t m_displayIntervalUs = -1;
     std::int64_t m_lastPtsUs = 0;
     std::int64_t m_frameIntervalUs = 0;
+    std::array<std::int64_t, kTransitSamples> m_transit{};
+    std::size_t m_transitCount = 0;
+    std::size_t m_transitNext = 0;
+    std::int64_t m_fastestTransitUs = 0;
+    std::int64_t m_holdUs = 0;
     std::array<ScreenSample, kMostScreenSamples> m_screenSamples{};
     std::size_t m_screenCount = 0;
     std::size_t m_screenNext = 0;

@@ -2,15 +2,22 @@ import QtQuick
 import GameScrcpy.Theme
 
 Item {
-    implicitWidth: Theme.size.stroke + 2 * Theme.space.xs
-    implicitHeight: Theme.size.toolbarButton
+    id: separator
+
+    // Lying across a toolbar whose buttons stand in a column (FloatingToolbar.vertical).
+    readonly property bool across: {
+        return parent instanceof Column
+    }
+
+    implicitWidth: across ? Theme.size.toolbarButton : Theme.size.stroke + 2 * Theme.space.xs
+    implicitHeight: across ? Theme.size.stroke + 2 * Theme.space.xs : Theme.size.toolbarButton
 
     Accessible.role: Accessible.Separator
 
     Rectangle {
         anchors.centerIn: parent
-        width: Theme.size.stroke
-        height: Theme.size.toolbarSeparator
+        width: separator.across ? Theme.size.toolbarSeparator : Theme.size.stroke
+        height: separator.across ? Theme.size.stroke : Theme.size.toolbarSeparator
         color: Theme.colors.strokeDefault
     }
 }

@@ -106,7 +106,7 @@ Window {
     function maybeShowExtensionsNotice() {
         if (!root.extensionsNoticeWanted || extensionsNotice.visible)
             return
-        if (setupGuide.visible || sponsorDialog.visible || commandPalette.visible || about.visible
+        if (setupGuide.visible || commandPalette.visible || about.visible
                 || installDialog.visible || bundleDialog.visible || recordingDialog.visible)
             return
         root.extensionsNoticeWanted = false
@@ -270,7 +270,7 @@ Window {
     Binding {
         target: AppSettings
         property: "toursQuiet"
-        value: setupGuide.visible || sponsorDialog.visible || commandPalette.visible || about.visible
+        value: setupGuide.visible || commandPalette.visible || about.visible
                || installDialog.visible || bundleDialog.visible || recordingDialog.visible
                || extensionsNotice.visible
     }
@@ -343,10 +343,6 @@ Window {
 
         function onTourRequested(key: string) {
             root.replayTour(key)
-        }
-
-        function onSponsorRequested() {
-            sponsorDialog.offer()
         }
     }
 
@@ -604,9 +600,6 @@ Window {
             case "app.about":
                 about.open()
                 break
-            case "app.sponsor":
-                sponsorDialog.offer()
-                break
             case "app.help":
                 root.showHelp(target)
                 break
@@ -721,7 +714,6 @@ Window {
                 CommandMenuItem { commandState: helpCommand }
                 CommandMenuItem { commandState: guideCommand }
                 CommandMenuItem { commandState: aboutCommand }
-                CommandMenuItem { commandState: sponsorCommand }
             }
         }
     }
@@ -742,12 +734,6 @@ Window {
         id: aboutCommand
 
         command: "app.about"
-    }
-
-    CommandState {
-        id: sponsorCommand
-
-        command: "app.sponsor"
     }
 
     ContentPanel {
@@ -939,8 +925,6 @@ Window {
         title: qsTr("About GameScrcpy")
         acceptText: qsTr("Close")
         rejectText: ""
-        alternativeText: qsTr("Sponsor")
-        onAlternativeChosen: Qt.openUrlExternally(AppInfo.sponsorUrl)
         onClosed: root.maybeShowExtensionsNotice()
 
         Column {
@@ -968,12 +952,6 @@ Window {
 
     GuideOverlay {
         id: setupGuide
-
-        onClosed: root.maybeShowExtensionsNotice()
-    }
-
-    SponsorDialog {
-        id: sponsorDialog
 
         onClosed: root.maybeShowExtensionsNotice()
     }
@@ -1126,8 +1104,6 @@ Window {
             root.visible = true
         if (!AppSettings.setupGuideShown)
             Qt.callLater(setupGuide.show, 0, "", "")
-        else if (AppSettings.sponsorMilestone > 0)
-            Qt.callLater(sponsorDialog.ask, AppSettings.sponsorMilestone)
         if (CrashReport.pending)
             crashToast.open()
         Qt.callLater(root.playWaitingTour)

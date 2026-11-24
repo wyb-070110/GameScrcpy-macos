@@ -13,9 +13,11 @@
 #include <algorithm>
 #include <array>
 #include <charconv>
+#include <chrono>
 #include <format>
 #include <fstream>
 #include <iterator>
+#include <thread>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -36,6 +38,8 @@ constexpr std::string_view kEnabledImes = "ime list -s";
 constexpr std::string_view kImeSettings = "am start -a android.settings.INPUT_METHOD_SETTINGS";
 constexpr int kNotificationsSdk = 33;
 constexpr int kReady = 1;
+constexpr int kReadyAttempts = 20;
+constexpr std::chrono::milliseconds kReadyRetry{100};
 
 std::string_view trimmed(std::string_view text) noexcept
 {
@@ -721,8 +725,17 @@ Expected<std::unique_ptr<CompanionChannel>, CompanionNotice> CompanionLink::laun
         return makeUnexpected(
             noticeOf(CompanionEvent::Failed, std::format("the companion could not be started: {}", output)));
     }
-    const auto ready = m_client.shell(m_serial, std::format("am broadcast -n {}", kReadyReceiver));
-    if (!ready || broadcastResult(ready->out) != kReady) {
+    // The service opens its socket a moment after it starts (on a Galaxy Z Flip the first answer was "not yet"
+    // and the next, half a second later, "ready"), so it is asked again for a while.
+    bool listening = false;
+    for (int attempt = 0; attempt < kReadyAttempts && !listening; ++attempt) {
+        if (attempt > 0) {
+            std::this_thread::sleep_for(kReadyRetry);
+        }
+        const auto ready = m_client.shell(m_serial, std::format("am broadcast -n {}", kReadyReceiver));
+        listening = ready && broadcastResult(ready->out) == kReady;
+    }
+    if (!listening) {
         return makeUnexpected(noticeOf(CompanionEvent::Failed, "the companion did not start listening"));
     }
     const auto port = m_client.forward(m_serial, kSocket);

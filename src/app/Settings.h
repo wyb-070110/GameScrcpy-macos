@@ -193,8 +193,14 @@ inline constexpr std::array<std::string_view, 2> kTitleBarModeNames{"fixed", "au
 enum class ToolbarMode : std::uint8_t { Dwell, Pinned, Shortcut };
 inline constexpr std::array<std::string_view, 3> kToolbarModeNames{"dwell", "pinned", "shortcut"};
 
+enum class ToolbarSide : std::uint8_t { Top, Bottom, Left, Right };
+inline constexpr std::array<std::string_view, 4> kToolbarSideNames{"top", "bottom", "left", "right"};
+
 enum class StatusCapsule : std::uint8_t { Auto, Always, Hidden };
 inline constexpr std::array<std::string_view, 3> kStatusCapsuleNames{"auto", "always", "hidden"};
+
+enum class ScreenOffAction : std::uint8_t { Ask, Keep, Disconnect };
+inline constexpr std::array<std::string_view, 3> kScreenOffActionNames{"ask", "keep", "disconnect"};
 
 enum class EditingClose : std::uint8_t { Ask, ExitEditing, CloseWindow };
 inline constexpr std::array<std::string_view, 3> kEditingCloseNames{"ask", "exitEditing", "closeWindow"};
@@ -204,10 +210,12 @@ struct Display {
     std::int32_t sharpness = 0;
     TitleBarMode titleBar = TitleBarMode::Fixed;
     ToolbarMode toolbar = ToolbarMode::Pinned;
+    ToolbarSide toolbarSide = ToolbarSide::Top;
     StatusCapsule statusCapsule = StatusCapsule::Auto;
     bool phoneStatus = false;
     bool cameraGlow = true;
     EditingClose closeWhileEditing = EditingClose::Ask;
+    ScreenOffAction phoneScreenOff = ScreenOffAction::Ask;
 
     template <typename V, typename Self>
     static void visit(V& v, Self& m)
@@ -243,6 +251,13 @@ struct Display {
                                                                "above the picture."),
                   .keywords = GS_TRANSLATE_NOOP("Settings", "toolbar title bar pin buttons"),
                   .live = true});
+        v.choice("toolbarSide", m.toolbarSide, kToolbarSideNames,
+                 {.title = GS_TRANSLATE_NOOP("Settings", "Toolbar position"),
+                  .description = GS_TRANSLATE_NOOP("Settings", "Which side of the picture the pinned toolbar sits on. "
+                                                               "On the left or right its buttons stand in a column."),
+                  .keywords = GS_TRANSLATE_NOOP("Settings", "toolbar position side left right top bottom place "
+                                                            "column vertical"),
+                  .live = true});
         v.choice("statusCapsule", m.statusCapsule, kStatusCapsuleNames,
                  {.title = GS_TRANSLATE_NOOP("Settings", "Status capsule"),
                   .description = GS_TRANSLATE_NOOP("Settings", "Shows the frame rate, delay and connection method in "
@@ -274,6 +289,16 @@ struct Display {
                                                                "editing, or close the mirror window."),
                   .keywords = GS_TRANSLATE_NOOP("Settings", "close window edit editing key mapping exit leave ask "
                                                             "remember"),
+                  .live = true});
+        v.choice("phoneScreenOff", m.phoneScreenOff, kScreenOffActionNames,
+                 {.title = GS_TRANSLATE_NOOP("Settings", "When the phone's screen turns off"),
+                  .description = GS_TRANSLATE_NOOP("Settings", "Stop mirroring when the phone goes to sleep or shows "
+                                                               "its Always On Display, or keep mirroring. Ask decides "
+                                                               "the first time it happens. Turning the screen off "
+                                                               "from GameScrcpy does not count. Needs adb."),
+                  .keywords = GS_TRANSLATE_NOOP("Settings", "screen off sleep lock aod always on display disconnect "
+                                                            "stop mirroring battery"),
+                  .scope = Scope::Device,
                   .live = true});
     }
 
@@ -419,6 +444,11 @@ struct Touch {
     std::string extension;
     std::string device;
     std::int32_t rateHz = 0;
+    std::int32_t trackpadSpeed = 100;
+    bool trackpadInertia = true;
+    std::int32_t trackpadInertiaStrength = 100;
+    std::int32_t trackpadLongestSwipe = 50;
+    std::int32_t trackpadPageTurn = 25;
 
     template <typename V, typename Self>
     static void visit(V& v, Self& m)
@@ -461,6 +491,52 @@ struct Touch {
                                                                 "phone work harder."),
                    .keywords = GS_TRANSLATE_NOOP("Settings", "touch send rate frequency hz moves latency aim camera "
                                                              "smooth polling"),
+                   .scope = Scope::Device,
+                   .live = true});
+        v.integer("trackpadSpeed", m.trackpadSpeed, 25, 400,
+                  {.title = GS_TRANSLATE_NOOP("Settings", "Trackpad swipe speed"),
+                   .description = GS_TRANSLATE_NOOP("Settings", "How far a two-finger swipe on the trackpad moves the "
+                                                                "finger on the phone: 100% moves it as far as the "
+                                                                "fingers move over the picture."),
+                   .keywords = GS_TRANSLATE_NOOP("Settings", "trackpad touchpad swipe speed sensitivity scroll two "
+                                                             "fingers"),
+                   .scope = Scope::Device,
+                   .live = true});
+        v.boolean("trackpadInertia", m.trackpadInertia,
+                  {.title = GS_TRANSLATE_NOOP("Settings", "Trackpad swipe inertia"),
+                   .description = GS_TRANSLATE_NOOP("Settings", "After a quick swipe the finger on the phone keeps "
+                                                                "going with the trackpad's momentum, then lifts. Off "
+                                                                "lifts it as soon as your fingers leave the "
+                                                                "trackpad."),
+                   .keywords = GS_TRANSLATE_NOOP("Settings", "trackpad touchpad swipe inertia momentum fling glide"),
+                   .scope = Scope::Device,
+                   .live = true});
+        v.integer("trackpadInertiaStrength", m.trackpadInertiaStrength, 10, 300,
+                  {.title = GS_TRANSLATE_NOOP("Settings", "Inertia strength"),
+                   .description = GS_TRANSLATE_NOOP("Settings", "How far the finger keeps going after a quick swipe: "
+                                                                "100% follows the trackpad's momentum as it is."),
+                   .keywords = GS_TRANSLATE_NOOP("Settings", "trackpad inertia momentum strength distance fling"),
+                   .scope = Scope::Device,
+                   .live = true});
+        v.integer("trackpadPageTurn", m.trackpadPageTurn, 0, 90,
+                  {.title = GS_TRANSLATE_NOOP("Settings", "Turn a page after"),
+                   .description = GS_TRANSLATE_NOOP("Settings", "A trackpad swipe that goes at least this far one way, "
+                                                                "as a share of the screen, without going back, ends "
+                                                                "in a short flick: the phone turns exactly one page. "
+                                                                "0% turns this off."),
+                   .keywords = GS_TRANSLATE_NOOP("Settings", "trackpad swipe page turn flick threshold one page "
+                                                             "home screen"),
+                   .scope = Scope::Device,
+                   .live = true});
+        v.integer("trackpadLongestSwipe", m.trackpadLongestSwipe, 10, 100,
+                  {.title = GS_TRANSLATE_NOOP("Settings", "Longest trackpad swipe"),
+                   .description = GS_TRANSLATE_NOOP("Settings", "The farthest one swipe moves the finger on the phone, "
+                                                                "inertia included, as a share of the screen in its "
+                                                                "direction. Once there the finger stops until your "
+                                                                "fingers leave, so a page turns once instead of "
+                                                                "flying on. 100% sets no limit."),
+                   .keywords = GS_TRANSLATE_NOOP("Settings", "trackpad swipe longest limit maximum distance page "
+                                                             "once overshoot"),
                    .scope = Scope::Device,
                    .live = true});
     }
@@ -673,6 +749,8 @@ struct Hints {
     std::string crashNotice;
     std::vector<std::string> tours;
     std::int32_t launches = 0;
+    // From the sponsor question, which this build no longer asks: still read, so older files load without a
+    // warning, and never used.
     std::int32_t sponsorAsked = 0;
 
     template <typename V, typename Self>

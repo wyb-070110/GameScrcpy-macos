@@ -457,8 +457,12 @@ Item {
                     }
                     SelectSetting {
                         path: "display.toolbar"
-                        labels: ({ dwell: qsTr("Rest the pointer at the top"), pinned: qsTr("Pinned above the picture"),
+                        labels: ({ dwell: qsTr("Rest the pointer at the top"), pinned: qsTr("Pinned"),
                                    shortcut: qsTr("Shortcut only") })
+                    }
+                    SelectSetting {
+                        path: "display.toolbarSide"
+                        labels: ({ top: qsTr("Top"), bottom: qsTr("Bottom"), left: qsTr("Left"), right: qsTr("Right") })
                     }
                     SelectSetting {
                         path: "display.statusCapsule"
@@ -477,6 +481,11 @@ Item {
                         path: "display.closeWhileEditing"
                         labels: ({ ask: qsTr("Ask each time"), exitEditing: qsTr("Leave editing"),
                                    closeWindow: qsTr("Close the mirror window") })
+                    }
+                    SelectSetting {
+                        path: "display.phoneScreenOff"
+                        labels: ({ ask: qsTr("Ask the first time"), keep: qsTr("Keep mirroring"),
+                                   disconnect: qsTr("Stop mirroring") })
                     }
                 }
 
@@ -794,6 +803,39 @@ Item {
                             fallback: 240,
                             note: page.touchRateText(0)
                         })
+                    }
+
+                    SliderSetting {
+                        path: "touch.trackpadSpeed"
+                        unit: "%"
+                        step: 5
+                        marks: [50, 100, 150, 200, 300]
+                    }
+
+                    SwitchSetting {
+                        path: "touch.trackpadInertia"
+                    }
+
+                    SliderSetting {
+                        path: "touch.trackpadPageTurn"
+                        unit: "%"
+                        step: 5
+                        marks: [15, 25, 40, 60]
+                    }
+
+                    SliderSetting {
+                        path: "touch.trackpadLongestSwipe"
+                        unit: "%"
+                        step: 5
+                        marks: [25, 50, 75, 100]
+                    }
+
+                    SliderSetting {
+                        path: "touch.trackpadInertiaStrength"
+                        unit: "%"
+                        step: 10
+                        marks: [50, 100, 150, 200, 300]
+                        enabled: AppSettings.values["touch.trackpadInertia"] ?? true
                     }
                 }
             }

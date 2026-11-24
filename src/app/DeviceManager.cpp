@@ -1999,6 +1999,8 @@ void DeviceManager::connectDevice(const QString& serial)
         connectApps(serial, row.controller);
         connect(row.controller, &SessionController::deviceStatusArrived, this,
                 [this, serial](const protocol::DeviceStatus& status) { phoneStatusArrived(serial, status); });
+        connect(row.controller, &SessionController::phoneScreenOff, this,
+                [this, serial] { phoneScreenWentOff(serial); });
     }
     if (!row.controller->active()) {
         row.screenOff = false;
@@ -2016,6 +2018,27 @@ void DeviceManager::connectDevice(const QString& serial)
     row.controller->start(row.transport, m_settings.effective(row.deviceId.toStdString()));
     row.session = {session::SessionPhase::Deploying, std::nullopt};
     rowChanged(index);
+}
+
+void DeviceManager::phoneScreenWentOff(const QString& serial)
+{
+    const int index = indexOf(serial);
+    if (index < 0) {
+        return;
+    }
+    const Row& row = m_rows[static_cast<std::size_t>(index)];
+    const settings::Settings effective = m_settings.effective(row.deviceId.toStdString());
+    switch (effective.display.phoneScreenOff) {
+    case settings::ScreenOffAction::Keep:
+        return;
+    case settings::ScreenOffAction::Disconnect:
+        qInfo("%s: the phone's screen went off, so mirroring stops", qUtf8Printable(serial));
+        disconnectDevice(serial);
+        return;
+    case settings::ScreenOffAction::Ask:
+        emit phoneScreenOffAsked(serial);
+        return;
+    }
 }
 
 void DeviceManager::disconnectDevice(const QString& serial)
@@ -2906,6 +2929,10 @@ void DeviceManager::openMirror(Row& row)
     row.mirror->setSharpness(display.sharpness / 100.0);
     row.mirror->setTitleBarFixed(display.titleBar == settings::TitleBarMode::Fixed);
     row.mirror->setToolbarPinned(display.toolbar == settings::ToolbarMode::Pinned);
+    const settings::Touch touch = m_settings.effective(row.deviceId.toStdString()).touch;
+    row.mirror->setTrackpad(touch.trackpadSpeed / 100.0, touch.trackpadInertia, touch.trackpadInertiaStrength / 100.0,
+                            touch.trackpadLongestSwipe / 100.0);
+    row.mirror->setPageTurn(touch.trackpadPageTurn / 100.0);
     row.filters.clear();
     applyFilters(row);
     if (QQmlEngine* engine = m_engine.data(); engine != nullptr) {
@@ -7553,6 +7580,10 @@ void DeviceManager::applyLiveSettings()
             row.mirror->setSharpness(effective.display.sharpness / 100.0);
             row.mirror->setTitleBarFixed(effective.display.titleBar == settings::TitleBarMode::Fixed);
             row.mirror->setToolbarPinned(effective.display.toolbar == settings::ToolbarMode::Pinned);
+            row.mirror->setTrackpad(effective.touch.trackpadSpeed / 100.0, effective.touch.trackpadInertia,
+                                    effective.touch.trackpadInertiaStrength / 100.0,
+                                    effective.touch.trackpadLongestSwipe / 100.0);
+            row.mirror->setPageTurn(effective.touch.trackpadPageTurn / 100.0);
             followApp(row);
         }
         syncCompanion(row);

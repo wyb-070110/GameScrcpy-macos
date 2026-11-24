@@ -52,7 +52,14 @@ public final class InputController {
     }
 
     public void touch(TouchFrame frame) {
-        final int count = planner.plan(frame, geometry.get(), SystemClock.uptimeMillis());
+        final long now = SystemClock.uptimeMillis();
+        final int count = planner.plan(frame, geometry.get(), now);
+        // A finger put down while the screen is off or dozing (Always On Display) wakes the phone first: the
+        // system ignores injected touches there, so the tap would otherwise do nothing.
+        if (count > 0 && planner.event(0).action == MotionEvent.ACTION_DOWN && !screenOn.getAsBoolean()) {
+            injectKey(now, now, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_WAKEUP, 0, 0, 0);
+            injectKey(now, now, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_WAKEUP, 0, 0, 0);
+        }
         for (int i = 0; i < count; ++i) {
             injectMotion(planner.event(i));
         }

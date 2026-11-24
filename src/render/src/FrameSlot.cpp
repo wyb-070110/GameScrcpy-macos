@@ -73,8 +73,12 @@ void FrameSlot::put(media::VideoFrame frame)
         if (Trace& trace = Trace::instance(); trace.on()) {
             trace.line('p', steadyMicros(), ptsUs, frame.receivedUs(), m_frames.size());
         }
+        const bool timed = timedLocked();
+        if (timed) {
+            addTransitLocked(frame.receivedUs() - ptsUs);
+        }
         m_frames.push_back(std::move(frame));
-        const std::size_t limit = pacedLocked() ? kMostQueued : 1;
+        const std::size_t limit = timed ? kMostHeld : pacedLocked() ? kMostQueued : 1;
         while (m_frames.size() > limit) {
             dropped.push_back(std::move(m_frames.front()));
             m_frames.pop_front();
@@ -100,10 +104,27 @@ media::VideoFrame FrameSlot::take(std::int64_t* takenUs)
         if (m_frames.empty()) {
             return frame;
         }
+        nowUs = steadyMicros();
+        if (timedLocked() && m_transitCount > 0) {
+            // Each frame is due a steady time after the phone took it: its fastest recent transit plus the hold.
+            // The newest frame due by the middle of the coming refresh is shown, older ones are skipped, and a
+            // frame not yet due waits for a later refresh (the render node asks again while frames are pending).
+            const std::int64_t horizonUs = nowUs + m_displayIntervalUs / 2;
+            std::ptrdiff_t due = -1;
+            for (std::size_t i = 0; i < m_frames.size(); ++i) {
+                if (m_frames[i].ptsUs() + m_fastestTransitUs + m_holdUs <= horizonUs) {
+                    due = static_cast<std::ptrdiff_t>(i);
+                }
+            }
+            if (due < 0) {
+                return frame;
+            }
+            m_replaced += static_cast<std::uint64_t>(due);
+            m_frames.erase(m_frames.begin(), m_frames.begin() + due);
+        }
         frame = std::move(m_frames.front());
         m_frames.pop_front();
         ++m_taken;
-        nowUs = steadyMicros();
         m_waitedUs += nowUs - frame.receivedUs();
         ++m_waitedFrames;
         listener = m_shown;
@@ -135,6 +156,10 @@ void FrameSlot::setShownListener(ShownListener listener)
 void FrameSlot::setDisplayIntervalUs(std::int64_t intervalUs)
 {
     const std::scoped_lock lock(m_mutex);
+    if (intervalUs != m_displayIntervalUs) {
+        m_transitCount = 0;
+        m_transitNext = 0;
+    }
     m_displayIntervalUs = intervalUs;
 }
 
@@ -142,6 +167,30 @@ bool FrameSlot::paced() const
 {
     const std::scoped_lock lock(m_mutex);
     return pacedLocked();
+}
+
+bool FrameSlot::timedLocked() const noexcept
+{
+    return m_displayIntervalUs > 0;
+}
+
+void FrameSlot::addTransitLocked(std::int64_t transitUs)
+{
+    m_transit[m_transitNext] = transitUs;
+    m_transitNext = (m_transitNext + 1) % kTransitSamples;
+    if (m_transitCount < kTransitSamples) {
+        ++m_transitCount;
+    }
+    // The hold covers how much later than the fastest the slower frames arrive (85th percentile), so most frames
+    // keep an even spacing; it is never more than one refresh, which bounds the delay it adds.
+    std::array<std::int64_t, kTransitSamples> sorted{};
+    std::copy_n(m_transit.begin(), m_transitCount, sorted.begin());
+    const auto end = sorted.begin() + static_cast<std::ptrdiff_t>(m_transitCount);
+    const auto slow = sorted.begin() + static_cast<std::ptrdiff_t>(m_transitCount * 85 / 100);
+    std::nth_element(sorted.begin(), slow, end);
+    const std::int64_t slowUs = *slow;
+    m_fastestTransitUs = *std::min_element(sorted.begin(), end);
+    m_holdUs = std::clamp<std::int64_t>(slowUs - m_fastestTransitUs, 0, m_displayIntervalUs);
 }
 
 bool FrameSlot::pacedLocked() const noexcept

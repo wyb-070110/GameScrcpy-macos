@@ -100,11 +100,13 @@ gs_add_unit_test(gs_platform_tests
         gs::platform
 )
 if(APPLE)
-    target_sources(gs_platform_tests PRIVATE unit/platform/mac/SpeechMacTests.mm unit/platform/mac/TextReaderMacTests.mm)
+    target_sources(gs_platform_tests PRIVATE unit/platform/mac/SpeechMacTests.mm unit/platform/mac/TextReaderMacTests.mm
+                   unit/platform/mac/InputCaptureMacTests.mm)
     set_source_files_properties(unit/platform/mac/SpeechMacTests.mm unit/platform/mac/TextReaderMacTests.mm
+                                unit/platform/mac/InputCaptureMacTests.mm
                                 PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
     target_link_libraries(gs_platform_tests PRIVATE "-framework Foundation" "-framework CoreGraphics"
-                          "-framework CoreText" "-framework Speech")
+                          "-framework CoreText" "-framework AppKit" "-framework Speech")
 endif()
 
 gs_add_unit_test(gs_adb_tests
@@ -414,3 +416,13 @@ target_compile_definitions(gs_exthost_tests PRIVATE
     GS_EXTHOST_TESTS_PROGRAM="$<TARGET_FILE:gs_exthost_tests>"
 )
 add_dependencies(gs_exthost_tests gs_test_native gs_exthost_program)
+
+# Rendering on macOS (built with the app): how frames are timed to the screen.
+if(TARGET gs::render)
+    gs_add_unit_test(gs_render_tests
+        SOURCES
+            unit/render/FrameTimingTests.cpp
+        LIBRARIES
+            gs::render
+    )
+endif()

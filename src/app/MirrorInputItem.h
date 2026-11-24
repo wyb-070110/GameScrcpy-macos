@@ -5,14 +5,17 @@
 #include <gs/input/Geometry.h>
 #include <gs/input/MappingEngine.h>
 
+#include <QElapsedTimer>
 #include <QList>
 #include <QPointF>
 #include <QQuickItem>
 #include <QRectF>
 #include <QSizeF>
 #include <QString>
+#include <QTimer>
 #include <QVariant>
 
+#include <array>
 #include <cstdint>
 #include <map>
 #include <optional>
@@ -34,6 +37,14 @@ public:
     void setTyping(bool on);
     [[nodiscard]] bool typing() const noexcept { return m_typing; }
     void setRelativeMouse(bool on, QSizeF target = {}, int turn = 0);
+    // Trackpad swipes: how far the finger on the phone moves for the fingers' travel (1 = the same distance on
+    // the picture), and whether, and how strongly, it keeps going with the trackpad's momentum after they leave.
+    // longest: the farthest one swipe, momentum included, moves the finger, as a share of the picture in the
+    // direction it goes (1 = no limit).
+    void setTrackpad(double speed, bool inertia, double inertiaStrength, double longest);
+    // A swipe that went at least turnFrom of the picture one way, with at least 90% of its path that way, ends in
+    // a short even flick that way, so the phone turns one page; 0 turns this off.
+    void setPageTurn(double turnFrom);
     [[nodiscard]] bool relativeMouse() const noexcept { return m_relative; }
 
     [[nodiscard]] static std::optional<input::Vec2> normalized(const QRectF& content, QPointF position, bool clamped);
@@ -83,6 +94,11 @@ private:
     };
 
     void cancel();
+    void moveSwipe(QPointF delta, bool ending);
+    void liftSwipe();
+    [[nodiscard]] std::optional<QPointF> pageTurn() const;
+    void flickStep();
+    void startFlick(QPointF direction);
     void releaseKeys();
     void follow(QPointF position);
     [[nodiscard]] bool pressRelative(QMouseEvent* event, bool down);
@@ -93,6 +109,30 @@ private:
     // The finger reached the phone's edge and was lifted; the rest of this swipe is dropped.
     bool m_swipeSpent = false;
     QPointF m_swipePoint;
+    // After the fingers left: the finger on the phone keeps moving with the trackpad's momentum (scaled by the
+    // inertia strength) until the momentum ends, stops coming, or has gone on for long enough.
+    bool m_coasting = false;
+    QElapsedTimer m_coastClock;
+    QTimer m_coastIdle;
+    QElapsedTimer m_swipeClock;
+    double m_swipeSpeed = 0.0;
+    double m_trackpadSpeed = 1.0;
+    bool m_inertia = true;
+    double m_inertiaStrength = 1.0;
+    double m_longestSwipe = 0.5;
+    // Where this swipe's finger went down, and whether it reached the longest swipe (it then stays where it is
+    // until the fingers leave, so the phone does not fling it farther).
+    QPointF m_swipeStart;
+    bool m_swipeCapped = false;
+    // This swipe's path, summed per direction (right, left, down, up), in points of the picture.
+    std::array<double, 4> m_swipePath{};
+    double m_turnFrom = 0.25;
+    // The page-turn flick under way: steps left, each step, and the clock between them.
+    int m_flickSteps = 0;
+    QPointF m_flickStep;
+    QTimer m_flickTimer;
+    // How far the finger has coasted, in points of the picture.
+    double m_coasted = 0.0;
     QPointF m_lastPress;
     bool m_capturing = false;
     bool m_typing = false;
