@@ -1,5 +1,7 @@
 #include "ScriptFixture.h"
 
+#include <gs/base/FromChars.h>
+
 #include <doctest/doctest.h>
 
 #if defined(_WIN32)
@@ -65,7 +67,7 @@ int threadsOfThisProcess()
 double millisecondsIn(const std::string& text)
 {
     double value = -1.0;
-    std::from_chars(text.data(), text.data() + text.size(), value);
+    gs::fromChars(text.data(), text.data() + text.size(), value);
     return value;
 }
 

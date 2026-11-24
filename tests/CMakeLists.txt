@@ -35,6 +35,7 @@ gs_add_unit_test(gs_base_tests
         unit/base/ByteOrderTests.cpp
         unit/base/ClockTests.cpp
         unit/base/ExpectedTests.cpp
+        unit/base/FromCharsTests.cpp
         unit/base/InplaceVectorTests.cpp
         unit/base/JsonNestingTests.cpp
         unit/base/LogTests.cpp

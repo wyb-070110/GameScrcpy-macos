@@ -1,5 +1,7 @@
 #include "gs/ext/FilterSource.h"
 
+#include <gs/base/FromChars.h>
+
 #include "gs/ext/Archive.h"
 
 #include <algorithm>
@@ -72,7 +74,7 @@ std::vector<std::string_view> words(std::string_view text)
 std::optional<double> decimal(std::string_view text)
 {
     double value = 0.0;
-    const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), value);
+    const auto [end, error] = gs::fromChars(text.data(), text.data() + text.size(), value);
     if (error != std::errc() || end != text.data() + text.size() || !std::isfinite(value)) {
         return std::nullopt;
     }

@@ -1,5 +1,7 @@
 #include "CompanionLink.h"
 
+#include <gs/base/FromChars.h>
+
 #include <gs/adb/ShellProtocol.h>
 #include <gs/base/Log.h>
 #include <gs/platform/Crypto.h>
@@ -48,7 +50,7 @@ template <typename T>
 std::optional<T> numberOf(std::string_view text) noexcept
 {
     T value{};
-    const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), value);
+    const auto [end, error] = gs::fromChars(text.data(), text.data() + text.size(), value);
     if (error != std::errc{} || end != text.data() + text.size() || text.empty()) {
         return std::nullopt;
     }

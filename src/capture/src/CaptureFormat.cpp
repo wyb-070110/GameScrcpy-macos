@@ -1,5 +1,7 @@
 #include "gs/capture/CaptureFormat.h"
 
+#include <gs/base/FromChars.h>
+
 #include <algorithm>
 #include <array>
 #include <charconv>
@@ -101,7 +103,7 @@ template <typename T>
 bool parseNumber(std::string_view text, T& value)
 {
     const char* const end = text.data() + text.size();
-    const auto [stop, error] = std::from_chars(text.data(), end, value);
+    const auto [stop, error] = gs::fromChars(text.data(), end, value);
     return error == std::errc() && stop == end;
 }
 
