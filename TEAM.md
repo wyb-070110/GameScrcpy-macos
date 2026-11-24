@@ -11,7 +11,7 @@
 | **Antigravity** | `~/GameScrcpy-macos-antigravity`（独立 git worktree） | `mac/antigravity` | 边界清晰的 macOS 原生模块开发，自己编译、测试、提交 |
 | **Gemini 桌面版** | 不碰代码 | — | 调研、用户文档、方案对比；产出写到 `docs/handoff/gemini/` |
 
-Antigravity 的模型：选它能用的推理强度最高的一档 Gemini（例如 Gemini 4 Carbon High；没有 High 就用 Medium）。
+Antigravity 的模型：**Claude Opus 5.5 (Medium)**。额度用完时换 Gemini 4 Carbon (Medium)。不要用 Orchestrator（它会同时开多个代理改文件，容易互相覆盖），不要用 Gemini 3.8 Flash（即将下线）和 GPT-OSS 120B。
 
 ## 2. 协作红线（违反会互相覆盖代码）
 
