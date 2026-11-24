@@ -329,7 +329,7 @@ GameScrcpy 载入扩展时对照上表检查 `requires`：不满足的扩展不�
 }
 ```
 
-`dll` 必填，是包里的一个 `.dll`。也可以按处理器写成 `{ "x64": "bin/x64/board.dll", "arm64": "bin/arm64/board.dll" }`（最多 8 项，名字只认 `x64` 与 `arm64`，别的名字被忽略）：GameScrcpy 载入与这台电脑相同处理器的那一份，没有就说明“这个扩展没有适合这台电脑的版本”；`gs validate` 检查每份的处理器和入口 `gs_ext_main`。下面各项的 `name` 都是原生名，`title` 最长 40 个字符、`description` 最长 500 个字符，必须和 DLL 在贡献表里登记的名字一致（见[原生扩展指南](native.md)）。
+`dll` 在没有 `dylib` 时必填，是包里的一个 `.dll`。也可以按处理器写成 `{ "x64": "bin/x64/board.dll", "arm64": "bin/arm64/board.dll" }`（最多 8 项，名字只认 `x64` 与 `arm64`，别的名字被忽略）：GameScrcpy 载入与这台电脑相同处理器的那一份，没有就说明“这个扩展没有适合这台电脑的版本”；`gs validate` 检查每份的处理器和入口 `gs_ext_main`。下面各项的 `name` 都是原生名，`title` 最长 40 个字符、`description` 最长 500 个字符，必须和 DLL 在贡献表里登记的名字一致（见[原生扩展指南](native.md)）。`dylib` 是 macOS 的库，写法相同：一个 `.dylib` 路径，或按处理器各一个（见 [macOS](native.md#macos)）。
 
 | 键 | 最多 | 每一项 |
 |:--|:--|:--|

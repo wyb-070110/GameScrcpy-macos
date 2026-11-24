@@ -1,6 +1,7 @@
 #include "MockHost.h"
 
 #include <gs/ext/Archive.h>
+#include <gs/ext/Manifest.h>
 
 #include <doctest/doctest.h>
 #include <nlohmann/json.hpp>
@@ -19,6 +20,14 @@ using Json = MockJson;
 
 namespace {
 
+#if defined(_WIN32)
+const std::string kDll = "native.dll";
+const std::string kHost = "gs-exthost.exe";
+#else
+const std::string kDll = "native.dylib";
+const std::string kHost = "gs-exthost";
+#endif
+
 const fs::path kData(GS_EXT_TEST_DATA_DIR);
 const fs::path kTestDll(GS_TEST_NATIVE_DLL);
 const fs::path kOldDll(GS_TEST_NATIVE_OLD_DLL);
@@ -36,10 +45,21 @@ fs::path nativeFolder(const TempFolder& scratch, const fs::path& dll)
     const fs::path folder = scratch.path() / "native";
     fs::create_directories(folder / "tests");
     fs::copy_file(kData / "native" / "manifest.json", folder / "manifest.json");
+#if !defined(_WIN32)
+    // Off Windows the library is the manifest's dylib; dll names a Windows DLL.
+    {
+        std::ifstream in(folder / "manifest.json", std::ios::binary);
+        Json manifest = Json::parse(in);
+        in.close();
+        manifest["contributes"]["native"].erase("dll");
+        manifest["contributes"]["native"]["dylib"] = kDll;
+        writeFile(folder / "manifest.json", manifest.dump(2));
+    }
+#endif
     for (const fs::directory_entry& entry : fs::directory_iterator(kData / "native" / "tests")) {
         fs::copy_file(entry.path(), folder / "tests" / entry.path().filename());
     }
-    fs::copy_file(dll, folder / "native.dll");
+    fs::copy_file(dll, folder / kDll);
     return folder;
 }
 
@@ -92,7 +112,7 @@ TEST_CASE("ADR-0112: gs ext test runs the test files of an extension against its
     INFO(problemsOf(run));
     CHECK(run.passed());
     CHECK(mockExitCode(extension, run) == 0);
-    CHECK(run.where == "native.dll in this process");
+    CHECK(run.where == kDll + " in this process");
     CHECK(run.warnings.empty());
     REQUIRE(run.tests.size() == 6);
     const MockTest& basic = run.tests[0];
@@ -110,7 +130,7 @@ TEST_CASE("ADR-0112: gs ext test runs the test files of an extension against its
     CHECK(basic.steps[8].at >= 5000);
 
     const std::string report = mockReportText(extension, run);
-    CHECK(report.find("gstest.mock 1.0.0: native.dll in this process\n") != std::string::npos);
+    CHECK(report.find("gstest.mock 1.0.0: " + kDll + " in this process\n") != std::string::npos);
     CHECK(report.find("PASS basic (tests/basic.json)\n") != std::string::npos);
     CHECK(report.find("  pass  #1 ") != std::string::npos);
     CHECK(report.find("\n6 passed, 0 failed\n") != std::string::npos);
@@ -136,7 +156,7 @@ TEST_CASE("ADR-0112: the same test files pass with the DLL in gs-exthost.exe")
     INFO(problemsOf(run));
     CHECK(run.passed());
     CHECK(run.tests.size() == 6);
-    CHECK(run.where == "native.dll in gs-exthost.exe");
+    CHECK(run.where == kDll + " in " + kHost);
     CHECK(mockExitCode(extension, run) == 0);
 }
 
@@ -198,10 +218,10 @@ TEST_CASE("ADR-0112: gs ext test ends with 2 when the DLL, the manifest or the e
     const MockExtension old = openMockExtension(nativeFolder(scratch, kOldDll), {});
     REQUIRE_MESSAGE(old.usable(), old.problem);
     const MockRun run = runOne(old, R"({"steps": [{"do": "call", "node": "add", "args": [1, 2]}]})");
-    CHECK(run.problem.find("native.dll cannot be loaded: the DLL was made for an older GameScrcpy") !=
+    CHECK(run.problem.find(kDll + " cannot be loaded: the DLL was made for an older GameScrcpy") !=
           std::string::npos);
     CHECK(mockExitCode(old, run) == 2);
-    CHECK(mockReportText(old, run).find("cannot be loaded: native.dll cannot be loaded") != std::string::npos);
+    CHECK(mockReportText(old, run).find("cannot be loaded: " + kDll + " cannot be loaded") != std::string::npos);
     CHECK(mockReportJson(old, run).at("loaded") == false);
 
     writeFile(scratch.path() / "broken" / "manifest.json", R"({"schemaVersion": 1, "id": "gstest.broken"})");
@@ -325,7 +345,7 @@ TEST_CASE("ADR-0112: a command of contributes.cli turns its options into the job
     const MockCommandResult result = runMockCommand(extension, *count, *args, {}, hooks);
     CHECK_MESSAGE(result.worked, result.error);
     CHECK(result.exitCode() == 0);
-    CHECK(result.where == "native.dll in this process");
+    CHECK(result.where == kDll + " in this process");
     CHECK(result.result == Json{{"counted", 3}});
     REQUIRE_FALSE(heard.empty());
     CHECK(heard.front() == "step 1");

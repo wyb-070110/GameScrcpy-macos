@@ -1,3 +1,8 @@
+if(NOT WIN32)
+    include(Posix.cmake)
+    return()
+endif()
+
 add_library(gs_exthost STATIC
     include/gs/exthost/Hosted.h
     include/gs/exthost/InProcess.h

@@ -86,10 +86,37 @@ constexpr auto kInjectionFunctions = std::to_array<std::string_view>(
      "NtQueueApcThreadEx",   "ZwQueueApcThread",      "ZwQueueApcThreadEx",   "RtlQueueApcWow64Thread",
      "SetThreadContext",     "Wow64SetThreadContext", "NtSetContextThread",   "ZwSetContextThread",
      "SetWindowsHookExA",    "SetWindowsHookExW",     "SetWindowsHookA",      "SetWindowsHookW"});
+// macOS libraries (Mach-O imports, names without the leading underscore). Objective-C classes show up as
+// OBJC_CLASS_$_<name> references.
+constexpr auto kMacNetworkModules = std::to_array<std::string_view>({"CFNetwork", "Network", "libcurl.4.dylib"});
+constexpr auto kMacNetworkFunctions = std::to_array<std::string_view>(
+    {"socket",           "connect",          "connectx",          "bind",
+     "listen",           "accept",           "getaddrinfo",       "gethostbyname",
+     "gethostbyname2",   "CFSocketCreate",   "CFSocketCreateWithNative", "CFStreamCreatePairWithSocketToHost",
+     "CFHostCreateWithName", "nw_connection_create", "nw_listener_create", "nw_endpoint_create_host",
+     "OBJC_CLASS_$_NSURLSession", "OBJC_CLASS_$_NSURLConnection"});
+constexpr auto kMacFileFunctions = std::to_array<std::string_view>(
+    {"open",       "openat",     "open_dprotected_np", "fopen",      "freopen",     "creat",
+     "unlink",     "unlinkat",   "remove",             "rename",     "renameat",    "renamex_np",
+     "mkdir",      "mkdirat",    "rmdir",              "opendir",    "link",        "linkat",
+     "symlink",    "symlinkat",  "truncate",           "chmod",      "chown",       "copyfile",
+     "clonefile",  "clonefileat", "exchangedata",      "OBJC_CLASS_$_NSFileManager", "OBJC_CLASS_$_NSFileHandle",
+     "OBJC_CLASS_$_NSOpenPanel", "OBJC_CLASS_$_NSSavePanel", "OBJC_CLASS_$_NSFileCoordinator"});
+constexpr std::string_view kMacFilesystemPrefix = "_ZNSt3__14__fs10filesystem";
+constexpr auto kMacInputFunctions = std::to_array<std::string_view>(
+    {"CGEventTapCreate", "CGEventTapCreateForPid", "CGEventTapCreateForPSN", "CGEventSourceKeyState",
+     "CGEventSourceButtonState", "IOHIDManagerCreate", "RegisterEventHotKey"});
+constexpr auto kMacProcessFunctions = std::to_array<std::string_view>(
+    {"posix_spawn", "posix_spawnp", "fork",   "vfork",  "execve",  "execv",          "execvp",
+     "execvP",      "execl",        "execlp", "execle", "system",  "popen",          "OBJC_CLASS_$_NSTask",
+     "LSOpenCFURLRef", "LSOpenFromURLSpec", "LSOpenURLsWithRole"});
+constexpr auto kMacInjectionFunctions = std::to_array<std::string_view>(
+    {"task_for_pid", "processor_set_tasks", "mach_vm_write", "vm_write", "thread_create_running",
+     "thread_set_state", "ptrace"});
 constexpr auto kSystemModules =
     std::to_array<std::string_view>({"kernel32.dll", "kernelbase.dll", "ntdll.dll", "user32.dll"});
 constexpr auto kNativeSuffixes = std::to_array<std::string_view>(
-    {".dll", ".exe", ".sys", ".ocx", ".cpl", ".scr", ".drv", ".efi", ".node", ".pyd", ".ax"});
+    {".dll", ".exe", ".sys", ".ocx", ".cpl", ".scr", ".drv", ".efi", ".node", ".pyd", ".ax", ".dylib", ".so"});
 
 std::string lowered(std::string_view text)
 {
@@ -539,6 +566,10 @@ std::string machineName(std::uint16_t machine)
         return "arm64ec";
     case 0xA64E:
         return "arm64x";
+    case kMachineMacArm64:
+        return "macos-arm64";
+    case kMachineMacX64:
+        return "macos-x64";
     default:
         break;
     }
@@ -558,7 +589,18 @@ std::uint16_t architectureMachine(std::string_view architecture) noexcept
     if (architecture == "arm64") {
         return kMachineArm64;
     }
+    if (architecture == "macos-arm64") {
+        return kMachineMacArm64;
+    }
+    if (architecture == "macos-x64") {
+        return kMachineMacX64;
+    }
     return 0;
+}
+
+bool macArchitecture(std::string_view architecture) noexcept
+{
+    return architecture.starts_with("macos");
 }
 
 std::string_view capabilityName(Capability capability) noexcept
@@ -585,6 +627,24 @@ std::vector<CapabilityUse> classifyImports(const std::vector<ImportedFunction>& 
             continue;
         }
         const std::string_view name = function.name;
+        if (function.macho) {
+            if (listed(kMacInjectionFunctions, name)) {
+                note(Capability::Injection, label);
+            }
+            if (listed(kMacProcessFunctions, name)) {
+                note(Capability::Processes, label);
+            }
+            if (listed(kMacInputFunctions, name)) {
+                note(Capability::Input, label);
+            }
+            if (listed(kMacFileFunctions, name) || name.starts_with(kMacFilesystemPrefix)) {
+                note(Capability::Files, label);
+            }
+            if (listed(kMacNetworkModules, function.module) || listed(kMacNetworkFunctions, name)) {
+                note(Capability::Network, label);
+            }
+            continue;
+        }
         const bool runtimeProcess =
             runtimeModule(function.module) &&
             std::ranges::any_of(kProcessPrefixes, [name](std::string_view prefix) { return name.starts_with(prefix); });
@@ -836,14 +896,17 @@ NativeCheck checkNative(const PackageContents& contents, const Manifest& manifes
             refuse(NativeRefusal::Unreadable, entry.path + " cannot be read");
             continue;
         }
-        if (!looksLikePe(*bytes)) {
+        const bool pe = looksLikePe(*bytes);
+        if (!pe && !looksLikeMachO(*bytes)) {
             if (entry.path == declared) {
-                refuse(NativeRefusal::Unreadable, entry.path + " is not a Windows library");
+                refuse(NativeRefusal::Unreadable, entry.path + (macArchitecture(architecture)
+                                                                     ? " is not a macOS library"
+                                                                     : " is not a Windows library"));
             }
             continue;
         }
         NativeFile file{.path = entry.path,
-                        .imports = readPeImports(*bytes),
+                        .imports = pe ? readPeImports(*bytes) : readMachOImports(*bytes, wanted),
                         .scan = scanner ? scanner(*bytes, entry.path) : ScanVerdict::Skipped};
         if (!file.imports.valid) {
             refuse(NativeRefusal::Unreadable, entry.path + ": " + file.imports.problem);
@@ -900,7 +963,9 @@ LibraryCheck checkNativeLibraries(const PackageContents& contents, const Manifes
             report(Code::FileMissing, architecture, path);
             continue;
         }
-        const PeExports exports = readPeExports(*bytes);
+        const PeExports exports = looksLikeMachO(*bytes)
+                                      ? readMachOExports(*bytes, architectureMachine(architecture))
+                                      : readPeExports(*bytes);
         if (!exports.valid) {
             report(Code::NativeDllInvalid, architecture, path + ": " + exports.problem);
             continue;
@@ -914,7 +979,12 @@ LibraryCheck checkNativeLibraries(const PackageContents& contents, const Manifes
                               .entry = exported(kNativeEntryName),
                               .oldEntry = exported(kOldNativeEntryName)};
         const std::uint16_t expected = architectureMachine(architecture);
-        if (architecture.empty() && architectureMachine(machineName(exports.machine)) == 0) {
+        if (architecture.empty() && macArchitecture(machineName(exports.machine))) {
+            report(Code::NativeMachineMismatch, architecture, path + " is a macOS library; list it in \"dylib\"");
+        } else if (macArchitecture(architecture) && !macArchitecture(machineName(exports.machine))) {
+            report(Code::NativeMachineMismatch, architecture,
+                   path + " is built for " + machineName(exports.machine) + ", not macOS; list it in \"dll\"");
+        } else if (architecture.empty() && architectureMachine(machineName(exports.machine)) == 0) {
             report(Code::NativeMachineMismatch, architecture,
                    path + " is built for " + machineName(exports.machine) + "; GameScrcpy loads x64 and arm64 DLLs");
         } else if (expected != 0 && exports.machine != expected) {

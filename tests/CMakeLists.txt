@@ -127,6 +127,7 @@ gs_add_unit_test(gs_ext_tests
         unit/ext/ArchiveTests.cpp
         unit/ext/BundleTests.cpp
         unit/ext/FilterSourceTests.cpp
+        unit/ext/MachOTests.cpp
         unit/ext/ManifestTests.cpp
         unit/ext/PackageTests.cpp
         unit/ext/ResolutionTests.cpp

@@ -24,6 +24,7 @@ add_library(gs_ext STATIC
     include/gs/ext/NativeCheck.h
     src/Ed25519.cpp
     src/Minisign.cpp
+    src/MachO.cpp
     src/NativeCheck.cpp
     include/gs/ext/Signing.h
     src/Signing.cpp

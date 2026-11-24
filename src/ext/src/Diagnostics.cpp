@@ -467,13 +467,13 @@ std::string_view fixHint(Code code) noexcept
         return "Give each service either script, naming one of the extension's scripts with run \"app\" that calls "
                "ext.provide, or node, naming one of its native nodes that takes one json value and returns json.";
     case Code::NativeArchitectureUnknown:
-        return "Name each DLL by the processor it is built for: \"x64\" or \"arm64\"; other names are ignored.";
+        return "Name each library by the processor it is built for: \"x64\" or \"arm64\"; other names are ignored.";
     case Code::NativeArchitectureMissing:
         return "This extension has no DLL for the processor of this computer; ask its author for one built for it, "
                "listed under that name in \"dll\".";
     case Code::NativeMachineMismatch:
-        return "Build each DLL for the processor it is listed under in \"dll\" (x64 or arm64), or list it under the "
-               "right one.";
+        return "Build each library for the processor it is listed under in \"dll\" or \"dylib\" (x64 or arm64), or "
+               "list it under the right one.";
     case Code::NativeEntryMissing:
         return "Export gs_ext_main from the DLL (GS_EXT_EXPORT in gamescrcpy_ext.h); a DLL that only exports "
                "gs_ext_entry was built with an old SDK and has to be built again with the current one.";

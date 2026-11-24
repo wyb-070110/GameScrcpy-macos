@@ -616,7 +616,7 @@ TEST_CASE("the permissions a native node needs are known ones that the manifest 
 
     Json schema = Json::parse(manifestJsonSchema());
     Json native = schema["properties"]["contributes"]["properties"]["native"];
-    CHECK(native["required"] == Json::array({"dll"}));
+    CHECK(native["anyOf"] == Json::parse(R"([{"required":["dll"]},{"required":["dylib"]}])"));
     CHECK(native["properties"]["nodes"]["items"]["properties"]["params"]["items"]["properties"]["type"]["enum"].size() ==
           kNativeTypeNames.size());
     CHECK(native["properties"]["nodes"]["items"]["properties"]["name"]["pattern"] == "^[a-z][A-Za-z0-9]*$");
@@ -654,7 +654,10 @@ TEST_CASE("ADR-0112: a native DLL is one path or one path per processor, both fo
     CHECK(nativeDlls(*plain.manifest.contributes.native) ==
           std::vector<std::pair<std::string, std::string>>{{"", "bin/clock.dll"}});
     CHECK(Json::parse(saveManifest(plain.manifest))["contributes"]["native"]["dll"] == "bin/clock.dll");
-    CHECK(std::ranges::find(kNativeArchitectureNames, hostArchitecture()) != kNativeArchitectureNames.end());
+    // On macOS the host is "macos-<processor>": the dylib listed under that processor.
+    const std::string_view host = hostArchitecture();
+    CHECK(std::ranges::find(kNativeArchitectureNames, host.starts_with("macos-") ? host.substr(6) : host) !=
+          kNativeArchitectureNames.end());
 
     json["contributes"]["native"]["dll"] = {{"x64", "bin/x64/clock.dll"}, {"riscv64", "bin/riscv64/clock.dll"}};
     loaded = load(json);
@@ -679,7 +682,7 @@ TEST_CASE("ADR-0112: a native DLL is one path or one path per processor, both fo
     CHECK(dll["oneOf"][1]["type"] == "object");
     CHECK(dll["oneOf"][1]["minProperties"] == 1);
     CHECK(dll["oneOf"][1]["propertyNames"]["pattern"] == "^[a-z][A-Za-z0-9]*$");
-    CHECK(schema["properties"]["contributes"]["properties"]["native"]["required"] == Json::array({"dll"}));
+    CHECK(schema["properties"]["contributes"]["properties"]["native"]["anyOf"][0]["required"] == Json::array({"dll"}));
     for (const Code code : {Code::NativeArchitectureUnknown, Code::NativeArchitectureMissing, Code::NativeMachineMismatch,
                             Code::NativeEntryMissing, Code::SignatureInvalid, Code::SignatureMissing,
                             Code::PublisherChanged, Code::SigningKeyMismatch}) {

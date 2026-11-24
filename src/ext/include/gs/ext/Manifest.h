@@ -619,6 +619,10 @@ inline constexpr std::array<std::string_view, 2> kNativeSandboxNames{"full", "re
 struct NativeContribution {
     std::string dll;
     TextMap dlls;
+    // The macOS library: one (universal) dylib, or one per processor by the same names as dll. A field of its own,
+    // so that GameScrcpy for Windows before it only warns about it; dll or dylib must be there.
+    std::string dylib;
+    TextMap dylibs;
     std::vector<NativeTouchMethod> touchMethods;
     std::vector<NativeNode> nodes;
     std::vector<NativeAttachment> attachments;
@@ -640,7 +644,13 @@ struct NativeContribution {
     template <typename V, typename Self>
     static void visit(V& v, Self& m)
     {
-        v.textOrMap("dll", m.dll, m.dlls, {.required = true, .maxLength = 260, .format = TextFormat::PackagePath},
+        v.textOrMap("dll", m.dll, m.dlls, {.required = false, .maxLength = 260, .format = TextFormat::PackagePath},
+                    {.maxEntries = kMostNativeDlls,
+                     .keyFormat = TextFormat::NativeName,
+                     .valueFormat = TextFormat::PackagePath,
+                     .maxLength = 260});
+        v.textOrMap("dylib", m.dylib, m.dylibs,
+                    {.required = false, .maxLength = 260, .format = TextFormat::PackagePath},
                     {.maxEntries = kMostNativeDlls,
                      .keyFormat = TextFormat::NativeName,
                      .valueFormat = TextFormat::PackagePath,

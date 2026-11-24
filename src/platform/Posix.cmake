@@ -13,6 +13,7 @@ find_package(Threads REQUIRED)
 
 add_library(gs_platform STATIC
     include/gs/platform/AtomicFile.h
+    include/gs/platform/CrashHandler.h
     include/gs/platform/Crypto.h
     include/gs/platform/RunningMarker.h
     include/gs/platform/TcpStream.h
@@ -20,6 +21,7 @@ add_library(gs_platform STATIC
     include/gs/platform/Thread.h
     include/gs/platform/UdpSocket.h
     src/posix/AtomicFile.cpp
+    src/posix/CrashHandler.cpp
     src/posix/Crypto.cpp
     src/posix/RunningMarker.cpp
     src/posix/TcpStream.cpp

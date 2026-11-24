@@ -710,16 +710,23 @@ void checkEntry(const NativeVisionEngine& engine, const std::string& path, Conte
 
 void checkEntry(const NativeContribution& native, const std::string& path, Context& context)
 {
+    if (native.dll.empty() && native.dlls.empty() && native.dylib.empty() && native.dylibs.empty()) {
+        context.report(Severity::Error, Code::MissingField, path + ".dll");
+    }
     for (const auto& [architecture, file] : nativeDlls(native)) {
-        const std::string at = architecture.empty() ? path + ".dll" : keyed(path + ".dll", architecture);
+        const bool mac = architecture.starts_with("macos");
+        const std::string_view processor =
+            mac ? std::string_view(architecture).substr(std::min<std::size_t>(architecture.size(), 6)) : architecture;
+        const std::string field = path + (mac ? ".dylib" : ".dll");
+        const std::string at = processor.empty() ? field : keyed(field, std::string(processor));
         std::string lower = file;
         std::ranges::transform(lower, lower.begin(), [](char c) { return c >= 'A' && c <= 'Z' ? char(c - 'A' + 'a') : c; });
-        if (!file.empty() && !lower.ends_with(".dll")) {
+        if (!file.empty() && !lower.ends_with(mac ? ".dylib" : ".dll")) {
             context.report(Severity::Error, Code::NativeDllInvalid, at, file);
         }
-        if (!architecture.empty() &&
-            std::ranges::find(kNativeArchitectureNames, architecture) == kNativeArchitectureNames.end()) {
-            context.report(Severity::Warning, Code::NativeArchitectureUnknown, at, architecture);
+        if (!processor.empty() &&
+            std::ranges::find(kNativeArchitectureNames, processor) == kNativeArchitectureNames.end()) {
+            context.report(Severity::Warning, Code::NativeArchitectureUnknown, at, std::string(processor));
         }
     }
 }
@@ -2563,7 +2570,11 @@ std::string_view nameOf(ExtensionPoint point) noexcept
 
 std::string_view hostArchitecture() noexcept
 {
-#if defined(_M_ARM64) || defined(__aarch64__)
+#if defined(__APPLE__) && defined(__aarch64__)
+    return "macos-arm64";
+#elif defined(__APPLE__) && defined(__x86_64__)
+    return "macos-x64";
+#elif defined(_M_ARM64) || defined(__aarch64__)
     return "arm64";
 #elif defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__)
     return "x64";
@@ -2582,11 +2593,27 @@ std::vector<std::pair<std::string, std::string>> nativeDlls(const NativeContribu
     } else if (!native.dll.empty()) {
         found.emplace_back(std::string(), native.dll);
     }
+    // The macOS library as "macos-<processor>", or "macos" for one that serves every processor.
+    if (!native.dylibs.empty()) {
+        for (const auto& [processor, file] : native.dylibs) {
+            found.emplace_back("macos-" + processor, file);
+        }
+    } else if (!native.dylib.empty()) {
+        found.emplace_back("macos", native.dylib);
+    }
     return found;
 }
 
 std::string nativeDllFor(const NativeContribution& native, std::string_view architecture)
 {
+    if (architecture.starts_with("macos")) {
+        if (native.dylibs.empty()) {
+            return native.dylib;
+        }
+        const std::string_view processor = architecture.starts_with("macos-") ? architecture.substr(6) : "";
+        const auto found = native.dylibs.find(processor);
+        return found != native.dylibs.end() ? found->second : std::string();
+    }
     if (native.dlls.empty()) {
         return native.dll;
     }
@@ -2596,6 +2623,10 @@ std::string nativeDllFor(const NativeContribution& native, std::string_view arch
 
 std::string nativeDllField(std::string_view architecture)
 {
+    if (architecture.starts_with("macos")) {
+        const std::string base = "$.contributes.native.dylib";
+        return architecture.starts_with("macos-") ? base + "[\"" + std::string(architecture.substr(6)) + "\"]" : base;
+    }
     const std::string base = "$.contributes.native.dll";
     return architecture.empty() ? base : base + "[\"" + std::string(architecture) + "\"]";
 }
@@ -2654,6 +2685,12 @@ std::string manifestJsonSchema()
     const Manifest fresh{};
     Manifest::visit(writer, fresh);
     writer.finish();
+    // A native contribution needs its Windows DLL, its macOS dylib, or both.
+    if (Json* native = schema.contains("properties") ? &schema["properties"]["contributes"]["properties"]["native"]
+                                                     : nullptr;
+        native != nullptr && native->is_object()) {
+        (*native)["anyOf"] = Json::array({{{"required", {"dll"}}}, {{"required", {"dylib"}}}});
+    }
     return schema.dump(2) + "\n";
 }
 

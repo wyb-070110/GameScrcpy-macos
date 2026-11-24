@@ -8,9 +8,9 @@
 |---|---|---|
 | 1 | 核心层（base、protocol、input、vision、tsstrip、blueprint）在 macOS / Linux 上编译、测试 | 完成（GitHub Actions macOS arm64 通过） |
 | 2 | platform 层 POSIX 实现，adb 与 session 模块，真机启动手机端服务并收流 | 完成（2026-11-24 真机验收，USB 与无线调试均通过，见下文） |
-| 3 | 画面与声音（VideoToolbox、Qt RHI / Metal、SDL3） | 未开始 |
+| 3 | 画面与声音（VideoToolbox、Qt RHI / Metal、SDL3） | 进行中：解码与声音（media 模块）完成，Qt RHI / Metal 显示未开始 |
 | 4 | Qt Quick 界面与键鼠捕获 | 未开始 |
-| 5 | 脚本进程隔离、OCR、录屏、打包 | 未开始 |
+| 5 | 脚本进程隔离、原生扩展、OCR、录屏、打包 | 进行中：脚本进程隔离（macOS 沙箱）、录屏、原生扩展（gs-exthost，含受限模式）完成；gs 命令行工具、打包未完成 |
 
 ## 持续集成
 
@@ -106,3 +106,20 @@ Apple Silicon Mac（macOS 27），三星 Galaxy Z Fold8（SM-F971B，Android 17�
 其余平台头文件（托盘通知、语音、输入捕获、光标、前台窗口等）属于界面层，到第 4 步再实现。
 
 测试里的 Winsock 调用经 `tests/compat/posix/winsock2.h` 映射到 BSD 套接字，测试代码本身基本不用改。
+
+## 原生扩展的 macOS 实现
+
+清单的 `contributes.native` 多了 `dylib` 一项（和 `dll` 并列），macOS 只载入它，见[原生扩展指南](extensions/native.md#macos)。`gs validate` 读 Mach-O：处理器、导出的 `gs_ext_main`、导入（取自链式修正与绑定指令，再加符号表），用 macOS 的函数表把导入分到联网、文件、启动程序、注入这几类，和 Windows 上读 PE 一样。
+
+`src/exthost` 里共享的文件（Channel、MediaRing、ImageSection、TapSection、InProcess、Server、Hosted）不改，它们的 Win32 调用由 `src/exthost/src/posix/compat/windows.h` 映射到 POSIX（实现在 `posix/Compat.cpp`）：
+
+| Windows | macOS |
+|---|---|
+| 事件 | 管道：`SetEvent` 写一个字节，等待时读空它（自动复位） |
+| 文件映射 | `shm_open` 后立即 `shm_unlink` 的共享内存 |
+| 进程、等待多个对象 | kqueue（`EVFILT_PROC`、`EVFILT_TIMER`）与 `poll` |
+| 把句柄复制进别的进程（`DuplicateHandle`） | 每个 gs-exthost 一条 Unix 套接字（桥），用 `SCM_RIGHTS` 传描述符；App 关掉它的一端时 gs-exthost 自己退出，代替作业对象 |
+| AppContainer（受限模式） | gs-exthost 启动后先进 macOS 沙箱（`sandbox_init`，规则写在 `posix/Container.cpp`）；之后交给它的文件用沙箱扩展令牌 |
+| 崩溃转储 | `crash.txt` 与日志，没有小型转储（`src/platform/src/posix/CrashHandler.cpp`） |
+
+`Hosted.cpp` 只有启动 gs-exthost 的那一段放在 `#if defined(_WIN32)` 里，macOS 的启动在 `posix/Launch.inc` 与 `posix/Spawn.cpp`。测试：`gs_ext_tests`（Mach-O，包括两种绑定格式和去掉符号表的库）、`gs_mockhost_tests`（同一套测试文件在本进程和 gs-exthost 里跑）、`gs_exthost_tests`（共享内存双向、崩溃报告、受限模式、App 被杀后 gs-exthost 自己退出）。

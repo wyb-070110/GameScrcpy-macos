@@ -1,3 +1,8 @@
+if(NOT WIN32)
+    include(Posix.cmake)
+    return()
+endif()
+
 add_library(gs_mockhost STATIC MockHost.cpp MockHost.h)
 target_include_directories(gs_mockhost PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(gs_mockhost PUBLIC gs::ext gs::nlohmann_json PRIVATE gs::base gs::exthost gs::platform gs::script)

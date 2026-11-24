@@ -329,7 +329,7 @@ Give either `script` or `node`. Services need no extension point of their own, b
 }
 ```
 
-`dll` is required: a `.dll` in the package. It can also name one DLL per processor, as `{ "x64": "bin/x64/board.dll", "arm64": "bin/arm64/board.dll" }` (up to 8 entries; only `x64` and `arm64` count, other names are ignored): GameScrcpy loads the one for this computer's processor and otherwise says that the extension has no version for this computer; `gs validate` checks the processor and the entry point `gs_ext_main` of each. The `name` of every entry below is a native name, `title` is at most 40 characters and `description` at most 500, and the names must match the ones the DLL lists in its contribution table (see the [native guide](native.en.md)).
+`dll` is required unless `dylib` is there: a `.dll` in the package. It can also name one DLL per processor, as `{ "x64": "bin/x64/board.dll", "arm64": "bin/arm64/board.dll" }` (up to 8 entries; only `x64` and `arm64` count, other names are ignored): GameScrcpy loads the one for this computer's processor and otherwise says that the extension has no version for this computer; `gs validate` checks the processor and the entry point `gs_ext_main` of each. The `name` of every entry below is a native name, `title` is at most 40 characters and `description` at most 500, and the names must match the ones the DLL lists in its contribution table (see the [native guide](native.en.md)). `dylib` is the macOS library in the same two forms, a `.dylib` path or one per processor (see [macOS](native.en.md#macos)).
 
 | Key | Up to | Each entry |
 |:--|:--|:--|

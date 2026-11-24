@@ -35,6 +35,11 @@ namespace fs = std::filesystem;
 using Json = MockJson;
 using Milliseconds = std::chrono::milliseconds;
 
+#if defined(_WIN32)
+constexpr std::string_view kHostProgram = "gs-exthost.exe";
+#else
+constexpr std::string_view kHostProgram = "gs-exthost";
+#endif
 constexpr int kPassed = 0;
 constexpr int kFailed = 1;
 constexpr int kUnloadable = 2;
@@ -1152,7 +1157,7 @@ bool Session::loadModule(std::size_t number)
         given.clock = &m_shared->clock;
         m_module = exthost::InProcessModule::load(std::move(given), why);
     } else if (std::error_code missing; m_options.exthost.empty() || !fs::is_regular_file(m_options.exthost, missing)) {
-        why = "gs-exthost.exe is not at " + textOf(m_options.exthost);
+        why = std::string(kHostProgram) + " is not at " + textOf(m_options.exthost);
     } else {
         exthost::HostedOptions given;
         given.program = m_options.exthost;
@@ -1179,7 +1184,7 @@ bool Session::loadModule(std::size_t number)
         }
         std::unique_ptr<exthost::HostedModule> hosted = exthost::HostedModule::start(std::move(given), why);
         if (hosted != nullptr && !hosted->waitReady(kHostedReady)) {
-            why = "gs-exthost.exe did not get the DLL ready within 30 seconds";
+            why = std::string(kHostProgram) + " did not get the DLL ready within 30 seconds";
             hosted.reset();
         }
         m_module = std::move(hosted);
@@ -1251,8 +1256,8 @@ std::string Session::placeText() const
         return "no native DLL";
     }
     return ext::nativeDllFor(*m_manifest.contributes.native, ext::hostArchitecture()) +
-           (restricted() ? " restricted in gs-exthost.exe"
-                         : (m_options.hosted ? " in gs-exthost.exe" : " in this process"));
+           (restricted() ? " restricted in " + std::string(kHostProgram)
+                         : (m_options.hosted ? " in " + std::string(kHostProgram) : std::string(" in this process")));
 }
 
 std::string Session::snapshotText() const

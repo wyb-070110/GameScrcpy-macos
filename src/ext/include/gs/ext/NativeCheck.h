@@ -22,6 +22,9 @@ inline constexpr std::string_view kNativeEntryName = "gs_ext_main";
 inline constexpr std::string_view kOldNativeEntryName = "gs_ext_entry";
 inline constexpr std::uint16_t kMachineX64 = 0x8664;
 inline constexpr std::uint16_t kMachineArm64 = 0xAA64;
+// Mach-O libraries for macOS have no PE machine number; these stand for them (no PE machine uses them).
+inline constexpr std::uint16_t kMachineMacArm64 = 0xD064;
+inline constexpr std::uint16_t kMachineMacX64 = 0xD086;
 
 struct ImportedFunction {
     std::string module;
@@ -29,6 +32,7 @@ struct ImportedFunction {
     std::uint16_t ordinal = 0;
     bool byOrdinal = false;
     bool delayed = false;
+    bool macho = false;
 
     friend bool operator==(const ImportedFunction&, const ImportedFunction&) = default;
 };
@@ -116,6 +120,11 @@ struct NativeCheck {
 [[nodiscard]] bool looksLikePe(std::string_view bytes) noexcept;
 [[nodiscard]] PeImports readPeImports(std::string_view image);
 [[nodiscard]] PeExports readPeExports(std::string_view image);
+// Mach-O (MachO.cpp): a thin or universal file; wanted picks the slice of a universal one.
+[[nodiscard]] bool looksLikeMachO(std::string_view bytes) noexcept;
+[[nodiscard]] PeImports readMachOImports(std::string_view image, std::uint16_t wanted = 0);
+[[nodiscard]] PeExports readMachOExports(std::string_view image, std::uint16_t wanted = 0);
+[[nodiscard]] bool macArchitecture(std::string_view architecture) noexcept;
 [[nodiscard]] std::string machineName(std::uint16_t machine);
 [[nodiscard]] std::uint16_t architectureMachine(std::string_view architecture) noexcept;
 [[nodiscard]] std::string_view capabilityName(Capability capability) noexcept;

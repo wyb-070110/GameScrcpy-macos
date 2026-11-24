@@ -377,6 +377,15 @@ The manifest's `dll` can be written as `{ "x64": "bin/x64/native.dll", "arm64": 
 - `gs ext init native <folder>` writes a starting point that builds as it is: a CMake project, a copy of the header, a node, a job, a `contributes.cli` command and a test (see [Testing extensions](testing.en.md)).
 - Ship the built DLL in the package; whether the sources go with it is up to you, and folders whose names start with a dot (such as `.build`) are never packed.
 
+## macOS
+
+GameScrcpy for macOS loads a dylib, listed in the manifest's `dylib` (next to `dll`, which stays the Windows DLL): one path for a library that serves every Mac, such as a universal one, or one per processor, `{ "arm64": "lib/arm64/libboard.dylib", "x64": "lib/x64/libboard.dylib" }`. macOS never loads `dll`, Windows never loads `dylib`, and one package can carry both. A manifest needs at least one of the two; a version of GameScrcpy that does not know `dylib` yet only warns about it.
+
+- Build with Clang (Xcode's command line tools), include `gamescrcpy_ext.h` and export `gs_ext_main` (there the header's `GS_EXT_EXPORT` is `__attribute__((visibility("default")))`).
+- `gs validate` checks the dylib as it checks a DLL: its processor, its `gs_ext_main`, and what it imports. Imports are read from what macOS binds when it loads the library, not only from its symbol table, so stripping symbols does not hide them. `task_for_pid`, `mach_vm_write`, `thread_set_state`, `ptrace` and the like count as injection and refuse the package.
+- Each dylib runs in its own `gs-exthost` process, as on Windows. A crash leaves `crash.txt` (signal, address, the library and offset it happened in) and the log in the crash folder; there is no minidump.
+- `"sandbox": "restricted"` runs `gs-exthost` in a macOS sandbox instead of an AppContainer: it may read its own folder and the system's libraries, read and write its container folder `~/Library/Application Support/GameScrcpy/Containers/GameScrcpy.Extension.<hash>` (also its `HOME` and `TMPDIR`), and nothing else; the network and starting other programs are refused, and its environment holds only `HOME`, `TMPDIR`, `PATH` and the language. A file GameScrcpy shares with it later becomes readable to it alone. macOS has no job object: the 1 GiB memory limit of Windows does not apply.
+
 ## Errors that logic sees
 
 | Code | Meaning |

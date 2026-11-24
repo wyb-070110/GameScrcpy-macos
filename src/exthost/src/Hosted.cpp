@@ -7,6 +7,10 @@
 #include "Container.h"
 #include "Store.h"
 #include "Wire.h"
+#if !defined(_WIN32)
+#include "posix/Bridge.h"
+#include "posix/Sandbox.h"
+#endif
 
 #include <nlohmann/json.hpp>
 
@@ -45,11 +49,13 @@ constexpr std::size_t kMostContainedSourceChanges = 4;
 constexpr std::size_t kMostContainedInputs = 2 * kMostInputSources * kMostInputEventsPerSecond;
 constexpr std::chrono::seconds kPaceWindow{1};
 constexpr std::chrono::seconds kNoticeWindow{10};
+#if defined(_WIN32)
 constexpr std::array<std::wstring_view, 14> kContainedVariables{
     L"ComSpec",          L"LOCALAPPDATA",          L"NUMBER_OF_PROCESSORS", L"OS",
     L"PATHEXT",          L"PROCESSOR_ARCHITECTURE", L"PROCESSOR_IDENTIFIER", L"PROCESSOR_LEVEL",
     L"PROCESSOR_REVISION", L"SystemDrive",         L"SystemRoot",           L"TEMP",
     L"TMP",              L"windir"};
+#endif
 
 class Pace
 {
@@ -90,6 +96,7 @@ private:
     std::size_t m_count = 0;
 };
 
+#if defined(_WIN32)
 std::wstring containedEnvironment()
 {
     std::vector<std::wstring> entries;
@@ -116,6 +123,7 @@ std::wstring containedEnvironment()
     block += L'\0';
     return block;
 }
+#endif
 
 std::string utf8(const std::filesystem::path& path)
 {
@@ -129,6 +137,7 @@ bool drawable(const Shape& shape)
            validUtf8(shape.text);
 }
 
+#if defined(_WIN32)
 std::wstring quoted(const std::filesystem::path& path)
 {
     std::wstring text = path.wstring();
@@ -152,6 +161,7 @@ HANDLE sharedJob()
     }();
     return job;
 }
+#endif
 
 struct Instance {
     detail::Channel channel;
@@ -159,6 +169,7 @@ struct Instance {
     HANDLE job = nullptr;
 };
 
+#if defined(_WIN32)
 std::optional<Instance> launchContained(const HostedOptions& options, detail::Channel channel, std::string& problem)
 {
     const PSID sid = detail::containerSid(options.container, problem);
@@ -245,6 +256,9 @@ std::optional<Instance> launchContained(const HostedOptions& options, detail::Ch
     CloseHandle(started.hThread);
     return Instance{std::move(channel), started.hProcess, job};
 }
+#else
+#include "posix/Launch.inc"
+#endif
 
 std::optional<Instance> launch(const HostedOptions& options, std::string& problem)
 {
@@ -269,6 +283,7 @@ std::optional<Instance> launch(const HostedOptions& options, std::string& proble
     if (!options.container.empty()) {
         return launchContained(options, std::move(*channel), problem);
     }
+#if defined(_WIN32)
     const std::array<HANDLE, 3> sources = channel->handles();
     std::array<HANDLE, 3> copies{};
     bool made = true;
@@ -323,6 +338,9 @@ std::optional<Instance> launch(const HostedOptions& options, std::string& proble
     ResumeThread(started.hThread);
     CloseHandle(started.hThread);
     return Instance{std::move(*channel), started.hProcess};
+#else
+    return launchPlain(options, std::move(*channel), problem);
+#endif
 }
 
 }

@@ -183,6 +183,7 @@ gs_add_unit_test(gs_ext_tests
         unit/ext/ArchiveTests.cpp
         unit/ext/BundleTests.cpp
         unit/ext/FilterSourceTests.cpp
+        unit/ext/MachOTests.cpp
         unit/ext/ManifestTests.cpp
         unit/ext/PackageTests.cpp
         unit/ext/ResolutionTests.cpp
@@ -198,6 +199,22 @@ gs_add_unit_test(gs_ext_tests
         gs::nlohmann_json
 )
 target_compile_definitions(gs_ext_tests PRIVATE GS_EXAMPLES_DIR="${PROJECT_SOURCE_DIR}/examples")
+if(APPLE)
+    # Real dylibs for the Mach-O checks: one that only opens files, one that also imports network, process
+    # and injection functions.
+    add_library(gs_test_macho_clean SHARED fakes/native/MachOProbe.cpp)
+    add_library(gs_test_macho_probe SHARED fakes/native/MachOProbe.cpp)
+    target_compile_definitions(gs_test_macho_probe PRIVATE GS_PROBE_EVERYTHING)
+    # The same probe in the older format, bind opcodes in LC_DYLD_INFO instead of chained fixups.
+    add_library(gs_test_macho_probe_classic SHARED fakes/native/MachOProbe.cpp)
+    target_compile_definitions(gs_test_macho_probe_classic PRIVATE GS_PROBE_EVERYTHING)
+    target_link_options(gs_test_macho_probe_classic PRIVATE "LINKER:-no_fixup_chains")
+    target_compile_definitions(gs_ext_tests PRIVATE
+        GS_TEST_MACHO_CLEAN="$<TARGET_FILE:gs_test_macho_clean>"
+        GS_TEST_MACHO_PROBE="$<TARGET_FILE:gs_test_macho_probe>"
+        GS_TEST_MACHO_PROBE_CLASSIC="$<TARGET_FILE:gs_test_macho_probe_classic>")
+    add_dependencies(gs_ext_tests gs_test_macho_clean gs_test_macho_probe gs_test_macho_probe_classic)
+endif()
 
 gs_add_unit_test(gs_script_tests
     SOURCES
@@ -351,3 +368,48 @@ gs_add_unit_test(gs_hardware_tests
     LIBRARIES
         gs::hardware
 )
+
+# Native extensions: the test DLLs as macOS libraries (their Win32 calls mapped as in gs-exthost), and the mock host
+# of gs ext test running them in this process and in gs-exthost.
+add_library(gs_test_native SHARED fakes/native/TestNative.cpp
+    "${PROJECT_SOURCE_DIR}/src/exthost/src/Channel.cpp"
+    "${PROJECT_SOURCE_DIR}/src/exthost/src/posix/Compat.cpp")
+target_include_directories(gs_test_native PRIVATE "${PROJECT_SOURCE_DIR}/sdk/include"
+    "${PROJECT_SOURCE_DIR}/src/exthost/src")
+target_include_directories(gs_test_native BEFORE PRIVATE "${PROJECT_SOURCE_DIR}/src/exthost/src/posix/compat")
+target_link_libraries(gs_test_native PRIVATE ${CMAKE_DL_LIBS})
+gs_apply_compiler_policy(gs_test_native)
+
+add_library(gs_test_native_old SHARED fakes/native/TestNativeOld.cpp)
+gs_apply_compiler_policy(gs_test_native_old)
+
+gs_add_unit_test(gs_mockhost_tests
+    SOURCES
+        unit/cli/MockHostTests.cpp
+    LIBRARIES
+        gs_mockhost
+        gs::ext
+        gs::nlohmann_json
+)
+target_compile_definitions(gs_mockhost_tests PRIVATE
+    GS_EXT_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data/ext-test"
+    GS_TEST_NATIVE_DLL="$<TARGET_FILE:gs_test_native>"
+    GS_TEST_NATIVE_OLD_DLL="$<TARGET_FILE:gs_test_native_old>"
+    GS_EXTHOST_PROGRAM="$<TARGET_FILE:gs_exthost_program>"
+)
+add_dependencies(gs_mockhost_tests gs_test_native gs_test_native_old gs_exthost_program)
+
+# gs-exthost on macOS: shared memory to and from the child, a crash and its report, and the sandbox of a restricted DLL.
+gs_add_unit_test(gs_exthost_tests
+    SOURCES
+        unit/exthost/posix/HostedTests.cpp
+    LIBRARIES
+        gs::exthost
+        gs::nlohmann_json
+)
+target_compile_definitions(gs_exthost_tests PRIVATE
+    GS_TEST_NATIVE_DLL="$<TARGET_FILE:gs_test_native>"
+    GS_EXTHOST_PROGRAM="$<TARGET_FILE:gs_exthost_program>"
+    GS_EXTHOST_TESTS_PROGRAM="$<TARGET_FILE:gs_exthost_tests>"
+)
+add_dependencies(gs_exthost_tests gs_test_native gs_exthost_program)

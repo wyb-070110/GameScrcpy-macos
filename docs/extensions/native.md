@@ -377,6 +377,15 @@ AI 服务提供者让设置 › AI 的“模型服务”里多一项：小助手
 - `gs ext init native <文件夹>` 生成一个能直接编译的起点：CMake 工程、头文件的副本、一个节点、一个长任务、一个 `contributes.cli` 命令和一个测试（见[测试扩展](testing.md)）。
 - 包里带上编好的 DLL；源代码要不要一起发由你决定，名字以点开头的文件夹（如 `.build`）不会被打包。
 
+## macOS
+
+macOS 版的 GameScrcpy 载入 dylib，写在清单的 `dylib` 里（和 `dll` 并列，`dll` 仍是 Windows 的 DLL）：可以是一个路径，用于所有 Mac 都能用的一份（比如通用二进制）；也可以按处理器写，`{ "arm64": "lib/arm64/libboard.dylib", "x64": "lib/x64/libboard.dylib" }`。macOS 从不载入 `dll`，Windows 从不载入 `dylib`，一个包可以两样都带。清单至少要有其中一个；还不认识 `dylib` 的旧版 GameScrcpy 只把它当作一条提示。
+
+- 用 Clang（Xcode 命令行工具）编译，包含 `gamescrcpy_ext.h`，导出 `gs_ext_main`（这时头文件的 `GS_EXT_EXPORT` 是 `__attribute__((visibility("default")))`）。
+- `gs validate` 像检查 DLL 一样检查 dylib：处理器、`gs_ext_main`、导入了什么。导入取自 macOS 载入它时真正要绑定的内容，不只看符号表，所以去掉符号也藏不住。`task_for_pid`、`mach_vm_write`、`thread_set_state`、`ptrace` 这类算注入，包会被拒绝。
+- 每个 dylib 和在 Windows 上一样在自己的 `gs-exthost` 进程里运行。崩溃时崩溃文件夹里有 `crash.txt`（信号、地址、出错的库和偏移）和日志，没有小型转储。
+- `"sandbox": "restricted"` 时 `gs-exthost` 在 macOS 沙箱里运行，代替 AppContainer：能读自己的文件夹和系统的库，能读写自己的容器文件夹 `~/Library/Application Support/GameScrcpy/Containers/GameScrcpy.Extension.<散列>`（也是它的 `HOME` 和 `TMPDIR`），别的都不行；联网、启动别的程序都被拒绝，环境变量只有 `HOME`、`TMPDIR`、`PATH` 和语言。GameScrcpy 之后交给它的文件只有它能读。macOS 没有作业对象，Windows 上 1 GiB 的内存上限这里没有。
+
 ## 逻辑里看到的错误
 
 | 代码 | 意思 |
