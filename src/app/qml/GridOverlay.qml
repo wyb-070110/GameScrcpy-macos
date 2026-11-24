@@ -112,11 +112,34 @@ Item {
         anchors.top: parent.top
         height: minimizeButton.implicitHeight
 
+        MouseArea {
+            property real pressX: 0
+            property real pressY: 0
+            property bool moving: false
+
+            anchors.fill: parent
+            acceptedButtons: Qt.LeftButton
+            onPressed: mouse => {
+                pressX = mouse.x
+                pressY = mouse.y
+                moving = false
+            }
+            onPositionChanged: mouse => {
+                if (!pressed || moving)
+                    return
+                if (Math.hypot(mouse.x - pressX, mouse.y - pressY) >= Application.styleHints.startDragDistance) {
+                    moving = true
+                    chrome.startDrag()
+                }
+            }
+            onDoubleClicked: chrome.doubleClickTitleBar()
+        }
+
         Icon {
             id: titleIcon
 
             anchors.left: parent.left
-            anchors.leftMargin: Theme.space.md + Theme.space.xxs
+            anchors.leftMargin: 78
             anchors.verticalCenter: parent.verticalCenter
             name: "layout-grid"
             size: Theme.size.iconSmall

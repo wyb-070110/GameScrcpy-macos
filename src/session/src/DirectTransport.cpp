@@ -533,13 +533,16 @@ Expected<std::unique_ptr<Link>, SessionFailure> DirectTransport::establish(const
     static_cast<void>(socket->markAsVideo(m_server));
     const auto started = SteadyClock::now();
     DirectHandshake handshake(token, clientVersion, m_server, started);
+    std::size_t sendFailures = 0;
     {
         const std::stop_callback interrupt(stop, [&socket] { socket->interrupt(); });
         std::array<std::uint8_t, protocol::kDatagramMaxSize + 1> buffer{};
         while (true) {
             const auto now = SteadyClock::now();
             if (const auto datagram = handshake.poll(now); !datagram.empty()) {
-                static_cast<void>(socket->sendTo(m_server, datagram));
+                if (!socket->sendTo(m_server, datagram)) {
+                    ++sendFailures;
+                }
             }
             using State = DirectHandshake::State;
             if (handshake.state() == State::Accepted || handshake.state() == State::Failed) {
@@ -555,7 +558,11 @@ Expected<std::unique_ptr<Link>, SessionFailure> DirectTransport::establish(const
         }
     }
     if (handshake.state() == DirectHandshake::State::Failed) {
-        return makeUnexpected(handshake.failure());
+        SessionFailure failed = handshake.failure();
+        if (sendFailures != 0) {
+            failed.detail += std::format("; {} UDP sends failed", sendFailures);
+        }
+        return makeUnexpected(std::move(failed));
     }
     socket->setReceiveTimeout(std::chrono::milliseconds::zero());
     auto link = std::make_unique<DirectLink>(std::move(*socket), m_server, handshake.connection(), token);

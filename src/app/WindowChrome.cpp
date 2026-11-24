@@ -1,7 +1,12 @@
 #include "WindowChrome.h"
 #include "WindowChromeMac.h"
 
+#include <QCoreApplication>
+#include <QCursor>
+#include <QEvent>
+#include <QGuiApplication>
 #include <QLoggingCategory>
+#include <QMouseEvent>
 #include <QWKQuick/quickwindowagent.h>
 
 namespace gs::app {
@@ -30,6 +35,7 @@ bool WindowChrome::attach()
     }
 
     // macOS: the system's own title bar, transparent over the content (WindowChromeMac.mm), not QWindowKit.
+    m_window->installEventFilter(this);
     m_attached = styleMacWindow(m_window);
     if (!m_attached) {
         qCWarning(lcChrome) << "the window has no native window to style";
@@ -44,6 +50,42 @@ void WindowChrome::setHitTestVisible(QQuickItem* item, bool visible)
     if (m_agent != nullptr && item != nullptr) {
         m_agent->setHitTestVisible(item, visible);
     }
+}
+
+bool WindowChrome::startDrag()
+{
+    if (m_window == nullptr) {
+        return false;
+    }
+    if (!startMacWindowDrag(m_window)) {
+        return m_window->startSystemMove();
+    }
+    // AppKit's performWindowDragWithEvent: runs a modal tracking loop and consumes the mouse-up event; send a
+    // matching release to Qt so the pressed MouseArea ungrabs cleanly once the drag ends.
+    const QPointF globalPos(QCursor::pos());
+    const QPointF localPos = m_window->mapFromGlobal(globalPos);
+    QMouseEvent release(QEvent::MouseButtonRelease, localPos, localPos, globalPos, Qt::LeftButton,
+                        QGuiApplication::mouseButtons() & ~Qt::LeftButton, QGuiApplication::keyboardModifiers());
+    QCoreApplication::sendEvent(m_window, &release);
+    return true;
+}
+
+void WindowChrome::doubleClickTitleBar()
+{
+    if (m_window != nullptr) {
+        performMacTitleBarDoubleClick(m_window);
+    }
+}
+
+bool WindowChrome::eventFilter(QObject* watched, QEvent* event)
+{
+    if (watched == m_window && (event->type() == QEvent::Show || event->type() == QEvent::WindowStateChange)) {
+        if (styleMacWindow(m_window)) {
+            m_attached = true;
+            applyDarkMode();
+        }
+    }
+    return QObject::eventFilter(watched, event);
 }
 
 void WindowChrome::setWindow(QQuickWindow* window)

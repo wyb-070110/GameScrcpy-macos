@@ -2,136 +2,114 @@
 
 <img src="docs/images/logo.png" width="96" height="96" alt="GameScrcpy">
 
-# GameScrcpy
+# GameScrcpy (macOS)
 
-**在 Windows 上用键盘、鼠标和手柄玩安卓手机游戏**
+**在 macOS 上投屏控制安卓手机，支持蓝图与 TypeScript 自动化（移植进行中）**
 
-[![Release](https://img.shields.io/github/v/release/NuoRan/GameScrcpy?style=flat-square)](https://github.com/NuoRan/GameScrcpy/releases/latest)
-[![CI](https://img.shields.io/github/actions/workflow/status/NuoRan/GameScrcpy/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/NuoRan/GameScrcpy/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/wyb-070110/GameScrcpy-macos/macos.yml?style=flat-square&label=macOS%20CI)](https://github.com/wyb-070110/GameScrcpy-macos/actions/workflows/macos.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square)](LICENSE)
-[![Platform](https://img.shields.io/badge/Windows%2010%20%2F%2011-x64-0078D4?style=flat-square)](#系统要求)
+[![Platform](https://img.shields.io/badge/macOS%2014%2B-Apple%20Silicon-000000?style=flat-square)](#系统要求)
 
 简体中文 · [English](README.en.md)
 
-[下载](https://github.com/NuoRan/GameScrcpy/releases/latest) · [使用帮助](docs/README.md) · [更新日志](CHANGELOG.md) · [参与开发](CONTRIBUTING.md)
+[移植进度](docs/macos-port.md) · [使用帮助](docs/README.md) · [更新日志](CHANGELOG.md) · [上游项目](https://github.com/NuoRan/GameScrcpy)
 
 <img src="docs/images/keymap-editor.png" width="860" alt="在游戏画面上直接摆放键位">
 
 </div>
 
-GameScrcpy 把安卓手机的画面低延迟地投到电脑上，键位直接摆在游戏画面上，用键盘、鼠标和手柄操作。键位不够用时，可以用蓝图（节点和连线）或 TypeScript 给它们写逻辑，识图、找色、定时任务都能做。手机端服务、通信协议和电脑端全部是这一版重新写的，思路源自 [scrcpy](https://github.com/Genymobile/scrcpy)。
+本仓库是 [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy) 的 **Apple Silicon macOS 移植版（进行中）**。GameScrcpy 把安卓手机的画面低延迟地投到电脑上，支持在游戏画面上直接摆放键位，并用蓝图（节点和连线）或 TypeScript 编写识图、找色、OCR 与定时任务逻辑。手机端服务、通信协议和桌面端思路源自 [scrcpy](https://github.com/Genymobile/scrcpy)。
 
-## 功能
+## 功能与 macOS 移植状态
 
-### 投屏
+### 已支持
 
-- **低延迟**：显卡硬件解码，解码出的画面直接交给界面显示，不经过内存拷贝；支持 H.264、H.265、AV1。
-- **声音**：在电脑上播放手机的声音（Android 11 及以上）。
-- **多种连接**：USB 数据线；无线调试，用配对码或扫二维码配对；手机插着网线、没有 Wi‑Fi 时，用数据线一键开启网络调试，拔线后自动连上；画面也可以走 WiFi 直连（UDP 加纠错，断线后自动续上，网线上也能走）。
-- **多台手机**：每台一个窗口，或者放进宫格里一起看；可以同步操作，也能对选中的几台一起打开应用、安装 APK、发送文件或运行任务。
-- **录像**：录下画面、声音和你的操作，导出 MP4，也能拿来回放测试逻辑。
-- **手机管理**：文件管理、应用管理、状态浮层，把应用开在单独的虚拟屏幕上；还能测出从按键到画面变化的真实延迟。
-- **手机伴侣**：可选装的手机应用，在手机上显示光标和键位提示，让你用电脑键盘往手机里打字，扫码就能经 Wi-Fi 连上电脑；它的开关在手机和电脑上都能改，两边同步。
+- **低延迟画面与声音**：VideoToolbox 硬件解码（H.264、H.265，AV1 由 dav1d 解码）与 Qt RHI（Metal）直接绘制，支持 NV12、P010 与 YUV 4:2:0；SDL3 播放手机声音（Android 11 及以上）。
+- **多种连接**：USB 数据线；无线调试（配对码或扫码配对）；WiFi 直连（UDP 加 Reed-Solomon 纠删码，断线自动续连）；手机伴侣应用经 BSD 套接字与 Bonjour 发现连接。
+- **多台手机与管理**：独立投屏窗口或宫格同屏、触控板单指拖拽滑动、录像与 MP4 导出、文件管理、应用管理、独立虚拟屏幕启动应用、真实端到端延迟测量。
+- **蓝图、脚本与 OCR**：蓝图与 TypeScript 双向转换，脚本运行在 `sandbox_init` 隔离的 `gs-scripthost` 进程中；接入 macOS Vision 框架实现中英文等文字识别；内置命令行工具 `gs`。
+- **AI 与本地 MCP**：AI 小助手密钥保存在 macOS 钥匙串（Keychain）中；本地 MCP 服务通过 Unix 套接字连接 Claude、Cursor 等工具。
+- **扩展系统**：支持 `.gsext` / `.gsbundle` 扩展包与 `.dylib` 原生扩展（Mach-O 导入检查、独立 `gs-exthost` 进程与 macOS 沙箱隔离），支持 `gamescrcpy://` 链接唤起。
 
-### 键位映射
+### 尚未完成
 
-- **在画面上摆键位**：在投屏窗口里打开编辑器，把组件拖到游戏按钮上、配好按键，随时"试一试"。
-- **组件库**：点击、按住、长按、连发、滑动、双指缩放、WASD 轮盘、右键行走、视角、自由视角、技能、方向轮盘、多点同按、动作轮盘、临时光标，以及手柄摇杆与手柄视角。
-- **按游戏自动切换**：每个游戏一套方案，前台换了游戏就自动换方案；每台手机记住自己的选择。
-- **手柄**：Xbox、PlayStation、Switch Pro 手柄可以驱动方案里的键位；也可以把手柄直接交给游戏（实验性）。
-- **分享**：方案导出成文件，带逻辑和图片的方案可以整个打包。
+- **全局键鼠与手柄捕获**：`InputCapture` 目前在 macOS 上仍为占位实现（投屏窗口内鼠标点击与触控板滑动可用，键位映射的全局键盘/鼠标锁定与手柄输入待接入）。
+- **USB / AOA 与采集卡**：USB 插拔监听、AOA 触控通道、HDMI 采集卡与扩展系统级硬件枚举尚未移植。
+- **扩展画面滤镜与语音命令**：Metal 渲染管线暂未接入扩展着色器滤镜；语音朗读已接入 macOS，语音命令识别尚未移植。
 
-### 蓝图与脚本
-
-- **蓝图就是代码**：每个键位一个文件，节点与连线和 TypeScript 是同一份内容，两边随时切换；公共函数放进函数库，任何页都能调用。
-- **识图与文字识别**：在手机画面里找图、找色，用 Windows 自带的 OCR 识别文字。
-- **任务**：按时间表或手动运行的自动化流程。
-- **调试**：断点、单步、看变量；不连手机也能用录像回放测试。
-- **命令行工具 `gs`**：新建方案文件夹、类型检查、回放测试；脚本接口文档见 [`sdk/docs`](sdk/docs/README.md)。
-
-### AI
-
-- **AI 小助手**：在主窗口和各个编辑窗口的右下角，看得到你正在编辑的内容，可以帮你写蓝图、解释节点、排查连接问题。接你自己的 OpenAI 或 Anthropic 兼容接口与密钥，密钥存在 Windows 凭据管理器里；也可以用扩展提供的模型服务。
-- **本地 MCP 服务**：让 Claude、Cursor 等 AI 工具直接读写方案和蓝图、运行测试、查看录像。
-
-### 触控方式与硬件
-
-- **USB 调试**：默认方式，不需要额外硬件。
-- **AOA**：手机把电脑当成一块 USB 触摸屏，不打开 USB 调试也能操作（实验性）。
-- **触控盒**：扩展提供的小板子扮成手机的触摸屏和键盘，不开 USB 调试也能操作。ESP32 触控盒现在是社区扩展 `community.esp32`，在单独的项目 [GameScrcpy-ESP32](https://github.com/NuoRan/GameScrcpy-ESP32) 里发布，GameScrcpy 本身不包含它（实验性）。
-- **采集卡**：显示 HDMI 采集卡的画面，配合 AOA 或触控盒操作（实验性）。
-
-### 扩展
-
-- **扩展包 `.gsext`**：主题、画面滤镜、键位方案与补丁、逻辑扩展、原生 DLL 扩展；还能带来触控盒等设备、连接手机的新方式、画面与声音的来源和去处、朗读与语音命令、界面语言、AI 模型服务，以及导入导出别的格式。GameScrcpy 不自带扩展。
-- **安全**：扩展只能做你允许的事。扩展包可以签名，GameScrcpy 记住发布者的公钥，换了公钥或去掉签名的更新不予安装；受限的原生扩展在没有任何权限的独立进程里运行，安装前有安全检查；网页上的 `gamescrcpy://` 链接可以下载扩展包，核对 SHA-256 后打开安装框。
-- **整合包与维护**：整合包 `.gsbundle` 一次装好一组扩展；可以检查扩展更新；扩展卡片显示健康状况，出了问题可以一步步找出是哪一个；扩展写明照着哪个版本写的，GameScrcpy 升级后会提示因版本打不开的扩展。
-- **开发**：[扩展开发指南](docs/extensions/README.md)讲清单、逻辑与原生接口、测试、签名和发布；C 接口头文件在 [`sdk/include`](sdk/include/gamescrcpy_ext.h)，示例在 [`examples`](examples)；`gs ext` 不开 GameScrcpy、不连手机就能测试扩展。
-
-### 界面
-
-- 深色优先的界面，可选浅色主题与六种强调色；命令面板（Ctrl+K）和可自定义的快捷键。
-- 内置图文帮助（F1）与新手引导；中文与英文界面，语言包扩展可以添加更多语言。
-- 安装包与便携版两种发布形式。
-
-## 截图
-
-| 设备页 | 投屏窗口 |
-|:---:|:---:|
-| <img src="docs/images/devices.png" alt="设备页" width="420"> | <img src="docs/images/mirror.png" alt="投屏窗口" width="420"> |
-| **键位编辑器** | **蓝图** |
-| <img src="docs/images/keymap-editor.png" alt="键位编辑器" width="420"> | <img src="docs/images/blueprint.png" alt="蓝图" width="420"> |
+详见 [docs/macos-port.md](docs/macos-port.md)。
 
 ## 系统要求
 
 | 项目 | 要求 |
 |:--|:--|
-| 电脑 | Windows 10 / 11，64 位；建议使用支持 Direct3D 11 的显卡（没有可用显卡时由处理器解码和绘制，可能会卡） |
+| 电脑 |搭载 Apple Silicon（M 系列芯片）的 Mac，macOS 14 Sonoma 或更高版本 |
 | 手机 | Android 9 或更高版本；声音与无线配对需要 Android 11 或更高版本 |
-| 连接 | USB 数据线，或与电脑在同一局域网的 Wi-Fi 或网线 |
+| 连接 | USB 数据线，或与 Mac 在同一局域网的 Wi-Fi / 有线网络 |
 
-## 下载与安装
+## 从源码构建
 
-从 [Releases](https://github.com/NuoRan/GameScrcpy/releases/latest) 下载其中一种：
+### 1. 安装依赖
 
-- **安装包** `GameScrcpy-<版本>-setup.exe`：默认只为当前用户安装，不需要管理员权限；卸载时保留你的设置、方案和日志（在 `%APPDATA%\GameScrcpy`）。
-- **便携版** `GameScrcpy-<版本>-portable.zip`：解压后直接运行 `GameScrcpy.exe`，数据存在旁边的 `data` 文件夹里。
+```bash
+xcode-select --install
+brew install cmake ninja openssl@3 ffmpeg sdl3 libusb android-platform-tools
+```
 
-两种都自带运行所需的一切（包括 adb），不用另装 Android SDK 或 VC++ 运行库。程序暂时没有代码签名，第一次运行时 Windows 可能提示"Windows 已保护你的电脑"：点"更多信息"，再点"仍要运行"。
+同时通过 Qt 官方安装器或 `aqtinstall` 安装 **Qt 6.10.3（macOS）**，默认路径为 `~/Qt/6.10.3/macos`（若安装在其他位置，可通过 `-DCMAKE_PREFIX_PATH=<路径>` 指定）。
+
+### 2. 编译与运行
+
+```bash
+# 构建完整 macOS 应用（GameScrcpy.app）
+cmake --preset mac-app
+cmake --build --preset mac-app
+
+# 不连手机直接体验演示画面
+./build/mac-app/bin/GameScrcpy.app/Contents/MacOS/GameScrcpy --demo-device tests/data/video/emulator_h265.media
+```
+
+仅编译无 Qt 依赖的核心库与单元测试：
+
+```bash
+cmake --workflow --preset posix-core
+```
+
+### 3. 首次运行权限说明
+
+- **本地网络权限（macOS 15 及以上）**：首次使用无线调试配对、WiFi 直连或手机伴侣时，macOS 会询问是否允许查找本地网络上的设备，请点击“允许”（也可在“系统设置 > 隐私与安全性 > 本地网络”中开启 `GameScrcpy`）。
+- **配置与日志位置**：设置、键位方案、扩展与日志保存在 `~/Library/Application Support/GameScrcpy`。
 
 ## 快速开始
 
-1. 在手机上打开"开发者选项"和"USB 调试"。第一次启动时的引导会按手机品牌告诉你怎么开。
-2. 用数据线连接手机，在手机上允许 USB 调试。
-3. 在"设备"页点"投屏"。
-4. 在投屏窗口的工具栏里打开"编辑键位"，把组件拖到游戏按钮上、配好按键。
-5. 按 F1 打开帮助，里面有投屏窗口、键位编辑器、方案、脚本、扩展与常见问题的图文说明。
+1. 在手机上打开“开发者选项”和“USB 调试”（或“无线调试”）。
+2. 用数据线连接手机并在手机上允许调试，或在“设备”页通过无线调试配对连接。
+3. 在“设备”页点击“投屏”。
+4. 按 `F1` 打开内置图文帮助，查看投屏窗口、键位编辑器、方案、蓝图脚本与扩展说明。
 
 ## 文档
 
 | 内容 | 位置 |
 |:--|:--|
+| macOS 移植进度与真机验收记录 | [docs/macos-port.md](docs/macos-port.md) |
 | 使用帮助（与程序里 F1 打开的是同一份） | [docs/README.md](docs/README.md) |
 | 脚本接口 | [sdk/docs](sdk/docs/README.md) |
 | 扩展开发 | [docs/extensions](docs/extensions/README.md) |
 | 架构概览 | [docs/architecture.md](docs/architecture.md) |
 | 通信协议 | [protocol/SPEC.md](protocol/SPEC.md) |
-| 从源码构建与参与开发 | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| 参与开发规范 | [CONTRIBUTING.md](CONTRIBUTING.md) |
 
 ## 反馈与交流
 
-- 问题与建议：[Issues](https://github.com/NuoRan/GameScrcpy/issues)。报告问题时附上程序里"设置 > 关于 > 导出诊断包"生成的文件，能更快找到原因。
+- macOS 移植问题：[GameScrcpy-macos Issues](https://github.com/wyb-070110/GameScrcpy-macos/issues)（附上程序里“设置 > 关于 > 导出诊断包”生成的文件能更快定位问题）。
+- 上游项目：[NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy)。
 - 安全问题请按 [SECURITY.md](SECURITY.md) 私下报告。
-- QQ 交流群：762961615
-
-## 赞助
-
-GameScrcpy 免费、开源。如果它帮到了你，欢迎在[爱发电](https://afdian.com/a/GameScrcpy)支持后续开发。
 
 ## 许可证与致谢
 
 GameScrcpy 以 [Apache License 2.0](LICENSE) 发布。
 
+- [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy)：本项目所基于的上游原版。
 - [scrcpy](https://github.com/Genymobile/scrcpy)：安卓投屏的先驱，GameScrcpy 的思路源自它。
 - [QtScrcpy](https://github.com/barry-ran/QtScrcpy)：GameScrcpy 1.x 的基础。
-- 用到的第三方组件（Qt、FFmpeg、dav1d、SDL、libusb、QuickJS-ng、TypeScript、QWindowKit、nlohmann/json、miniz、QR Code generator、Lucide、doctest、tl::expected）及其版本与许可证见 [third_party/README.md](third_party/README.md)，程序里在"设置 > 关于 > 开源许可"。
+- 用到的第三方组件（Qt、FFmpeg、dav1d、SDL、libusb、QuickJS-ng、TypeScript、QWindowKit、nlohmann/json、miniz、QR Code generator、Lucide、doctest、tl::expected）及其版本与许可证见 [third_party/README.md](third_party/README.md)，程序里在“设置 > 关于 > 开源许可”。

@@ -8,9 +8,9 @@
 |---|---|---|
 | 1 | 核心层（base、protocol、input、vision、tsstrip、blueprint）在 macOS / Linux 上编译、测试 | 完成（GitHub Actions macOS arm64 通过） |
 | 2 | platform 层 POSIX 实现，adb 与 session 模块，真机启动手机端服务并收流 | 完成（2026-11-24 真机验收，USB 与无线调试均通过，见下文） |
-| 3 | 画面与声音（VideoToolbox、Qt RHI / Metal、SDL3） | 进行中：解码与声音（media 模块）完成，Qt RHI / Metal 显示未开始 |
-| 4 | Qt Quick 界面与键鼠捕获 | 未开始 |
-| 5 | 脚本进程隔离、原生扩展、OCR、录屏、打包 | 进行中：脚本进程隔离（macOS 沙箱）、录屏、原生扩展（gs-exthost，含受限模式）完成；gs 命令行工具、打包未完成 |
+| 3 | 画面与声音（VideoToolbox、Qt RHI / Metal、SDL3） | 完成：VideoToolbox 硬解、SDL3 音频与 Qt RHI（Metal）投屏绘制已打通，扩展滤镜暂未接入 |
+| 4 | Qt Quick 界面与键鼠捕获 | 进行中：`GameScrcpy.app` 完整构建可投屏，原生透明标题栏拖拽/双击缩放、触控板滑动、钥匙串、防休眠、菜单栏与通知可用；全局键鼠与手柄捕获（`InputCapture`）待实现 |
+| 5 | 脚本进程隔离、原生扩展、OCR、录屏、打包 | 进行中：`gs-scripthost` / `gs-exthost` 沙箱隔离、`.dylib` 扩展、Vision OCR、录屏、`gs` 命令行、Bundle `Info.plist`（含本地网络权限）与 ad-hoc 签名已完成；DMG/发布打包待完成 |
 
 ## 持续集成
 

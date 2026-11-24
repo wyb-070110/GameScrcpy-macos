@@ -143,6 +143,7 @@ private:
     static constexpr std::uint16_t kStatusPeriodMs = 2000;
     static constexpr std::uint16_t kControlOnlyMaxSize = 320;
     static constexpr std::uint16_t kControlOnlyMaxFps = 1;
+    static constexpr std::int32_t kFollowPhoneMostFps = 60;
     static constexpr std::uint32_t kControlOnlyBitrate = 200'000;
 
     [[nodiscard]] std::shared_ptr<LatencyMeter> meter() const;

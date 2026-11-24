@@ -486,8 +486,14 @@ void typeProblems(const fs::path& folder, const std::vector<fs::path>& files, co
     if (typed.empty()) {
         return;
     }
-    const fs::path compiler = programFolder() / "typescript" / "tsc";
+    fs::path compiler = programFolder() / "typescript" / "tsc";
     std::error_code error;
+    if (!fs::is_regular_file(compiler, error)) {
+        const fs::path bundled = programFolder() / ".." / "Resources" / "typescript" / "tsc";
+        if (fs::is_regular_file(bundled, error)) {
+            compiler = bundled;
+        }
+    }
     if (!fs::is_regular_file(compiler, error)) {
         problems.push_back({"", 0, 0, "error", "GS-CHECK-001",
                             "the TypeScript compiler is missing next to gs (typescript/tsc); reinstall "

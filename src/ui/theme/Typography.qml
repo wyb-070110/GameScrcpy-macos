@@ -17,7 +17,9 @@ QtObject {
     final readonly property var installedFamilies: Qt.fontFamilies()
 
     final readonly property string iconFamily: installedFamilies.indexOf("Segoe Fluent Icons") >= 0
-                                         ? "Segoe Fluent Icons" : "Segoe MDL2 Assets"
+                                         ? "Segoe Fluent Icons"
+                                         : installedFamilies.indexOf("Segoe MDL2 Assets") >= 0
+                                           ? "Segoe MDL2 Assets" : "SF Pro"
     final readonly property string monoFamily: installedFamilies.indexOf("SF Mono") >= 0
                                          ? "SF Mono" : "Menlo"
 }

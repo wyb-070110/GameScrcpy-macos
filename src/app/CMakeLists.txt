@@ -4,6 +4,7 @@ qt_add_executable(GameScrcpy MACOSX_BUNDLE
 set_target_properties(GameScrcpy PROPERTIES
     MACOSX_BUNDLE_BUNDLE_NAME "GameScrcpy"
     MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.nuoran.gamescrcpy"
+    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
 )
 
 qt_add_qml_module(GameScrcpy
@@ -583,59 +584,79 @@ qt_add_translations(GameScrcpy
     LUPDATE_OPTIONS -no-obsolete -locations none -tr-function-alias QT_TRANSLATE_NOOP+=GS_TRANSLATE_NOOP
 )
 
-# The helper programs and the TypeScript compiler go inside the app, next to its executable, where it looks for them.
-add_dependencies(GameScrcpy gs_exthost_program gs_scripthost_program gs_cli gs_typescript)
-add_custom_command(TARGET GameScrcpy POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:gs_exthost_program>"
-            "$<TARGET_FILE:gs_scripthost_program>" "$<TARGET_FILE:gs_cli>" "$<TARGET_FILE_DIR:GameScrcpy>"
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory_if_different "${PROJECT_SOURCE_DIR}/third_party/typescript/lib"
-            "$<TARGET_FILE_DIR:GameScrcpy>/typescript"
-    COMMENT "Placing gs-exthost, gs-scripthost, gs and the TypeScript compiler inside GameScrcpy.app"
-    VERBATIM
-)
-
+# Helper executables live in Contents/MacOS; non-code data and the TypeScript library live in Contents/Resources so
+# codesign can seal the bundle and bind Info.plist (needed for macOS Local Network and Notification permissions).
 add_custom_target(gs_server_package ALL
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources"
     COMMAND "${CMAKE_COMMAND}"
         "-DSOURCE=${PROJECT_SOURCE_DIR}/android/server/build/outputs/apk/release/server-release-unsigned.apk"
-        "-DDESTINATION=$<TARGET_FILE_DIR:GameScrcpy>/gs-server.apk"
+        "-DDESTINATION=$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/gs-server.apk"
         -P "${PROJECT_SOURCE_DIR}/cmake/CopyIfExists.cmake"
-    COMMENT "Placing the server build next to GameScrcpy.exe"
+    COMMENT "Placing the server build inside GameScrcpy.app/Contents/Resources"
     VERBATIM
 )
 
 add_custom_target(gs_companion_package ALL
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources"
     COMMAND "${CMAKE_COMMAND}"
         "-DSOURCE=${PROJECT_SOURCE_DIR}/android/companion/build/outputs/apk/debug/companion-debug.apk"
-        "-DDESTINATION=$<TARGET_FILE_DIR:GameScrcpy>/gs-companion.apk"
+        "-DDESTINATION=$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/gs-companion.apk"
         -P "${PROJECT_SOURCE_DIR}/cmake/CopyIfExists.cmake"
     COMMAND "${CMAKE_COMMAND}"
         "-DSOURCE=${PROJECT_SOURCE_DIR}/android/companion/build/outputs/apk/debug/output-metadata.json"
-        "-DDESTINATION=$<TARGET_FILE_DIR:GameScrcpy>/gs-companion.json"
+        "-DDESTINATION=$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/gs-companion.json"
         -P "${PROJECT_SOURCE_DIR}/cmake/CopyIfExists.cmake"
-    COMMENT "Placing the companion app build next to GameScrcpy.exe"
+    COMMENT "Placing the companion app build inside GameScrcpy.app/Contents/Resources"
     VERBATIM
 )
 
 add_custom_target(gs_builtin_components
-    COMMAND "${CMAKE_COMMAND}" -E rm -rf "$<TARGET_FILE_DIR:GameScrcpy>/components"
+    COMMAND "${CMAKE_COMMAND}" -E rm -rf "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/components"
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${PROJECT_SOURCE_DIR}/examples/components"
-        "$<TARGET_FILE_DIR:GameScrcpy>/components"
-    COMMENT "Placing the example components next to GameScrcpy.exe"
+        "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/components"
+    COMMENT "Placing the example components inside GameScrcpy.app/Contents/Resources"
     VERBATIM
 )
-add_dependencies(GameScrcpy gs_builtin_components)
 
 add_custom_target(gs_builtin_tasks
-    COMMAND "${CMAKE_COMMAND}" -E rm -rf "$<TARGET_FILE_DIR:GameScrcpy>/tasks"
+    COMMAND "${CMAKE_COMMAND}" -E rm -rf "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/tasks"
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${PROJECT_SOURCE_DIR}/examples/tasks"
-        "$<TARGET_FILE_DIR:GameScrcpy>/tasks"
-    COMMENT "Placing the example tasks next to GameScrcpy.exe"
+        "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/tasks"
+    COMMENT "Placing the example tasks inside GameScrcpy.app/Contents/Resources"
     VERBATIM
 )
-add_dependencies(GameScrcpy gs_builtin_tasks)
 
-add_dependencies(GameScrcpy gs_exthost_program)
-add_dependencies(GameScrcpy gs_scripthost_program)
+add_dependencies(GameScrcpy
+    gs_exthost_program
+    gs_scripthost_program
+    gs_cli
+    gs_typescript
+    gs_server_package
+    gs_companion_package
+    gs_builtin_components
+    gs_builtin_tasks
+)
+add_custom_command(TARGET GameScrcpy POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E rm -rf
+            "$<TARGET_FILE_DIR:GameScrcpy>/components"
+            "$<TARGET_FILE_DIR:GameScrcpy>/tasks"
+            "$<TARGET_FILE_DIR:GameScrcpy>/typescript"
+            "$<TARGET_FILE_DIR:GameScrcpy>/gs-server.apk"
+            "$<TARGET_FILE_DIR:GameScrcpy>/gs-companion.apk"
+            "$<TARGET_FILE_DIR:GameScrcpy>/gs-companion.json"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:gs_exthost_program>"
+            "$<TARGET_FILE:gs_scripthost_program>" "$<TARGET_FILE:gs_cli>" "$<TARGET_FILE_DIR:GameScrcpy>"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory_if_different "${PROJECT_SOURCE_DIR}/third_party/typescript/lib"
+            "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/typescript"
+    COMMAND /usr/bin/codesign --force --sign -
+            "$<TARGET_FILE_DIR:GameScrcpy>/gs-exthost"
+            "$<TARGET_FILE_DIR:GameScrcpy>/gs-scripthost"
+            "$<TARGET_FILE_DIR:GameScrcpy>/gs"
+            "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/typescript/tsc"
+    COMMAND /usr/bin/codesign --force --sign - "$<TARGET_BUNDLE_DIR:GameScrcpy>"
+    COMMENT "Assembling and ad-hoc signing GameScrcpy.app"
+    VERBATIM
+)
 
 if(GS_BUILD_TESTS)
     add_test(NAME gs_app_smoke COMMAND GameScrcpy --smoke-test)

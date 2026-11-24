@@ -129,6 +129,7 @@ TEST_CASE("WiFi direct failures say what to check and offer the adb tunnel inste
     const auto unreachable = FailureAdvice::forFailure(failure);
     CHECK(unreachable.problem.contains(QStringLiteral("WiFi direct")));
     CHECK(unreachable.action.contains(QStringLiteral("AP isolation")));
+    CHECK(unreachable.action.contains(QStringLiteral("Local Network")));
     CHECK(unreachable.action.contains(QStringLiteral("security software")));
     CHECK(unreachable.action.contains(QStringLiteral("adb tunnel")));
 }

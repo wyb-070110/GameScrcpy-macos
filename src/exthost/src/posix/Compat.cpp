@@ -1301,12 +1301,12 @@ BOOL QueryPerformanceFrequency(LARGE_INTEGER* frequency) noexcept
     return TRUE;
 }
 
-void Sleep(DWORD milliseconds) noexcept
+void Sleep(DWORD milliseconds) noexcept // source-rule-allow R9: POSIX implementation of the Win32 Sleep compatibility shim
 {
     if (milliseconds == 0) {
         std::this_thread::yield();
     } else {
-        std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+        std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds)); // source-rule-allow R9: POSIX implementation of the Win32 Sleep compatibility shim
     }
 }
 

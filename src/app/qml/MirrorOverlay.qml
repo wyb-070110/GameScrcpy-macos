@@ -757,9 +757,32 @@ Item {
             }
         }
 
+        MouseArea {
+            property real pressX: 0
+            property real pressY: 0
+            property bool moving: false
+
+            anchors.fill: parent
+            acceptedButtons: Qt.LeftButton
+            onPressed: mouse => {
+                pressX = mouse.x
+                pressY = mouse.y
+                moving = false
+            }
+            onPositionChanged: mouse => {
+                if (!pressed || moving)
+                    return
+                if (Math.hypot(mouse.x - pressX, mouse.y - pressY) >= Application.styleHints.startDragDistance) {
+                    moving = true
+                    chrome.startDrag()
+                }
+            }
+            onDoubleClicked: chrome.doubleClickTitleBar()
+        }
+
         Text {
             anchors.left: parent.left
-            anchors.leftMargin: Theme.space.lg
+            anchors.leftMargin: overlay.fullScreen ? Theme.space.lg : 78
             width: Math.max(0, (titleBar.pinnedRow ? toolbar.x : titleWidgets.visible ? titleWidgets.x
                                   : titleStatus.visible ? titleStatus.x : captions.x) - x - Theme.space.md)
             anchors.verticalCenter: parent.verticalCenter
@@ -2028,7 +2051,7 @@ Item {
                     return
                 if (Math.hypot(mouse.x - pressedAt.x, mouse.y - pressedAt.y) >= Application.styleHints.startDragDistance) {
                     moving = true
-                    overlay.Window.window.startSystemMove()
+                    chrome.startDrag()
                 }
             }
             onDoubleClicked: miniCommand.trigger()

@@ -270,11 +270,29 @@ void loadInputProfile(gs::app::DeviceManager& devices, const QString& path)
                                           : std::filesystem::path());
 }
 
+// Inside GameScrcpy.app, bundled data lives in Contents/Resources; in a flat build directory it sits next to the binary.
+std::filesystem::path bundleResource(QStringView relative)
+{
+    const QString appDir = QCoreApplication::applicationDirPath();
+    const QString inResources = QDir::cleanPath(appDir + u"/../Resources/"_s + relative.toString());
+    if (QFileInfo::exists(inResources)) {
+        return inResources.toStdWString();
+    }
+    const QString resourcesRoot = QDir::cleanPath(appDir + u"/../Resources"_s);
+    if (QFileInfo(resourcesRoot).isDir()) {
+        return inResources.toStdWString();
+    }
+    return QDir(appDir).filePath(relative.toString()).toStdWString();
+}
+
 // adb on macOS: the one in the app, the Android SDK's (ANDROID_HOME, or where Android Studio puts it), Homebrew's,
 // then the PATH. A program opened from the Finder gets a short PATH without Homebrew, so the usual places come first.
 std::filesystem::path findAdb()
 {
-    QStringList places{QCoreApplication::applicationDirPath() + u"/adb/adb"_s};
+    QStringList places{
+        QCoreApplication::applicationDirPath() + u"/adb/adb"_s,
+        QDir::cleanPath(QCoreApplication::applicationDirPath() + u"/../Resources/adb/adb"_s),
+    };
     if (const QString sdk = qEnvironmentVariable("ANDROID_HOME"); !sdk.isEmpty()) {
         places.append(QDir(sdk).filePath(u"platform-tools/adb"_s));
     }
@@ -439,15 +457,15 @@ int main(int argc, char* argv[])
     gs::app::HelpLibrary help(settings);
     gs::app::ProfileLibrary profiles(data / "profiles");
     gs::app::TaskLibrary tasks(data / "tasks");
-    tasks.setExamplesFolder((QCoreApplication::applicationDirPath() + u"/tasks"_s).toStdWString());
+    tasks.setExamplesFolder(bundleResource(u"tasks"));
     gs::app::InputReadGrants inputGrants(data / "input-read.json");
     inputGrants.follow(profiles, tasks);
-    gs::app::ComponentLibrary components((QCoreApplication::applicationDirPath() + u"/components"_s).toStdWString(),
+    gs::app::ComponentLibrary components(bundleResource(u"components"),
                                          data / "components");
 
     gs::app::ExtensionHost extensions(
         settings, {.user = data / "extensions",
-                   .builtin = (QCoreApplication::applicationDirPath() + u"/extensions"_s).toStdWString(),
+                   .builtin = bundleResource(u"extensions"),
                    .hostProgram = {},
                    .data = data,
                    .log = logFile.path()});
@@ -542,10 +560,10 @@ int main(int argc, char* argv[])
     const gs::adb::AdbClient adb(
         gs::adb::AdbClient::portFromSetting(qEnvironmentVariable("ANDROID_ADB_SERVER_PORT").toStdString()));
     gs::app::DeviceManager devices(adb, parser.isSet(smokeTest) ? std::filesystem::path() : findAdb(),
-                                   (QCoreApplication::applicationDirPath() + u"/gs-server.apk"_s).toStdWString(),
+                                   bundleResource(u"gs-server.apk"),
                                    graphics.get(), settings);
-    devices.setCompanionPackage((QCoreApplication::applicationDirPath() + u"/gs-companion.apk"_s).toStdWString(),
-                                (QCoreApplication::applicationDirPath() + u"/gs-companion.json"_s).toStdWString());
+    devices.setCompanionPackage(bundleResource(u"gs-companion.apk"),
+                                bundleResource(u"gs-companion.json"));
     devices.setExtensions(&extensions);
     devices.setNativeJobs(&nativeJobs);
     gs::app::MediaSinks mediaSinks(

@@ -1,10 +1,14 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import GameScrcpy.Theme
+import GameScrcpy.App
 
 Item {
     id: titleBar
 
     required property Window window
+    property WindowChrome chrome: null
 
     readonly property Item minimizeButton: minimizeButton
     readonly property Item maximizeButton: maximizeButton
@@ -12,17 +16,39 @@ Item {
 
     implicitHeight: 40
 
-    // macOS: the system's traffic lights sit at the left of the bar, and macOS moves the window by its top strip;
-    // the rest of the bar moves it too.
+    // macOS: the system's traffic lights sit at the left of the bar; dragging past the drag threshold hands window
+    // movement to AppKit (performWindowDragWithEvent:), while double-clicking follows the macOS title bar preference.
     MouseArea {
+        property real pressX: 0
+        property real pressY: 0
+        property bool moving: false
+
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton
-        onPressed: titleBar.window.startSystemMove()
+        onPressed: mouse => {
+            pressX = mouse.x
+            pressY = mouse.y
+            moving = false
+        }
+        onPositionChanged: mouse => {
+            if (!pressed || moving)
+                return
+            if (Math.hypot(mouse.x - pressX, mouse.y - pressY) >= Application.styleHints.startDragDistance) {
+                moving = true
+                if (titleBar.chrome !== null)
+                    titleBar.chrome.startDrag()
+                else
+                    titleBar.window.startSystemMove()
+            }
+        }
         onDoubleClicked: {
-            if (titleBar.window.visibility === Window.Maximized)
+            if (titleBar.chrome !== null) {
+                titleBar.chrome.doubleClickTitleBar()
+            } else if (titleBar.window.visibility === Window.Maximized) {
                 titleBar.window.showNormal()
-            else
+            } else {
                 titleBar.window.showMaximized()
+            }
         }
     }
 

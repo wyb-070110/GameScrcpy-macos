@@ -88,7 +88,7 @@ int connectTo(const std::string& path)
         if (error == ECONNREFUSED) {
             return -1;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        std::this_thread::sleep_for(std::chrono::milliseconds(200)); // source-rule-allow R9: retry backoff when the Unix socket listen queue is momentarily full
     }
     return -1;
 }

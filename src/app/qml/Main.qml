@@ -669,6 +669,7 @@ Window {
     TitleBar {
         id: titleBar
         window: root
+        chrome: chrome
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top

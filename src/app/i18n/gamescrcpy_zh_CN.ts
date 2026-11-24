@@ -7088,8 +7088,8 @@
         <translation>手机没有回应 WiFi 直连</translation>
     </message>
     <message>
-        <source>Make sure the computer and the phone are on the same network, that the router does not isolate its devices (AP isolation), and that no firewall or security software (such as Huorong or 360) blocks GameScrcpy&apos;s UDP traffic; allow GameScrcpy there if it asks. Or switch the connection to adb tunnel.</source>
-        <translation>请确认电脑和手机连在同一网络，路由器没有开启 AP 隔离（让设备之间互相隔离），防火墙或安全软件（如火绒、360）没有拦截 GameScrcpy 的 UDP 通信，弹出询问时请允许 GameScrcpy；或者把连接方式改为 adb 隧道。</translation>
+        <source>Make sure the computer and the phone are on the same network, that the router does not isolate its devices (AP isolation), that GameScrcpy is allowed under System Settings &gt; Privacy &amp; Security &gt; Local Network, and that no firewall or security software blocks GameScrcpy&apos;s UDP traffic. Or switch the connection to adb tunnel.</source>
+        <translation>请确认电脑和手机连在同一网络，路由器没有开启 AP 隔离（让设备之间互相隔离），已在“系统设置 &gt; 隐私与安全性 &gt; 本地网络”中允许 GameScrcpy，且防火墙或安全软件没有拦截 GameScrcpy 的 UDP 通信；或者把连接方式改为 adb 隧道。</translation>
     </message>
     <message>
         <source>Check the cable or the network. GameScrcpy reconnects by itself once the device is back.</source>

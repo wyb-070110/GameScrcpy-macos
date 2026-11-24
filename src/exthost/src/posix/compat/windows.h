@@ -142,7 +142,7 @@ BOOL CancelWaitableTimer(HANDLE timer) noexcept;
 
 BOOL QueryPerformanceCounter(LARGE_INTEGER* counter) noexcept;
 BOOL QueryPerformanceFrequency(LARGE_INTEGER* frequency) noexcept;
-void Sleep(DWORD milliseconds) noexcept;
+void Sleep(DWORD milliseconds) noexcept; // source-rule-allow R9: Win32 Sleep declaration for the POSIX exthost compatibility layer
 UINT SetErrorMode(UINT mode) noexcept;
 
 HMODULE LoadLibraryExW(const wchar_t* path, HANDLE file, DWORD flags) noexcept;

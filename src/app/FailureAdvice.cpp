@@ -117,9 +117,9 @@ Advice FailureAdvice::forFailure(const session::SessionFailure& failure, bool wi
     case FailureKind::DirectUnreachable:
         return {tr("The phone did not answer over WiFi direct"),
                 tr("Make sure the computer and the phone are on the same network, that the router does not isolate "
-                   "its devices (AP isolation), and that no firewall or security software (such as Huorong or 360) "
-                   "blocks GameScrcpy's UDP traffic; allow GameScrcpy there if it asks. Or switch the connection to "
-                   "adb tunnel.")};
+                   "its devices (AP isolation), that GameScrcpy is allowed under System Settings > Privacy & Security "
+                   "> Local Network, and that no firewall or security software blocks GameScrcpy's UDP traffic. Or "
+                   "switch the connection to adb tunnel.")};
     }
     return {};
 }

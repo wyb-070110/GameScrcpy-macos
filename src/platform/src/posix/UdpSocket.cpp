@@ -257,6 +257,10 @@ bool UdpSocket::sendTo(const UdpEndpoint& to, std::span<const std::uint8_t> data
         sent = ::sendto(native(m_socket), datagram.data(), datagram.size(), 0,
                         reinterpret_cast<const sockaddr*>(&storage), length);
     } while (sent < 0 && errno == EINTR);
+    if (sent < 0) {
+        const int error = errno;
+        log::debug(kLog, "UDP send to {} failed: {} (errno {})", to.toString(), std::strerror(error), error);
+    }
     return sent == static_cast<ssize_t>(datagram.size());
 }
 

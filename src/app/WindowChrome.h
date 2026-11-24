@@ -34,6 +34,12 @@ public:
 
     Q_INVOKABLE void setHitTestVisible(QQuickItem* item, bool visible = true);
 
+    Q_INVOKABLE bool startDrag();
+
+    Q_INVOKABLE void doubleClickTitleBar();
+
+    bool eventFilter(QObject* watched, QEvent* event) override;
+
     [[nodiscard]] QQuickWindow* window() const { return m_window; }
     void setWindow(QQuickWindow* window);
 

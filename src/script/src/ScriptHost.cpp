@@ -9,6 +9,10 @@
 #else
 #include "gs/platform/Thread.h"
 
+#if defined(__APPLE__)
+#include <fcntl.h>
+#include <sys/event.h>
+#endif
 #include <pthread.h>
 #include <unistd.h>
 

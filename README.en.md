@@ -2,137 +2,116 @@
 
 <img src="docs/images/logo.png" width="96" height="96" alt="GameScrcpy">
 
-# GameScrcpy
+# GameScrcpy (macOS)
 
-**Play Android games on Windows with a keyboard, a mouse and a gamepad**
+**Mirror and automate Android devices on macOS with blueprints and TypeScript (port in progress)**
 
-[![Release](https://img.shields.io/github/v/release/NuoRan/GameScrcpy?style=flat-square)](https://github.com/NuoRan/GameScrcpy/releases/latest)
-[![CI](https://img.shields.io/github/actions/workflow/status/NuoRan/GameScrcpy/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/NuoRan/GameScrcpy/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/wyb-070110/GameScrcpy-macos/macos.yml?style=flat-square&label=macOS%20CI)](https://github.com/wyb-070110/GameScrcpy-macos/actions/workflows/macos.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square)](LICENSE)
-[![Platform](https://img.shields.io/badge/Windows%2010%20%2F%2011-x64-0078D4?style=flat-square)](#requirements)
+[![Platform](https://img.shields.io/badge/macOS%2014%2B-Apple%20Silicon-000000?style=flat-square)](#requirements)
 
 [简体中文](README.md) · English
 
-[Download](https://github.com/NuoRan/GameScrcpy/releases/latest) · [User guide](docs/README.md) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.en.md)
+[Port status](docs/macos-port.md) · [User guide](docs/README.md) · [Changelog](CHANGELOG.md) · [Upstream project](https://github.com/NuoRan/GameScrcpy)
 
 <img src="docs/images/keymap-editor.png" width="860" alt="Placing keys right on the game picture">
 
 </div>
 
-GameScrcpy mirrors an Android phone to your PC with low latency and lets you play with a keyboard, a mouse and a gamepad, with the keys placed right on the game picture. When keys alone are not enough, you can give them logic as blueprints (nodes and wires) or TypeScript, with image and color search, text recognition and scheduled tasks. The phone-side server, the protocol and the PC app were all written from scratch for this version; the idea comes from [scrcpy](https://github.com/Genymobile/scrcpy).
+This repository is the **Apple Silicon macOS port (work in progress)** of [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy). GameScrcpy mirrors an Android phone to your Mac with low latency, lets you place controls right on the game picture, and runs automation logic written as blueprints (nodes and wires) or TypeScript with image search, color matching, OCR, and scheduled tasks. The idea comes from [scrcpy](https://github.com/Genymobile/scrcpy).
 
 The user interface is available in Simplified Chinese and English, and language pack extensions can add more languages.
 
-## Features
+## Features and macOS port status
 
-### Mirroring
+### Working on macOS
 
-- **Low latency**: hardware decoding on the graphics card, with decoded pictures handed to the interface without a memory copy; H.264, H.265 and AV1.
-- **Audio**: plays the phone's sound on the PC (Android 11 and later).
-- **Connections**: USB cable; wireless debugging, paired with a code or a QR code; for a phone on a network cable without Wi-Fi, one click over USB turns on network debugging and it connects by itself once unplugged; the picture can also travel over WiFi direct (UDP with error correction, resuming by itself after a dropout, also over a cable).
-- **Several phones**: one window each, or all of them in a grid; mirror input to all of them, or open an app, install an APK, send files or run a task on the selected ones.
-- **Recording**: records the picture, the sound and your input, exports MP4, and replays recordings to test logic.
-- **Phone tools**: files, apps, a status overlay, and apps launched on a separate virtual display; measures the real latency from a key press to the change on screen.
-- **Companion app**: an optional phone app that shows the cursor and key hints on the phone, lets you type into the phone with the PC's keyboard and connects over Wi-Fi by scanning a QR code; its switches can be changed on the phone or on the PC, and both sides stay in sync.
+- **Low-latency video and audio**: VideoToolbox hardware decoding (H.264, H.265, plus AV1 through dav1d) drawn through Qt RHI on Metal (NV12, P010 and planar YUV 4:2:0); phone audio playback through SDL3 (Android 11 and later).
+- **Connections**: USB cable; wireless debugging paired with a six-digit code or QR code; WiFi direct (UDP with Reed-Solomon forward error correction and automatic session resumption); companion app over BSD sockets and Bonjour (`_gs-companion._tcp`).
+- **Device management and mirroring**: per-device mirror windows or a multi-device grid, trackpad swipe gestures, recording and MP4 export, file and app management, launching apps on an independent virtual display, and end-to-end latency measurement.
+- **Blueprints, scripts and OCR**: two-way blueprint / TypeScript editing, script execution isolated in a `sandbox_init`-confined `gs-scripthost` process, text recognition via the macOS Vision framework, and the `gs` command-line tool.
+- **AI and local MCP**: AI assistant API keys stored in the macOS Keychain; local MCP server over a Unix domain socket for Claude, Cursor and other AI tools.
+- **Extensions**: `.gsext` / `.gsbundle` packages and `.dylib` native extensions (Mach-O import inspection, out-of-process `gs-exthost` with macOS sandbox confinement), plus `gamescrcpy://` URL handling.
 
-### Key mapping
+### Not yet ported
 
-- **Keys on the picture**: open the editor in the mirror window, drag components onto the game's buttons, bind keys and try them right away.
-- **Components**: tap, hold, long press, turbo, swipe, pinch, WASD stick, right-click walk, view, free look, skill, direction wheel, multi-press, action wheel, temporary cursor, plus gamepad stick and gamepad view.
-- **Per-game profiles**: one profile per game, switched automatically when the game in front changes; each phone remembers its own choice.
-- **Gamepads**: Xbox, PlayStation and Switch Pro controllers can drive the keys of a profile, or be handed straight to the game (experimental).
-- **Sharing**: export a profile as a file, or pack a profile together with its logic and pictures.
+- **Global keyboard, mouse and gamepad capture**: `InputCapture` is currently a placeholder on macOS (pointer clicks and trackpad swipes inside the mirror window work; global key/mouse capture for keymap gameplay and gamepad input are still pending).
+- **USB / AOA and capture cards**: USB hotplug watching, AOA touch transport, HDMI capture cards and system hardware enumeration for extensions are not yet implemented.
+- **Extension video filters and voice commands**: custom shader filters are not wired into the Metal pipeline yet; speech synthesis uses macOS voices, while voice command recognition is still a placeholder.
 
-### Blueprints and scripts
-
-- **Blueprints are code**: each key has its own file, and its nodes and wires are the same thing as its TypeScript, so you can switch between the two at any time; shared functions live in a function library that every page can call.
-- **Vision**: find pictures and colors on the phone's screen, and read text with the OCR built into Windows.
-- **Tasks**: automations that run on a schedule or on demand.
-- **Debugging**: breakpoints, stepping and live values; test against a recording without a phone.
-- **`gs` command line**: create profile folders, type-check, test against recordings; the script API is documented in [`sdk/docs`](sdk/docs/README.md).
-
-### AI
-
-- **AI assistant**: in the corner of the main window and of every editor, it sees what you are working on and helps you write blueprints, explains blocks and sorts out connection problems. It uses your own OpenAI- or Anthropic-compatible endpoint and key (the key is kept in the Windows Credential Manager), or a model service that an extension adds.
-- **Local MCP server**: lets AI tools such as Claude or Cursor read and write profiles and blueprints, run tests and look at recordings.
-
-### Touch backends and hardware
-
-- **USB debugging**: the default, no extra hardware needed.
-- **AOA**: the phone takes the PC for a USB touch screen and works without USB debugging (experimental).
-- **Touch boxes**: a small board from an extension acts as the phone's touch screen and keyboard, so the phone works without USB debugging. The ESP32 touch box is now the community extension `community.esp32`, published in its own project, [GameScrcpy-ESP32](https://github.com/NuoRan/GameScrcpy-ESP32); GameScrcpy itself does not include it (experimental).
-- **Capture cards**: shows the picture of an HDMI capture card, with touch through AOA or a touch box (experimental).
-
-### Extensions
-
-- **`.gsext` packages**: themes, picture filters, profiles and patches, logic extensions and native DLL extensions. They can also bring devices such as touch boxes, new ways to connect phones, places pictures and sound come from and go to, reading aloud and voice commands, interface languages, AI model services, and importing and exporting other formats. GameScrcpy comes with no extensions.
-- **Safety**: an extension can do only what you allow. Packages can be signed: GameScrcpy remembers the publisher's key and refuses updates signed with another key or not signed at all; restricted native extensions run in a separate process without any rights, and native code is checked before it installs; `gamescrcpy://` links on web pages download a package, check its SHA-256 and open the install dialog.
-- **Bundles and upkeep**: a `.gsbundle` installs a set of extensions at once; extensions can be checked for updates; each card shows the extension's health, and you can find out step by step which one causes a problem; an extension names the version it was written against, and after GameScrcpy is updated it points out the extensions that no longer open because of their version.
-- **Development**: the [guide to writing extensions](docs/extensions/README.en.md) covers the manifest, the logic and native interfaces, testing, signing and publishing; the C interface header is [`sdk/include`](sdk/include/gamescrcpy_ext.h), samples are in [`examples`](examples); `gs ext` tests an extension without GameScrcpy or a phone.
-
-### Interface
-
-- Dark first, with a light theme and six accent colors; a command palette (Ctrl+K) and customizable shortcuts.
-- Illustrated built-in help (F1) and guided tours.
-- An installer and a portable build.
-
-## Screenshots
-
-| Devices | Mirror window |
-|:---:|:---:|
-| <img src="docs/images/devices.png" alt="Devices page" width="420"> | <img src="docs/images/mirror.png" alt="Mirror window" width="420"> |
-| **Key mapping editor** | **Blueprint** |
-| <img src="docs/images/keymap-editor.png" alt="Key mapping editor" width="420"> | <img src="docs/images/blueprint.png" alt="Blueprint" width="420"> |
+See [docs/macos-port.md](docs/macos-port.md) for detailed architecture notes and device test results.
 
 ## Requirements
 
 | | |
 |:--|:--|
-| PC | Windows 10 / 11, 64-bit; a graphics card with Direct3D 11 is recommended (without one, the processor decodes and draws, which may stutter) |
+| Mac | Apple Silicon Mac running macOS 14 Sonoma or later |
 | Phone | Android 9 or later; audio and wireless pairing need Android 11 or later |
-| Connection | A USB cable, or Wi-Fi or a network cable on the same network as the PC |
+| Connection | A USB cable, or Wi-Fi / Ethernet on the same local network as the Mac |
 
-## Download and install
+## Building from source
 
-Download one of these from [Releases](https://github.com/NuoRan/GameScrcpy/releases/latest):
+### 1. Install dependencies
 
-- **Installer** `GameScrcpy-<version>-setup.exe`: installs for the current user without administrator rights; uninstalling keeps your settings, profiles and logs (in `%APPDATA%\GameScrcpy`).
-- **Portable** `GameScrcpy-<version>-portable.zip`: unzip and run `GameScrcpy.exe`; data stays in the `data` folder next to it.
+```bash
+xcode-select --install
+brew install cmake ninja openssl@3 ffmpeg sdl3 libusb android-platform-tools
+```
 
-Both include everything they need (adb too); there is no Android SDK or Visual C++ runtime to install. The program is not code-signed yet, so Windows may say "Windows protected your PC" the first time: choose "More info", then "Run anyway".
+Install **Qt 6.10.3 for macOS** at `~/Qt/6.10.3/macos` (or pass `-DCMAKE_PREFIX_PATH=<path>` when configuring).
+
+### 2. Configure, build and run
+
+```bash
+# Build the full macOS app bundle (GameScrcpy.app)
+cmake --preset mac-app
+cmake --build --preset mac-app
+
+# Try the mirror window without a phone
+./build/mac-app/bin/GameScrcpy.app/Contents/MacOS/GameScrcpy --demo-device tests/data/video/emulator_h265.media
+```
+
+To build and test only the Qt-free core libraries:
+
+```bash
+cmake --workflow --preset posix-core
+```
+
+### 3. First-run permissions on macOS
+
+- **Local Network (macOS 15 and later)**: the first time you use wireless debugging pairing, WiFi direct or the companion app, allow `GameScrcpy` when macOS asks to find devices on local networks (or enable it under **System Settings > Privacy & Security > Local Network**).
+- **Data and logs**: settings, profiles, extensions and logs live in `~/Library/Application Support/GameScrcpy`.
 
 ## Getting started
 
-1. On the phone, turn on "Developer options" and "USB debugging". The guide shown at first launch has the steps for each phone brand.
-2. Connect the phone with a USB cable and allow USB debugging on the phone.
+1. On the phone, turn on "Developer options" and "USB debugging" (or "Wireless debugging").
+2. Connect the phone over USB and tap Allow, or pair it on the Devices page under Wireless debugging.
 3. On the Devices page, choose "Mirror".
-4. In the mirror window's toolbar, open "Edit key mapping", drag components onto the game's buttons and bind keys.
-5. Press F1 for the illustrated help on the mirror window, the key mapping editor, profiles, scripts, extensions and common questions.
+4. Press `F1` for the illustrated built-in help covering the mirror window, key mapping editor, profiles, scripts and extensions.
 
 ## Documentation
 
 | Topic | Where |
 |:--|:--|
+| macOS port progress and device verification | [docs/macos-port.md](docs/macos-port.md) |
 | User guide (the same pages as F1 in the app) | [docs/README.md](docs/README.md) |
 | Script API | [sdk/docs](sdk/docs/README.md) |
 | Writing extensions | [docs/extensions](docs/extensions/README.en.md) |
 | Architecture | [docs/architecture.md](docs/architecture.md) |
 | Protocol | [protocol/SPEC.md](protocol/SPEC.md) |
-| Building from source and contributing | [CONTRIBUTING.en.md](CONTRIBUTING.en.md) |
+| Contributing guidelines | [CONTRIBUTING.en.md](CONTRIBUTING.en.md) |
 
 ## Feedback
 
-- Bugs and ideas: [Issues](https://github.com/NuoRan/GameScrcpy/issues). Attach the file made by "Settings > About > Export diagnostics" when reporting a problem.
+- macOS port issues: [GameScrcpy-macos Issues](https://github.com/wyb-070110/GameScrcpy-macos/issues). Attach the archive exported from "Settings > About > Export diagnostics" when reporting a bug.
+- Upstream project: [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy).
 - Report security issues privately as described in [SECURITY.md](SECURITY.md).
-
-## Sponsoring
-
-GameScrcpy is free and open source. If it helps you, you can support its development on [Afdian](https://afdian.com/a/GameScrcpy).
 
 ## License and acknowledgements
 
 GameScrcpy is released under the [Apache License 2.0](LICENSE).
 
+- [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy): the upstream project this port builds on.
 - [scrcpy](https://github.com/Genymobile/scrcpy): the pioneer of Android mirroring, where the idea of GameScrcpy comes from.
 - [QtScrcpy](https://github.com/barry-ran/QtScrcpy): the base of GameScrcpy 1.x.
 - The third-party components (Qt, FFmpeg, dav1d, SDL, libusb, QuickJS-ng, TypeScript, QWindowKit, nlohmann/json, miniz, QR Code generator, Lucide, doctest, tl::expected), their versions and licenses are listed in [third_party/README.md](third_party/README.md) and in the app under "Settings > About > Open-source licenses".

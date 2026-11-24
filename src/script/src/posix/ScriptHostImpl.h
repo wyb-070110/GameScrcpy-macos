@@ -4,6 +4,10 @@
 namespace {
 
 constexpr std::size_t kStackMargin = std::size_t{1} << 20;
+#if defined(__APPLE__)
+constexpr std::uint64_t kTimerIdent = 1;
+constexpr std::uint64_t kWakeIdent = 2;
+#endif
 
 }
 
@@ -21,6 +25,7 @@ struct ScriptHost::Impl {
     static void* entry(void* opaque);
     void run();
     void post(Command command);
+    void wake();
     void runCommands(detail::Engine& engine);
     void arm(std::optional<Microseconds> due, Microseconds now);
     void wait();
@@ -31,6 +36,10 @@ struct ScriptHost::Impl {
     std::shared_ptr<ScriptServices> services;
     pthread_t thread{};
     bool threadStarted = false;
+#if defined(__APPLE__)
+    int kq = -1;
+    bool kqTimerArmed = false;
+#endif
     std::atomic<bool> stopRequested{false};
     std::atomic<ScriptId> lastScript{0};
     std::atomic<TaskId> lastTask{0};
@@ -96,6 +105,19 @@ void ScriptHost::Impl::post(Command command)
         commands.push_back(std::move(command));
         wakePending = true;
     }
+    wake();
+}
+
+void ScriptHost::Impl::wake()
+{
+#if defined(__APPLE__)
+    if (kq >= 0) {
+        struct kevent64_s trigger{};
+        EV_SET64(&trigger, kWakeIdent, EVFILT_USER, 0, NOTE_TRIGGER, 0, 0, 0, 0);
+        ::kevent64(kq, &trigger, 1, nullptr, 0, 0, nullptr);
+        return;
+    }
+#endif
     woken.notify_one();
 }
 
@@ -128,11 +150,53 @@ void ScriptHost::Impl::arm(std::optional<Microseconds> due, Microseconds now)
         deadline.reset();
         return;
     }
-    deadline = std::chrono::steady_clock::now() + std::max(Microseconds{1}, *due - now);
+    deadline = std::chrono::steady_clock::now() + std::max(Microseconds{1}, *due - now) + std::chrono::nanoseconds{1000};
 }
 
 void ScriptHost::Impl::wait()
 {
+#if defined(__APPLE__)
+    // macOS coalesces pthread_cond_timedwait by 50% of its timeout (~2 ms on a 4 ms sleep); an EVFILT_TIMER with
+    // NOTE_CRITICAL and zero leeway wakes within ~40 us, and falls back to condition_variable inside a strict sandbox.
+    if (kq >= 0) {
+        {
+            const std::scoped_lock lock(mutex);
+            if (wakePending || stopRequested.load(std::memory_order_acquire)) {
+                wakePending = false;
+                return;
+            }
+        }
+        struct kevent64_s change{};
+        int changeCount = 0;
+        if (deadline) {
+            const auto now = std::chrono::steady_clock::now();
+            if (now >= *deadline) {
+                armedFor.reset();
+                deadline.reset();
+                return;
+            }
+            const auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(*deadline - now).count();
+            EV_SET64(&change, kTimerIdent, EVFILT_TIMER, EV_ADD | EV_ONESHOT,
+                     NOTE_NSECONDS | NOTE_CRITICAL | NOTE_LEEWAY, std::max<std::int64_t>(ns, 1), 0, 0, 0);
+            changeCount = 1;
+            kqTimerArmed = true;
+        } else if (kqTimerArmed) {
+            EV_SET64(&change, kTimerIdent, EVFILT_TIMER, EV_DELETE, 0, 0, 0, 0, 0);
+            changeCount = 1;
+            kqTimerArmed = false;
+        }
+        struct kevent64_s event{};
+        const int got = ::kevent64(kq, changeCount > 0 ? &change : nullptr, changeCount, &event, 1, 0, nullptr);
+        if (got > 0 && event.filter == EVFILT_TIMER) {
+            kqTimerArmed = false;
+            armedFor.reset();
+            deadline.reset();
+        }
+        const std::scoped_lock lock(mutex);
+        wakePending = false;
+        return;
+    }
+#endif
     std::unique_lock lock(mutex);
     const auto ready = [this] { return wakePending || stopRequested.load(std::memory_order_acquire); };
     if (deadline) {
@@ -157,6 +221,18 @@ void ScriptHost::Impl::fail(std::string what)
 ScriptHost::ScriptHost(Sink sink, Limits limits, std::shared_ptr<ScriptServices> services)
     : m_impl(std::make_unique<Impl>(std::move(sink), limits, std::move(services)))
 {
+#if defined(__APPLE__)
+    m_impl->kq = ::kqueue();
+    if (m_impl->kq >= 0) {
+        ::fcntl(m_impl->kq, F_SETFD, FD_CLOEXEC);
+        struct kevent64_s user{};
+        EV_SET64(&user, kWakeIdent, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0, 0, 0, 0);
+        if (::kevent64(m_impl->kq, &user, 1, nullptr, 0, 0, nullptr) != 0) {
+            ::close(m_impl->kq);
+            m_impl->kq = -1;
+        }
+    }
+#endif
     pthread_attr_t attributes;
     if (pthread_attr_init(&attributes) != 0) {
         m_impl->fail("could not start the script thread");
@@ -181,11 +257,17 @@ ScriptHost::~ScriptHost()
         m_impl->stopRequested.store(true, std::memory_order_release);
         m_impl->wakePending = true;
     }
-    m_impl->woken.notify_one();
+    m_impl->wake();
     if (m_impl->threadStarted) {
         pthread_join(m_impl->thread, nullptr);
         m_impl->threadStarted = false;
     }
+#if defined(__APPLE__)
+    if (m_impl->kq >= 0) {
+        ::close(m_impl->kq);
+        m_impl->kq = -1;
+    }
+#endif
 }
 
 bool ScriptHost::started() const noexcept

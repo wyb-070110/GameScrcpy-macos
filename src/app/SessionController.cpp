@@ -928,7 +928,10 @@ void SessionController::start(session::TransportChoice transport, const settings
     }
     const bool controlOnly = m_pictureSource != settings::PictureSource::Phone && !showsAppDisplay();
     video.maxSize = controlOnly ? kControlOnlyMaxSize : static_cast<std::uint16_t>(settings.video.maxSize);
-    video.maxFps = controlOnly ? kControlOnlyMaxFps : static_cast<std::uint16_t>(settings.video.maxFps);
+    // "Follow phone" (0) asks for at most 60 frames: a 120 Hz phone's encoder may not keep up with 120 at full
+    // size and then queues frames for seconds (seen on a Galaxy Z Flip: 8 s behind at 120, 9 ms at 60).
+    const std::int32_t wantedFps = settings.video.maxFps > 0 ? settings.video.maxFps : kFollowPhoneMostFps;
+    video.maxFps = controlOnly ? kControlOnlyMaxFps : static_cast<std::uint16_t>(wantedFps);
     video.bitrate = controlOnly ? kControlOnlyBitrate : static_cast<std::uint32_t>(settings.video.bitrateKbps) * 1000U;
     if (showsAppDisplay()) {
         video.source = protocol::VideoSource::VirtualDisplay;
