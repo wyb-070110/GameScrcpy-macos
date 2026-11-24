@@ -8,7 +8,7 @@ foreach(gs_ffmpeg_library IN ITEMS avcodec avformat avutil swresample)
 endforeach()
 message(STATUS "FFmpeg ${gs_ffmpeg_libavcodec_VERSION} (libavcodec) from ${gs_ffmpeg_libavcodec_PREFIX}")
 
-find_package(SDL3 CONFIG QUIET)
+find_package(SDL3 CONFIG QUIET GLOBAL)
 if(TARGET SDL3::SDL3)
     message(STATUS "SDL3 ${SDL3_VERSION}")
     set(GS_HAVE_SDL3 ON CACHE INTERNAL "")

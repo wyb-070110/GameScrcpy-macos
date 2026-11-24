@@ -1,3 +1,8 @@
+if(NOT WIN32)
+    include(Posix.cmake)
+    return()
+endif()
+
 add_library(gs_capture STATIC
     include/gs/capture/AudioCapture.h
     include/gs/capture/AudioPairing.h

@@ -321,3 +321,17 @@ target_include_directories(gs_record_tests BEFORE PRIVATE
     "${PROJECT_SOURCE_DIR}/src/media/src"
 )
 add_dependencies(gs_record_tests gs_recorder_child)
+
+# Capture cards: the format, crop, pairing and BGRA logic (the capture itself is not ported yet).
+gs_add_unit_test(gs_capture_tests
+    SOURCES
+        unit/capture/AudioPairingTests.cpp
+        unit/capture/BgraFramesTests.cpp
+        unit/capture/CaptureFormatTests.cpp
+        unit/capture/CropDetectorTests.cpp
+    LIBRARIES
+        gs::capture
+        gs::media
+        gs::protocol
+)
+target_compile_definitions(gs_capture_tests PRIVATE GS_CAPTURE_TEST_DATA_DIR="${PROJECT_SOURCE_DIR}/tests/data/capture")

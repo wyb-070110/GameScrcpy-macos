@@ -1,5 +1,6 @@
 #include "gs/capture/AudioPairing.h"
 
+#if defined(_WIN32)
 #include "MediaFoundation.h"
 
 #include <windows.h>
@@ -9,6 +10,7 @@
 #include <propidl.h>
 #include <propsys.h>
 #include <wrl/client.h>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -18,10 +20,12 @@ namespace gs::capture {
 
 namespace {
 
+#if defined(_WIN32)
 using Microsoft::WRL::ComPtr;
 
 constexpr PROPERTYKEY kContainerId{{0x8c7ed206, 0x3f8a, 0x4827, {0xb3, 0xab, 0xae, 0x9e, 0x1f, 0xae, 0xfc, 0x6c}}, 2};
 constexpr PROPERTYKEY kFriendlyName{{0xa45c254e, 0xdf1c, 0x4efd, {0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0}}, 14};
+#endif
 
 std::wstring_view bare(std::wstring_view text) noexcept
 {
@@ -64,6 +68,7 @@ std::optional<std::size_t> pairedEndpoint(std::wstring_view videoContainer, std:
     return std::nullopt;
 }
 
+#if defined(_WIN32)
 std::vector<AudioEndpoint> listCaptureEndpoints()
 {
     std::vector<AudioEndpoint> endpoints;
@@ -110,5 +115,11 @@ std::vector<AudioEndpoint> listCaptureEndpoints()
     }
     return endpoints;
 }
+#else
+std::vector<AudioEndpoint> listCaptureEndpoints()
+{
+    return {};
+}
+#endif
 
 }
