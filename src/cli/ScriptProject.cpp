@@ -4,7 +4,13 @@
 #include <gs/platform/AtomicFile.h>
 #include <gs/script/ApiFiles.h>
 
-#include <windows.h>
+#include <mach-o/dyld.h>
+#include <unistd.h>
+
+#include <cerrno>
+#include <cstdint>
+#include <cstdlib>
+#include <vector>
 
 #include <fstream>
 #include <iterator>
@@ -16,15 +22,10 @@ namespace fs = std::filesystem;
 
 namespace {
 
-std::wstring environmentText(const wchar_t* name)
+std::string environmentText(const char* name)
 {
-    std::wstring value(32767, L'\0');
-    const DWORD length = GetEnvironmentVariableW(name, value.data(), static_cast<DWORD>(value.size()));
-    if (length == 0 || length >= value.size()) {
-        return {};
-    }
-    value.resize(length);
-    return value;
+    const char* value = std::getenv(name);
+    return value != nullptr ? std::string(value) : std::string();
 }
 
 }
@@ -117,50 +118,43 @@ std::string apiDeclarations()
 
 fs::path programFolder()
 {
-    std::wstring buffer(MAX_PATH, L'\0');
-    for (;;) {
-        const DWORD length = GetModuleFileNameW(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
-        if (length == 0) {
-            return {};
-        }
-        if (length < buffer.size()) {
-            buffer.resize(length);
-            return fs::path(buffer).parent_path();
-        }
-        buffer.resize(buffer.size() * 2);
+    std::uint32_t size = 0;
+    _NSGetExecutablePath(nullptr, &size);
+    std::vector<char> buffer(size + 1, '\0');
+    if (size == 0 || _NSGetExecutablePath(buffer.data(), &size) != 0) {
+        return {};
     }
+    std::error_code error;
+    const fs::path program = fs::canonical(buffer.data(), error);
+    return (error ? fs::path(buffer.data()) : program).parent_path();
 }
 
 fs::path dataFolder()
 {
-    if (const std::wstring overridden = environmentText(L"GS_DATA_DIR"); !overridden.empty()) {
-        return fs::path(overridden);
+    if (const std::string overridden = environmentText("GS_DATA_DIR"); !overridden.empty()) {
+        return pathOf(overridden);
     }
     std::error_code error;
     if (fs::exists(programFolder() / "portable.flag", error)) {
         return programFolder() / "data";
     }
-    const std::wstring roaming = environmentText(L"APPDATA");
-    return roaming.empty() ? fs::path() : fs::path(roaming) / "GameScrcpy";
+    const std::string home = environmentText("HOME");
+    return home.empty() ? fs::path() : pathOf(home) / "Library" / "Application Support" / "GameScrcpy";
 }
 
 void writeTo(Stream stream, std::string_view text)
 {
-    const HANDLE handle = GetStdHandle(stream == Stream::Out ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
-    if (text.empty() || handle == nullptr || handle == INVALID_HANDLE_VALUE) {
-        return;
+    const int fd = stream == Stream::Out ? STDOUT_FILENO : STDERR_FILENO;
+    while (!text.empty()) {
+        const ssize_t written = ::write(fd, text.data(), text.size());
+        if (written < 0 && errno == EINTR) {
+            continue;
+        }
+        if (written <= 0) {
+            return;
+        }
+        text.remove_prefix(static_cast<std::size_t>(written));
     }
-    DWORD written = 0;
-    DWORD mode = 0;
-    if (GetConsoleMode(handle, &mode)) {
-        const int size = static_cast<int>(text.size());
-        const int length = MultiByteToWideChar(CP_UTF8, 0, text.data(), size, nullptr, 0);
-        std::wstring wide(static_cast<std::size_t>(length), L'\0');
-        MultiByteToWideChar(CP_UTF8, 0, text.data(), size, wide.data(), length);
-        WriteConsoleW(handle, wide.data(), static_cast<DWORD>(wide.size()), &written, nullptr);
-        return;
-    }
-    WriteFile(handle, text.data(), static_cast<DWORD>(text.size()), &written, nullptr);
 }
 
 }

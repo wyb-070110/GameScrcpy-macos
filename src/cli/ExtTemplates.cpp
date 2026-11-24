@@ -32,17 +32,19 @@ project(@PROJECT@ LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
 add_library(native SHARED src/native.cpp)
 target_include_directories(native PRIVATE include)
 set_target_properties(native PROPERTIES
     PREFIX ""
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}$<0:>"
-    PDB_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/symbols$<0:>"
-    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
+    SUFFIX ".dylib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}$<0:>"
+    CXX_VISIBILITY_PRESET hidden
 )
-if(MSVC)
-    target_compile_options(native PRIVATE /W4 /permissive- /utf-8)
-endif()
+target_compile_options(native PRIVATE -Wall -Wextra)
 )cmake";
 
 constexpr std::string_view kNativeSource = R"cpp(#include <gamescrcpy_ext.h>
@@ -180,11 +182,11 @@ GS_EXT_EXPORT int32_t gs_ext_main(const gs_ext_host* host, const gs_ext_plugin**
 
 constexpr std::string_view kNativeAgents = R"md(# Native extension
 
-A GameScrcpy extension with a DLL written in C++ against `include/gamescrcpy_ext.h`, GameScrcpy's native interface. This folder is the extension: `manifest.json` describes it and the build puts `native.dll` next to it.
+A GameScrcpy extension with a native library written in C++ against `include/gamescrcpy_ext.h`, GameScrcpy's native interface. This folder is the extension: `manifest.json` describes it and the build puts `native.dylib` next to it.
 
-- Build with Visual Studio 2022 for x64: `cmake -S . -B .build` and `cmake --build .build --config Release`. Folders whose names start with a dot stay out of checks and packages, so `.build` never ships.
+- Build with Clang (Xcode's command line tools): `cmake -S . -B .build` and `cmake --build .build --config Release`. Folders whose names start with a dot stay out of checks and packages, so `.build` never ships.
 - Check: `gs validate .` checks the manifest and its files.
-- Test: `gs ext test .` loads the manifest, the DLL and the scripts without GameScrcpy and without a phone, and runs `tests/*.json`. `--hosted` runs the DLL in gs-exthost.exe, as GameScrcpy runs extensions from others; `--json` writes the report for tools. The exit code is 0 when every step passes, 1 when a step fails and 2 when the extension cannot be loaded.
+- Test: `gs ext test .` loads the manifest, the library and the scripts without GameScrcpy and without a phone, and runs `tests/*.json`. `--hosted` runs the library in gs-exthost, as GameScrcpy runs extensions from others; `--json` writes the report for tools. The exit code is 0 when every step passes, 1 when a step fails and 2 when the extension cannot be loaded.
 - Run a job from the command line: `gs ext . countdown --from 5` runs the command that `contributes.cli` declares.
 - Pack: `gs pack .` writes the .gsext package next to this folder; it carries the sources too, so move them out first if you do not want to ship them.
 - `src/native.cpp` offers the node `greet`, which scripts call as `ext.<extension id>.greet("world")` and which returns within 100 ms, and the job `countdown`, which runs on a thread of its own, tells how far it got and ends with exactly one `job_finish` or `job_fail`. Every struct starts with its size, and GameScrcpy only adds fields at their end.
@@ -365,7 +367,7 @@ std::vector<std::pair<std::string, std::string>> nativeFiles(const std::string& 
     countdown["returns"] = "json";
     countdown["description"] = "Counts down from a number to zero and tells how far it got.";
     countdown["most"] = 1;
-    manifest["contributes"]["native"]["dll"] = "native.dll";
+    manifest["contributes"]["native"]["dylib"] = "native.dylib";
     manifest["contributes"]["native"]["nodes"] = Json::array({greet});
     manifest["contributes"]["native"]["jobs"] = Json::array({countdown});
     Json command = Json::object();

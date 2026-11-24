@@ -13,7 +13,7 @@
   },
   "contributes": {
     "native": {
-      "dll": "pc-clock.dll",
+      "dylib": "pc-clock.dylib",
       "nodes": [
         {"name": "now", "returns": "string", "description": "The computer's current time as text, such as \"14:05:09\"."}
       ]

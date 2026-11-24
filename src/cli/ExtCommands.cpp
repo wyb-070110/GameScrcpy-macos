@@ -8,9 +8,13 @@
 #include <gs/ext/Package.h>
 #include <gs/ext/Version.h>
 
-#include <windows.h>
+#include <signal.h>
+#include <unistd.h>
 
+#include <array>
 #include <atomic>
+#include <functional>
+#include <thread>
 #include <cmath>
 #include <filesystem>
 #include <format>
@@ -53,14 +57,8 @@ std::string narrow(std::wstring_view text)
     if (text.empty()) {
         return {};
     }
-    const int size = static_cast<int>(text.size());
-    const int length = WideCharToMultiByte(CP_UTF8, 0, text.data(), size, nullptr, 0, nullptr, nullptr);
-    if (length <= 0) {
-        return {};
-    }
-    std::string made(static_cast<std::size_t>(length), '\0');
-    WideCharToMultiByte(CP_UTF8, 0, text.data(), size, made.data(), length, nullptr, nullptr);
-    return made;
+    const std::u8string made = fs::path(std::wstring(text)).u8string();
+    return {reinterpret_cast<const char*>(made.data()), made.size()};
 }
 
 void printJson(const Json& value)
@@ -74,29 +72,98 @@ MockInterrupt& commandInterrupt()
     return interrupt;
 }
 
-BOOL WINAPI onBreak(DWORD signal)
+// Ctrl+C (and, for gs ext test, the terminal closing): the signal handler only writes a byte to a pipe; a thread of
+// its own does the work, as Windows runs a console handler on a thread of its own. A watch puts the earlier handlers
+// back when it ends.
+int g_breakPipe = -1;
+
+void onSignal(int signal)
 {
-    if (signal != CTRL_C_EVENT && signal != CTRL_BREAK_EVENT) {
-        return FALSE;
+    const auto byte = static_cast<char>(signal);
+    if (g_breakPipe >= 0) {
+        static_cast<void>(::write(g_breakPipe, &byte, 1));
     }
-    MockInterrupt* interrupt = g_interrupt.load();
-    if (interrupt == nullptr) {
-        return FALSE;
-    }
-    interrupt->raise();
-    return TRUE;
 }
 
-BOOL WINAPI onTestBreak(DWORD signal)
+class BreakWatch
 {
-    if (signal != CTRL_C_EVENT && signal != CTRL_BREAK_EVENT && signal != CTRL_CLOSE_EVENT &&
-        signal != CTRL_LOGOFF_EVENT && signal != CTRL_SHUTDOWN_EVENT) {
-        return FALSE;
+public:
+    // handled: false when the signal should then end gs as it would without the watch.
+    BreakWatch(std::vector<int> signals, std::function<bool(int signal)> handle)
+        : m_signals(std::move(signals))
+        , m_handle(std::move(handle))
+    {
+        if (::pipe(m_pipe.data()) != 0) {
+            return;
+        }
+        g_breakPipe = m_pipe[1];
+        m_thread = std::thread([this] { run(); });
+        struct sigaction action{};
+        action.sa_handler = &onSignal;
+        sigemptyset(&action.sa_mask);
+        for (const int signal : m_signals) {
+            struct sigaction before{};
+            ::sigaction(signal, &action, &before);
+            m_before.push_back(before);
+        }
     }
+
+    ~BreakWatch()
+    {
+        for (std::size_t index = 0; index < m_before.size(); ++index) {
+            ::sigaction(m_signals[index], &m_before[index], nullptr);
+        }
+        g_breakPipe = -1;
+        if (m_pipe[1] >= 0) {
+            ::close(m_pipe[1]);
+        }
+        if (m_thread.joinable()) {
+            m_thread.join();
+        }
+        if (m_pipe[0] >= 0) {
+            ::close(m_pipe[0]);
+        }
+    }
+
+    BreakWatch(const BreakWatch&) = delete;
+    BreakWatch& operator=(const BreakWatch&) = delete;
+
+private:
+    void run()
+    {
+        char byte = 0;
+        while (::read(m_pipe[0], &byte, 1) == 1) {
+            const int signal = static_cast<unsigned char>(byte);
+            if (!m_handle(signal)) {
+                ::signal(signal, SIG_DFL);
+                ::raise(signal);
+            }
+        }
+    }
+
+    std::vector<int> m_signals;
+    std::function<bool(int)> m_handle;
+    std::array<int, 2> m_pipe{-1, -1};
+    std::thread m_thread;
+    std::vector<struct sigaction> m_before;
+};
+
+bool onBreak(int)
+{
+    MockInterrupt* interrupt = g_interrupt.load();
+    if (interrupt == nullptr) {
+        return false;
+    }
+    interrupt->raise();
+    return true;
+}
+
+bool onTestBreak(int)
+{
     if (MockTestCleanup* cleanup = g_testCleanup.load()) {
         cleanup->run();
     }
-    return FALSE;
+    return false;
 }
 
 int testCommand(const std::vector<std::wstring_view>& args)
@@ -129,11 +196,11 @@ int testCommand(const std::vector<std::wstring_view>& args)
         std::cerr << "gs ext test: " << utf8(*input) << " does not exist\n";
         return kUsage;
     }
-    options.exthost = programFolder() / "gs-exthost.exe";
+    options.exthost = programFolder() / "gs-exthost";
     MockTestCleanup cleanup;
     options.cleanup = &cleanup;
     g_testCleanup.store(&cleanup);
-    SetConsoleCtrlHandler(&onTestBreak, TRUE);
+    std::optional<BreakWatch> watch(std::in_place, std::vector<int>{SIGINT, SIGTERM, SIGHUP}, &onTestBreak);
     const MockExtension extension = openMockExtension(*input, options);
     if (extension.scratch != nullptr) {
         cleanup.watchFolder(extension.scratch->path());
@@ -159,7 +226,7 @@ int testCommand(const std::vector<std::wstring_view>& args)
         std::cout << mockReportText(extension, run);
     }
     cleanup.run();
-    SetConsoleCtrlHandler(&onTestBreak, FALSE);
+    watch.reset();
     g_testCleanup.store(nullptr);
     return mockExitCode(extension, run);
 }
@@ -343,7 +410,7 @@ int extensionCommand(const std::vector<std::wstring_view>& args)
         return kUsage;
     }
     options.official = target->official;
-    options.exthost = programFolder() / "gs-exthost.exe";
+    options.exthost = programFolder() / "gs-exthost";
     const MockExtension extension = openMockExtension(target->folder, options);
     if (!extension.usable()) {
         if (json) {
@@ -383,9 +450,9 @@ int extensionCommand(const std::vector<std::wstring_view>& args)
     MockInterrupt& interrupt = commandInterrupt();
     hooks.interrupt = &interrupt;
     g_interrupt.store(&interrupt);
-    SetConsoleCtrlHandler(&onBreak, TRUE);
+    std::optional<BreakWatch> watch(std::in_place, std::vector<int>{SIGINT}, &onBreak);
     const MockCommandResult result = runMockCommand(extension, *found, *jobArgs, options, hooks);
-    SetConsoleCtrlHandler(&onBreak, FALSE);
+    watch.reset();
     g_interrupt.store(nullptr);
     printOutcome(manifest, *found, *jobArgs, result, json);
     return result.exitCode();

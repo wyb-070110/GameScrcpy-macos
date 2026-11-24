@@ -1,8 +1,3 @@
-if(NOT WIN32)
-    include(Posix.cmake)
-    return()
-endif()
-
 add_library(gs_mockhost STATIC MockHost.cpp MockHost.h)
 target_include_directories(gs_mockhost PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(gs_mockhost PUBLIC gs::ext gs::nlohmann_json PRIVATE gs::base gs::exthost gs::platform gs::script)
@@ -12,14 +7,14 @@ add_executable(gs_cli main.cpp ExtCommands.cpp ExtCommands.h ExtTemplates.cpp Ex
                       ScriptProject.cpp ScriptProject.h ScriptRun.cpp ScriptTools.cpp ScriptTools.h KeyTools.cpp
                       KeyTools.h)
 set_target_properties(gs_cli PROPERTIES OUTPUT_NAME gs)
-target_link_libraries(gs_cli PRIVATE gs_mockhost gs::base gs::ext gs::input gs::platform gs::record gs::script gs::tsstrip gs::nlohmann_json d3dcompiler)
+target_link_libraries(gs_cli PRIVATE gs_mockhost gs::base gs::ext gs::input gs::platform gs::record gs::script gs::tsstrip gs::nlohmann_json)
 gs_apply_compiler_policy(gs_cli)
 add_dependencies(gs_cli gs_exthost_program)
 
 add_custom_target(gs_typescript ALL
     COMMAND "${CMAKE_COMMAND}" -E copy_directory_if_different
         "${PROJECT_SOURCE_DIR}/third_party/typescript/lib" "$<TARGET_FILE_DIR:gs_cli>/typescript"
-    COMMENT "Placing the TypeScript compiler next to gs.exe"
+    COMMENT "Placing the TypeScript compiler next to gs"
     VERBATIM
 )
 
@@ -47,12 +42,11 @@ if(GS_BUILD_TESTS)
     set(gs_cli_test_data "${PROJECT_SOURCE_DIR}/tests/data/extensions")
     set(gs_cli_test_package "${CMAKE_CURRENT_BINARY_DIR}/crt-scanlines-test.gsext")
 
+    # macOS has no HLSL compiler: a filter's shader is not compiled, and gs validate says so as a warning.
     add_test(NAME gs_cli_validate_broken_shader COMMAND gs_cli validate "${gs_cli_test_data}/broken-shader")
     set_tests_properties(gs_cli_validate_broken_shader PROPERTIES PASS_REGULAR_EXPRESSION "filter-compile-failed")
     add_test(NAME gs_cli_validate_broken_shader_json COMMAND gs_cli validate "${gs_cli_test_data}/broken-shader" --json)
-    set_tests_properties(gs_cli_validate_broken_shader_json PROPERTIES PASS_REGULAR_EXPRESSION "\"ok\": false")
-    add_test(NAME gs_cli_validate_broken_shader_exit COMMAND gs_cli validate "${gs_cli_test_data}/broken-shader")
-    set_tests_properties(gs_cli_validate_broken_shader_exit PROPERTIES WILL_FAIL TRUE)
+    set_tests_properties(gs_cli_validate_broken_shader_json PROPERTIES PASS_REGULAR_EXPRESSION "no HLSL compiler")
 
     add_test(NAME gs_cli_validate_missing_license COMMAND gs_cli validate "${gs_cli_test_data}/missing-license")
     set_tests_properties(gs_cli_validate_missing_license PROPERTIES PASS_REGULAR_EXPRESSION
@@ -319,10 +313,10 @@ if(GS_BUILD_TESTS)
     set_tests_properties(gs_cli_ext_copy gs_cli_ext_copy_old PROPERTIES FIXTURES_REQUIRED gs_cli_ext_clean
                                                                          FIXTURES_SETUP gs_cli_ext_fixture)
     add_test(NAME gs_cli_ext_copy_dll
-             COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:gs_test_native>" "${gs_cli_ext_mock}/native.dll")
+             COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:gs_test_native>" "${gs_cli_ext_mock}/native.dylib")
     set_tests_properties(gs_cli_ext_copy_dll PROPERTIES FIXTURES_SETUP gs_cli_ext_fixture DEPENDS gs_cli_ext_copy)
     add_test(NAME gs_cli_ext_copy_old_dll
-             COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:gs_test_native_old>" "${gs_cli_ext_old}/native.dll")
+             COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:gs_test_native_old>" "${gs_cli_ext_old}/native.dylib")
     set_tests_properties(gs_cli_ext_copy_old_dll PROPERTIES FIXTURES_SETUP gs_cli_ext_fixture DEPENDS gs_cli_ext_copy_old)
 
     add_test(NAME gs_cli_ext_test COMMAND gs_cli ext test "${gs_cli_ext_mock}")
@@ -334,7 +328,7 @@ if(GS_BUILD_TESTS)
     set_tests_properties(gs_cli_ext_test_hosted PROPERTIES PASS_REGULAR_EXPRESSION "\n6 passed, 0 failed\n")
     add_test(NAME gs_cli_ext_test_hosted_json COMMAND gs_cli ext test "${gs_cli_ext_mock}" --hosted --json)
     set_tests_properties(gs_cli_ext_test_hosted_json PROPERTIES PASS_REGULAR_EXPRESSION
-                                                                "\"where\": \"native[.]dll in gs-exthost[.]exe\"")
+                                                                "\"where\": \"native[.]dylib in gs-exthost\"")
     add_test(NAME gs_cli_ext_test_json COMMAND gs_cli ext test "${gs_cli_ext_mock}" --json)
     set_tests_properties(gs_cli_ext_test_json PROPERTIES PASS_REGULAR_EXPRESSION "^{\n  \"ok\": true,")
     add_test(NAME gs_cli_ext_test_failing
@@ -347,7 +341,7 @@ if(GS_BUILD_TESTS)
                      -P "${gs_cli_ext_expect}")
     add_test(NAME gs_cli_ext_test_unloadable COMMAND gs_cli ext test "${gs_cli_ext_old}")
     set_tests_properties(gs_cli_ext_test_unloadable PROPERTIES PASS_REGULAR_EXPRESSION
-                                                               "cannot be loaded: native[.]dll cannot be loaded: the DLL was made for an older GameScrcpy")
+                                                               "cannot be loaded: native[.]dylib cannot be loaded: the DLL was made for an older GameScrcpy")
     add_test(NAME gs_cli_ext_test_unloadable_exit
              COMMAND "${CMAKE_COMMAND}" "-DGS=$<TARGET_FILE:gs_cli>" -DEXPECTED=2 -DARG1=ext -DARG2=test
                      "-DARG3=${gs_cli_ext_old}" -P "${gs_cli_ext_expect}")

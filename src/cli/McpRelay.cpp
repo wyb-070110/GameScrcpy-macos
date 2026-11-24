@@ -4,7 +4,14 @@
 
 #include <nlohmann/json.hpp>
 
-#include <windows.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
+
+#include <cerrno>
+#include <chrono>
+#include <cstdlib>
+#include <cstring>
 
 #include <algorithm>
 #include <array>
@@ -25,8 +32,7 @@ using Json = nlohmann::json;
 constexpr int kSuccess = 0;
 constexpr int kProblems = 1;
 constexpr int kUsage = 2;
-constexpr DWORD kChunkBytes = 64 * 1024;
-constexpr DWORD kBusyWaitMs = 2000;
+constexpr std::size_t kChunkBytes = 64 * 1024;
 constexpr int kBusyAttempts = 5;
 constexpr std::size_t kMostLineBytes = std::size_t{32} << 20;
 constexpr int kRefused = -32001;
@@ -40,86 +46,79 @@ struct Shared {
     bool inputEnded = false;
 };
 
-class Event
+// GameScrcpy listens with a QLocalServer: on macOS a Unix socket named in the temporary folder ($TMPDIR, as Qt's
+// QDir::tempPath), or the path GS_MCP_PIPE gives when it is absolute.
+std::string socketPath()
 {
-public:
-    Event()
-        : m_handle(CreateEventW(nullptr, TRUE, FALSE, nullptr))
-    {
+    const char* given = std::getenv("GS_MCP_PIPE");
+    const std::string chosen = given != nullptr && *given != '\0' ? std::string(given) : std::string("GameScrcpy-MCP");
+    if (chosen.starts_with('/')) {
+        return chosen;
     }
-    ~Event()
-    {
-        if (m_handle != nullptr) {
-            CloseHandle(m_handle);
-        }
+    std::string folder = std::getenv("TMPDIR") != nullptr ? std::string(std::getenv("TMPDIR")) : std::string("/tmp");
+    while (folder.size() > 1 && folder.ends_with('/')) {
+        folder.pop_back();
     }
-    Event(const Event&) = delete;
-    Event& operator=(const Event&) = delete;
-
-    [[nodiscard]] HANDLE handle() const noexcept { return m_handle; }
-
-private:
-    HANDLE m_handle;
-};
-
-std::wstring pipePath()
-{
-    std::array<wchar_t, 256> name{};
-    const DWORD length = GetEnvironmentVariableW(L"GS_MCP_PIPE", name.data(), static_cast<DWORD>(name.size()));
-    const std::wstring chosen =
-        length > 0 && length < name.size() ? std::wstring(name.data(), length) : std::wstring(L"GameScrcpy-MCP");
-    return L"\\\\.\\pipe\\" + chosen;
+    return folder + "/" + chosen;
 }
 
-HANDLE connectTo(const std::wstring& path)
+int connectTo(const std::string& path)
 {
+    sockaddr_un address{};
+    if (path.size() >= sizeof(address.sun_path)) {
+        return -1;
+    }
+    address.sun_family = AF_UNIX;
+    std::memcpy(address.sun_path, path.c_str(), path.size() + 1);
     for (int attempt = 0; attempt < kBusyAttempts; ++attempt) {
-        const HANDLE pipe = CreateFileW(path.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
-                                        FILE_FLAG_OVERLAPPED | SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION, nullptr);
-        if (pipe != INVALID_HANDLE_VALUE) {
-            return pipe;
+        const int fd = ::socket(AF_UNIX, SOCK_STREAM, 0);
+        if (fd < 0) {
+            return -1;
         }
-        if (GetLastError() != ERROR_PIPE_BUSY || WaitNamedPipeW(path.c_str(), kBusyWaitMs) == FALSE) {
+        const int on = 1;
+        ::setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &on, sizeof(on));
+        if (::connect(fd, reinterpret_cast<const sockaddr*>(&address), sizeof(address)) == 0) {
+            return fd;
+        }
+        const int error = errno;
+        ::close(fd);
+        if (error != EAGAIN && error != ECONNREFUSED) {
             break;
         }
+        if (error == ECONNREFUSED) {
+            return -1;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
-    return INVALID_HANDLE_VALUE;
+    return -1;
 }
 
-DWORD chunkOf(std::size_t size)
-{
-    return static_cast<DWORD>(std::min<std::size_t>(size, kChunkBytes));
-}
-
-bool writeAll(HANDLE handle, const char* data, std::size_t size)
+bool writeAll(int fd, const char* data, std::size_t size)
 {
     while (size > 0) {
-        DWORD written = 0;
-        if (WriteFile(handle, data, chunkOf(size), &written, nullptr) == FALSE || written == 0) {
+        const ssize_t written = ::write(fd, data, std::min(size, kChunkBytes));
+        if (written < 0 && errno == EINTR) {
+            continue;
+        }
+        if (written <= 0) {
             return false;
         }
         data += written;
-        size -= written;
+        size -= static_cast<std::size_t>(written);
     }
     return true;
 }
 
-bool writePipe(HANDLE pipe, const Event& event, const char* data, std::size_t size)
+// Reads what is there, up to a chunk; 0 at the end or on an error.
+std::size_t readSome(int fd, char* data)
 {
-    while (size > 0) {
-        OVERLAPPED overlapped{};
-        overlapped.hEvent = event.handle();
-        DWORD written = 0;
-        if (WriteFile(pipe, data, chunkOf(size), nullptr, &overlapped) == FALSE && GetLastError() != ERROR_IO_PENDING) {
-            return false;
+    for (;;) {
+        const ssize_t got = ::read(fd, data, kChunkBytes);
+        if (got < 0 && errno == EINTR) {
+            continue;
         }
-        if (GetOverlappedResult(pipe, &overlapped, &written, TRUE) == FALSE || written == 0) {
-            return false;
-        }
-        data += written;
-        size -= written;
+        return got > 0 ? static_cast<std::size_t>(got) : 0;
     }
-    return true;
 }
 
 long long expectedReplies(std::string_view line)
@@ -178,8 +177,8 @@ void reportOff()
 
 int refuse()
 {
-    const HANDLE input = GetStdHandle(STD_INPUT_HANDLE);
-    const HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+    const int input = STDIN_FILENO;
+    const int output = STDOUT_FILENO;
     std::string buffer;
     std::vector<char> chunk(kChunkBytes);
     for (;;) {
@@ -200,9 +199,8 @@ int refuse()
                 return kProblems;
             }
         }
-        DWORD read = 0;
-        if (buffer.size() > kMostLineBytes ||
-            ReadFile(input, chunk.data(), kChunkBytes, &read, nullptr) == FALSE || read == 0) {
+        const std::size_t read = buffer.size() > kMostLineBytes ? 0 : readSome(input, chunk.data());
+        if (read == 0) {
             reportOff();
             return kProblems;
         }
@@ -210,19 +208,17 @@ int refuse()
     }
 }
 
-void forward(HANDLE pipe, std::shared_ptr<Shared> shared)
+void forward(int pipe, std::shared_ptr<Shared> shared)
 {
-    const HANDLE input = GetStdHandle(STD_INPUT_HANDLE);
-    const Event event;
     std::vector<char> chunk(kChunkBytes);
     std::string line;
     for (;;) {
-        DWORD read = 0;
-        if (ReadFile(input, chunk.data(), kChunkBytes, &read, nullptr) == FALSE || read == 0) {
+        const std::size_t read = readSome(STDIN_FILENO, chunk.data());
+        if (read == 0) {
             break;
         }
         long long expected = 0;
-        for (DWORD index = 0; index < read; ++index) {
+        for (std::size_t index = 0; index < read; ++index) {
             const char c = chunk[index];
             if (c != '\n') {
                 if (line.size() <= kMostLineBytes) {
@@ -237,7 +233,7 @@ void forward(HANDLE pipe, std::shared_ptr<Shared> shared)
             const std::scoped_lock lock(shared->mutex);
             shared->outstanding += expected;
         }
-        if (!writePipe(pipe, event, chunk.data(), read)) {
+        if (!writeAll(pipe, chunk.data(), read)) {
             break;
         }
     }
@@ -248,29 +244,23 @@ void forward(HANDLE pipe, std::shared_ptr<Shared> shared)
         done = shared->outstanding <= 0;
     }
     if (done) {
-        CancelIoEx(pipe, nullptr);
+        // Wakes the read in relay(), as CancelIoEx does on Windows.
+        ::shutdown(pipe, SHUT_RDWR);
     }
 }
 
-int relay(HANDLE pipe)
+int relay(int pipe)
 {
-    const HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
     auto shared = std::make_shared<Shared>();
     std::thread(forward, pipe, shared).detach();
-    const Event event;
     std::vector<char> chunk(kChunkBytes);
     Replies replies;
     for (;;) {
-        OVERLAPPED overlapped{};
-        overlapped.hEvent = event.handle();
-        DWORD read = 0;
-        if (ReadFile(pipe, chunk.data(), kChunkBytes, nullptr, &overlapped) == FALSE && GetLastError() != ERROR_IO_PENDING) {
+        const std::size_t read = readSome(pipe, chunk.data());
+        if (read == 0) {
             break;
         }
-        if (GetOverlappedResult(pipe, &overlapped, &read, TRUE) == FALSE || read == 0) {
-            break;
-        }
-        if (!writeAll(output, chunk.data(), read)) {
+        if (!writeAll(STDOUT_FILENO, chunk.data(), read)) {
             break;
         }
         const long long answered = replies.count(chunk.data(), read);
@@ -296,8 +286,8 @@ int runMcpRelay(const std::vector<std::wstring_view>& args)
         std::cerr << "usage: gs mcp\n";
         return kUsage;
     }
-    const HANDLE pipe = connectTo(pipePath());
-    if (pipe == INVALID_HANDLE_VALUE) {
+    const int pipe = connectTo(socketPath());
+    if (pipe < 0) {
         return refuse();
     }
     return relay(pipe);

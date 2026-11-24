@@ -19,7 +19,7 @@
 | SDL3 | 3.4.18 | Zlib | 读取 Xbox、PS4、PS5、Switch Pro 手柄 | MSVC 编译的只含手柄与 HIDAPI 的共享库 + 头文件 + 导入库；配置与校验和见 `sdl3/BUILDINFO.md` |
 | libusb | 1.0.30 | LGPL-2.1-or-later | AOA 触控方式：经 USB 控制传输在手机上建 HID 触摸屏、鼠标与键盘 | MSVC 用发布包自带的 `msvc/libusb_dll.vcxproj` 编译的共享库（约 163 KB，动态链接，只从程序目录加载）+ 头文件 + 导入库；源码包的发布签名已用发布公钥 `C68187379B23DE9EFC46651E2C80FF56C6830A0E` 核对；校验和见 `libusb/BUILDINFO.md` |
 | QuickJS-ng | v0.17.0（提交 `6d46d07d04041b40f4f49eaa7fdebe44c314c699`） | MIT | 脚本引擎：每会话一个运行时、ES 模块、中断与内存上限 | 发布源码包里引擎本身的源文件与 `LICENSE`，不带 quickjs-libc；`quickjs.c` 有一处本地补丁（中断检查挪到回跳之前，让看门狗报出死循环所在的行），其余原样未改；编译成静态库 `gs::quickjs`；补丁说明与校验和见 `quickjs-ng/BUILDINFO.md` |
-| TypeScript | 7.0.2 | Apache-2.0 | 脚本的类型检查：`gs check` 与脚本工作台调用的原生编译器，写脚本的人不用装 Node | npm 包 `@typescript/typescript-win32-x64` 的 `tsc.exe`、标准库类型声明与 `LICENSE`、`NOTICE.txt`，原样未改；构建时复制到 `gs.exe` 旁边的 `typescript/`；校验和见 `typescript/BUILDINFO.md` |
+| TypeScript | 7.0.2 | Apache-2.0 | 脚本的类型检查：`gs check` 与脚本工作台调用的原生编译器，写脚本的人不用装 Node | npm 包 `@typescript/typescript-darwin-arm64` 的 `tsc`、标准库类型声明与 `LICENSE`、`NOTICE.txt`，原样未改；构建时复制到 `gs` 旁边的 `typescript/`；校验和见 `typescript/BUILDINFO.md` |
 
 ## 构建说明
 

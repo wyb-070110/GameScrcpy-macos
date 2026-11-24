@@ -12,7 +12,7 @@
   },
   "contributes": {
     "native": {
-      "dll": "native.dll",
+      "dylib": "native.dylib",
       "touchMethods": [
         {"name": "recorder", "title": "Recorder", "description": "Writes down every finger, key and text."}
       ],

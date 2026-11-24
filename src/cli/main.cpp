@@ -21,10 +21,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include <windows.h>
-
-#include <d3dcompiler.h>
-#include <wrl/client.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <chrono>
@@ -55,7 +52,6 @@ namespace {
 namespace fs = std::filesystem;
 namespace ext = gs::ext;
 using Json = nlohmann::ordered_json;
-using Microsoft::WRL::ComPtr;
 using Reader = std::function<std::optional<std::string>(std::string_view path, std::uint64_t maxBytes)>;
 
 constexpr int kSuccess = 0;
@@ -104,7 +100,8 @@ struct Compiler {
     bool stalled = false;
 };
 
-enum class Outcome : std::uint8_t { Compiled, Failed, TimedOut };
+// Unchecked: macOS has no HLSL compiler for gs to check a filter's shader with.
+enum class Outcome : std::uint8_t { Compiled, Failed, TimedOut, Unchecked };
 
 struct Compilation {
     Outcome outcome = Outcome::Failed;
@@ -274,17 +271,9 @@ std::string trimmed(std::string text)
     return text;
 }
 
-Compilation compileOnce(const std::string& shader, const std::string& file, const std::string& entry)
+Compilation compileOnce(const std::string&, const std::string&, const std::string&)
 {
-    ComPtr<ID3DBlob> code;
-    ComPtr<ID3DBlob> errors;
-    if (SUCCEEDED(D3DCompile(shader.data(), shader.size(), file.c_str(), nullptr, nullptr, entry.c_str(), "ps_5_0",
-                             D3DCOMPILE_OPTIMIZATION_LEVEL3, 0, code.GetAddressOf(), errors.GetAddressOf()))) {
-        return {Outcome::Compiled, {}};
-    }
-    return {Outcome::Failed,
-            errors ? std::string(static_cast<const char*>(errors->GetBufferPointer()), errors->GetBufferSize())
-                   : std::string("the shader did not compile")};
+    return {Outcome::Unchecked, {}};
 }
 
 Compilation compile(Compiler& compiler, std::string shader, std::string file, std::string entry)
@@ -322,6 +311,11 @@ void compileFilters(const ext::Manifest& manifest, const Reader& reader, Compile
             const Compilation compiled = compile(compiler, shader, filter.file, ext::passEntryPoint(pass));
             if (compiled.outcome == Outcome::Compiled) {
                 continue;
+            }
+            if (compiled.outcome == Outcome::Unchecked) {
+                diagnostics.push_back({ext::Severity::Warning, ext::Code::FilterCompileFailed, field,
+                                       "not compiled: gs on macOS has no HLSL compiler, so the shader is unchecked"});
+                break;
             }
             const std::string detail =
                 compiled.outcome == Outcome::TimedOut
@@ -549,7 +543,8 @@ void print(const Options& options, const std::optional<ext::Manifest>& manifest,
     std::cout << subject << ": " << tally(diagnostics) << '\n';
     for (const ext::NativeLibrary& library : extras.libraries) {
         std::cout << printable(library.path) << ": " << ext::machineName(library.machine);
-        if (!library.architecture.empty()) {
+        // "macos" is the one dylib of the string form, listed for no processor in particular.
+        if (!library.architecture.empty() && library.architecture != "macos") {
             std::cout << " (listed for " << printable(library.architecture) << ")";
         }
         std::cout << (library.entry ? ", exports gs_ext_main\n" : ", does not export gs_ext_main\n");
@@ -852,7 +847,23 @@ int wmain(int argc, wchar_t** argv)
     gs::cli::writeTo(gs::cli::Stream::Out, out.str());
     gs::cli::writeTo(gs::cli::Stream::Error, err.str());
     if (compiler.stalled) {
-        TerminateProcess(GetCurrentProcess(), static_cast<UINT>(result));
+        ::_exit(result);
     }
     return result;
+}
+
+// macOS: the arguments as UTF-8, turned into the wide strings wmain works with.
+int main(int argc, char** argv)
+{
+    std::vector<std::wstring> words;
+    for (int index = 0; index < argc; ++index) {
+        const std::string_view word(argv[index]);
+        words.push_back(fs::path(std::u8string(reinterpret_cast<const char8_t*>(word.data()), word.size())).wstring());
+    }
+    std::vector<wchar_t*> pointers;
+    for (std::wstring& word : words) {
+        pointers.push_back(word.data());
+    }
+    pointers.push_back(nullptr);
+    return wmain(argc, pointers.data());
 }

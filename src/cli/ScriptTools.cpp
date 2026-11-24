@@ -9,7 +9,12 @@
 
 #include <nlohmann/json.hpp>
 
-#include <windows.h>
+#include <crt_externs.h>
+#include <spawn.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+#include <cerrno>
 
 #include <algorithm>
 #include <cctype>
@@ -148,39 +153,54 @@ std::string extensionDeclarations()
     return script::extensionTypes(installedNodes());
 }
 
-std::optional<std::string> runProcess(const fs::path& program, const std::wstring& arguments, const fs::path& folder)
+// Runs a program with its output and errors on one pipe, in the given folder, and returns what it wrote.
+std::optional<std::string> runProcess(const fs::path& program, const std::vector<std::string>& arguments,
+                                      const fs::path& folder)
 {
-    SECURITY_ATTRIBUTES security{sizeof(security), nullptr, TRUE};
-    HANDLE readEnd = nullptr;
-    HANDLE writeEnd = nullptr;
-    if (!CreatePipe(&readEnd, &writeEnd, &security, 0)) {
+    int ends[2] = {-1, -1};
+    if (::pipe(ends) != 0) {
         return std::nullopt;
     }
-    SetHandleInformation(readEnd, HANDLE_FLAG_INHERIT, 0);
-    STARTUPINFOW startup{};
-    startup.cb = sizeof(startup);
-    startup.dwFlags = STARTF_USESTDHANDLES;
-    startup.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
-    startup.hStdOutput = writeEnd;
-    startup.hStdError = writeEnd;
-    std::wstring command = L"\"" + program.wstring() + L"\" " + arguments;
-    PROCESS_INFORMATION process{};
-    const BOOL created = CreateProcessW(nullptr, command.data(), nullptr, nullptr, TRUE, CREATE_NO_WINDOW, nullptr,
-                                        folder.c_str(), &startup, &process);
-    CloseHandle(writeEnd);
+    posix_spawn_file_actions_t actions;
+    posix_spawn_file_actions_init(&actions);
+    posix_spawn_file_actions_addclose(&actions, ends[0]);
+    posix_spawn_file_actions_adddup2(&actions, ends[1], STDOUT_FILENO);
+    posix_spawn_file_actions_adddup2(&actions, ends[1], STDERR_FILENO);
+    posix_spawn_file_actions_addclose(&actions, ends[1]);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    posix_spawn_file_actions_addchdir_np(&actions, folder.c_str());
+#pragma clang diagnostic pop
+    std::vector<std::string> words{program.string()};
+    words.insert(words.end(), arguments.begin(), arguments.end());
+    std::vector<char*> argv;
+    for (std::string& word : words) {
+        argv.push_back(word.data());
+    }
+    argv.push_back(nullptr);
+    pid_t pid = 0;
+    const int started = ::posix_spawn(&pid, words.front().c_str(), &actions, nullptr, argv.data(), *_NSGetEnviron());
+    posix_spawn_file_actions_destroy(&actions);
+    ::close(ends[1]);
     std::optional<std::string> output;
-    if (created) {
+    if (started == 0) {
         output.emplace();
         char buffer[4096];
-        DWORD read = 0;
-        while (ReadFile(readEnd, buffer, sizeof(buffer), &read, nullptr) && read > 0) {
-            output->append(buffer, read);
+        for (;;) {
+            const ssize_t got = ::read(ends[0], buffer, sizeof(buffer));
+            if (got < 0 && errno == EINTR) {
+                continue;
+            }
+            if (got <= 0) {
+                break;
+            }
+            output->append(buffer, static_cast<std::size_t>(got));
         }
-        WaitForSingleObject(process.hProcess, INFINITE);
-        CloseHandle(process.hProcess);
-        CloseHandle(process.hThread);
+        int status = 0;
+        while (::waitpid(pid, &status, 0) < 0 && errno == EINTR) {
+        }
     }
-    CloseHandle(readEnd);
+    ::close(ends[0]);
     return output;
 }
 
@@ -466,11 +486,11 @@ void typeProblems(const fs::path& folder, const std::vector<fs::path>& files, co
     if (typed.empty()) {
         return;
     }
-    const fs::path compiler = programFolder() / "typescript" / "tsc.exe";
+    const fs::path compiler = programFolder() / "typescript" / "tsc";
     std::error_code error;
     if (!fs::is_regular_file(compiler, error)) {
         problems.push_back({"", 0, 0, "error", "GS-CHECK-001",
-                            "the TypeScript compiler is missing next to gs.exe (typescript/tsc.exe); reinstall "
+                            "the TypeScript compiler is missing next to gs (typescript/tsc); reinstall "
                             "GameScrcpy",
                             "check"});
         return;
@@ -503,9 +523,9 @@ void typeProblems(const fs::path& folder, const std::vector<fs::path>& files, co
         fs::remove_all(scratch, error);
         return;
     }
-    std::wstring arguments = L"-p \"" + (scratch / "tsconfig.json").wstring() + L"\" --noEmit --pretty false";
+    std::vector<std::string> arguments{"-p", (scratch / "tsconfig.json").string(), "--noEmit", "--pretty", "false"};
     if (!locale.empty()) {
-        arguments += L" --locale " + std::wstring(locale.begin(), locale.end());
+        arguments.insert(arguments.end(), {"--locale", locale});
     }
     const std::optional<std::string> output = runProcess(compiler, arguments, folder);
     fs::remove_all(scratch, error);

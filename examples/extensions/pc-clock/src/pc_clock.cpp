@@ -1,8 +1,7 @@
 #include <gamescrcpy_ext.h>
 
-#include <windows.h>
-
 #include <cstdio>
+#include <ctime>
 
 namespace {
 
@@ -10,11 +9,11 @@ const gs_ext_host* g_host = nullptr;
 
 int32_t now(void*, const gs_ext_value*, uint32_t, gs_ext_result* result)
 {
-    SYSTEMTIME time{};
-    GetLocalTime(&time);
+    const std::time_t seconds = std::time(nullptr);
+    std::tm time{};
+    localtime_r(&seconds, &time);
     char text[16] = {};
-    const int length = std::snprintf(text, sizeof(text), "%02u:%02u:%02u", static_cast<unsigned>(time.wHour),
-                                     static_cast<unsigned>(time.wMinute), static_cast<unsigned>(time.wSecond));
+    const int length = std::snprintf(text, sizeof(text), "%02d:%02d:%02d", time.tm_hour, time.tm_min, time.tm_sec);
     if (length <= 0) {
         constexpr char kFailed[] = "the time could not be written";
         g_host->set_error(result, kFailed, sizeof(kFailed) - 1);

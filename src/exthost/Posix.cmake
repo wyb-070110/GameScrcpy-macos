@@ -45,3 +45,5 @@ add_executable(gs_exthost_program posix/main.cpp)
 set_target_properties(gs_exthost_program PROPERTIES OUTPUT_NAME gs-exthost)
 target_link_libraries(gs_exthost_program PRIVATE gs::exthost)
 gs_apply_compiler_policy(gs_exthost_program)
+
+add_subdirectory("${PROJECT_SOURCE_DIR}/examples/extensions/pc-clock" "${PROJECT_BINARY_DIR}/examples/pc-clock")
