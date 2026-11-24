@@ -1,4 +1,5 @@
-// The per-user key in a file of the user's own (mode 0600) under $XDG_DATA_HOME/GameScrcpy.
+// The per-user key in a file of the user's own (mode 0600) under $XDG_DATA_HOME/GameScrcpy. On macOS only
+// userKeyInFile is used here, for programs outside an app bundle (see UserKeyKeychain.cpp).
 #include "UserKey.h"
 
 #include <fcntl.h>
@@ -15,6 +16,7 @@ namespace gs::platform::detail {
 
 namespace {
 
+#if !defined(__APPLE__)
 std::filesystem::path keyFile()
 {
     if (const char* data = std::getenv("XDG_DATA_HOME"); data != nullptr && *data == '/') {
@@ -26,6 +28,7 @@ std::filesystem::path keyFile()
     }
     return std::filesystem::path(home) / ".local" / "share" / "GameScrcpy" / "user-protection.key";
 }
+#endif
 
 bool readAll(int file, UserKey& key) noexcept
 {
@@ -100,12 +103,11 @@ std::optional<UserKey> create(const std::filesystem::path& path) noexcept
 
 }
 
-std::optional<UserKey> userKey() noexcept
+std::optional<UserKey> userKeyInFile(const std::filesystem::path& path) noexcept
 {
     static std::mutex mutex;
     try {
         const std::lock_guard lock(mutex);
-        const std::filesystem::path path = keyFile();
         if (path.empty()) {
             return std::nullopt;
         }
@@ -117,5 +119,16 @@ std::optional<UserKey> userKey() noexcept
         return std::nullopt;
     }
 }
+
+#if !defined(__APPLE__)
+std::optional<UserKey> userKey() noexcept
+{
+    try {
+        return userKeyInFile(keyFile());
+    } catch (...) {
+        return std::nullopt;
+    }
+}
+#endif
 
 }

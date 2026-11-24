@@ -30,7 +30,7 @@ add_library(gs_platform STATIC
     src/posix/UserProtection.cpp
 )
 if(APPLE)
-    target_sources(gs_platform PRIVATE src/posix/UserKeyKeychain.cpp src/mac/TextReader.mm)
+    target_sources(gs_platform PRIVATE src/posix/UserKeyKeychain.cpp src/posix/UserKeyFile.cpp src/mac/TextReader.mm)
     set_source_files_properties(src/mac/TextReader.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
     target_link_libraries(gs_platform PRIVATE "-framework CoreFoundation" "-framework Security"
                           "-framework Foundation" "-framework CoreGraphics" "-framework Vision")

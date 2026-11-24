@@ -1,11 +1,24 @@
-// The per-user key as a generic password in the user's login keychain.
+// The per-user key as a generic password in the user's login keychain, for the app in its bundle.
+//
+// A program outside an app bundle (the test programs, development tools) keeps its own key in a file
+// instead. The login keychain lets only the program that created an item read it without asking, and it
+// tells programs apart by their code: a rebuilt or differently built test program would make macOS show
+// an access dialog, and the test would wait for an answer that never comes. The data protection keychain
+// has no such dialog but needs a signed app with entitlements (errSecMissingEntitlement otherwise).
 #include "UserKey.h"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Security.h>
+#include <mach-o/dyld.h>
 
+#include <cstdint>
+#include <cstdlib>
 #include <cstring>
+#include <filesystem>
+#include <format>
 #include <mutex>
+#include <string>
+#include <vector>
 
 namespace gs::platform::detail {
 
@@ -93,10 +106,50 @@ std::optional<UserKey> add(const Ref& service, const Ref& account) noexcept
     return status == errSecSuccess ? std::optional<UserKey>(key) : std::nullopt;
 }
 
+bool inAppBundle() noexcept
+{
+    CFBundleRef bundle = CFBundleGetMainBundle();
+    return bundle != nullptr && CFBundleGetIdentifier(bundle) != nullptr;
+}
+
+// ~/Library/Application Support/GameScrcpy/Unbundled/<program>-<hash of its full path>.key, so a debug and
+// a release build of the same program never share a key.
+std::filesystem::path unbundledKeyFile()
+{
+    const char* home = std::getenv("HOME");
+    if (home == nullptr || *home != '/') {
+        return {};
+    }
+    std::uint32_t size = 0;
+    _NSGetExecutablePath(nullptr, &size);
+    std::vector<char> raw(size + 1, '\0');
+    if (size == 0 || _NSGetExecutablePath(raw.data(), &size) != 0) {
+        return {};
+    }
+    std::error_code error;
+    std::filesystem::path program = std::filesystem::weakly_canonical(raw.data(), error);
+    if (error) {
+        program = raw.data();
+    }
+    std::uint64_t hash = 0xcbf29ce484222325ULL;
+    for (const char c : program.string()) {
+        hash = (hash ^ static_cast<unsigned char>(c)) * 0x100000001b3ULL;
+    }
+    return std::filesystem::path(home) / "Library" / "Application Support" / "GameScrcpy" / "Unbundled" /
+           std::format("{}-{:016x}.key", program.filename().string(), hash);
+}
+
 }
 
 std::optional<UserKey> userKey() noexcept
 {
+    if (!inAppBundle()) {
+        try {
+            return userKeyInFile(unbundledKeyFile());
+        } catch (...) {
+            return std::nullopt;
+        }
+    }
     static std::mutex mutex;
     const std::lock_guard lock(mutex);
     const Ref service = string(kService);

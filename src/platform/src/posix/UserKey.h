@@ -5,6 +5,7 @@
 
 #include <array>
 #include <cstdint>
+#include <filesystem>
 #include <optional>
 
 namespace gs::platform {
@@ -14,6 +15,9 @@ using UserKey = std::array<std::uint8_t, kAesGcmKeySize>;
 namespace detail {
 
 [[nodiscard]] std::optional<UserKey> userKey() noexcept;
+
+// The key kept in a file of the user's own (mode 0600, in a 0700 folder), created there on first use.
+[[nodiscard]] std::optional<UserKey> userKeyInFile(const std::filesystem::path& path) noexcept;
 
 }
 
