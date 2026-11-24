@@ -59,7 +59,7 @@ Advice FailureAdvice::forFailure(const session::SessionFailure& failure, bool wi
     switch (failure.kind) {
     case FailureKind::AdbUnavailable:
         return {tr("adb is not available"),
-                tr("Install Android SDK Platform-Tools, or make sure no other program blocks adb, then try again.")};
+                tr("Install Android SDK Platform-Tools or Homebrew android-platform-tools, or make sure no other program blocks adb, then try again.")};
     case FailureKind::DeviceNotFound:
         if (wireless) {
             return {tr("The device is not connected"),
@@ -183,9 +183,9 @@ std::optional<Advice> FailureAdvice::forAudioStatus(protocol::AudioStatus status
 Advice FailureAdvice::forSoftwareRendering(const QString& reason)
 {
     return {tr("Video runs without a graphics card"),
-            tr("No usable graphics card was found (%1), as happens in virtual machines and remote desktops. "
-               "The processor draws and decodes the picture, which may stutter; an up-to-date graphics driver "
-               "helps.")
+            tr("Metal hardware acceleration is not available (%1), as happens in some virtual machines. "
+               "The processor draws and decodes the picture, which may stutter; running directly on a Mac with "
+               "Metal support helps.")
                 .arg(reason)};
 }
 

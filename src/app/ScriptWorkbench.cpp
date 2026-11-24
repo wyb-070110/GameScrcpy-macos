@@ -712,7 +712,7 @@ ScriptWorkbench::ScriptWorkbench(DeviceManager& devices, QString folder, QString
     connect(&m_check, &QProcess::finished, this, &ScriptWorkbench::checkFinished);
     connect(&m_check, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         if (error == QProcess::FailedToStart) {
-            m_checkNotice = tr("Problems are not checked: gs.exe did not start");
+            m_checkNotice = tr("Problems are not checked: gs did not start");
             emit checkingChanged();
         }
     });
@@ -720,7 +720,7 @@ ScriptWorkbench::ScriptWorkbench(DeviceManager& devices, QString folder, QString
     connect(&m_replay, &QProcess::finished, this, &ScriptWorkbench::replayFinished);
     connect(&m_replay, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         if (error == QProcess::FailedToStart) {
-            m_replayNote = tr("Could not run on %1: gs.exe did not start").arg(m_replayName);
+            m_replayNote = tr("Could not run on %1: gs did not start").arg(m_replayName);
             emit replayChanged();
         }
     });
@@ -1423,7 +1423,7 @@ void ScriptWorkbench::runOnRecording(const QUrl& recording)
     }
     const QString program = tool();
     if (!QFileInfo::exists(program)) {
-        emit notify(tr("Could not run on the recording: gs.exe is missing next to GameScrcpy"), QStringLiteral("bad"));
+        emit notify(tr("Could not run on the recording: gs is missing next to GameScrcpy"), QStringLiteral("bad"));
         return;
     }
     m_replayName = name;
@@ -1675,7 +1675,7 @@ void ScriptWorkbench::startCheck()
     }
     const QString program = tool();
     if (!QFileInfo::exists(program)) {
-        m_checkNotice = tr("Problems are not checked: gs.exe is missing next to GameScrcpy");
+        m_checkNotice = tr("Problems are not checked: gs is missing next to GameScrcpy");
         emit checkingChanged();
         return;
     }

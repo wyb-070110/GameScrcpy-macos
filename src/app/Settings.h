@@ -45,7 +45,7 @@ struct General {
         v.language("language", m.language, kLanguageNames,
                    {.title = GS_TRANSLATE_NOOP("Settings", "Interface language"),
                     .description = GS_TRANSLATE_NOOP(
-                        "Settings", "Following Windows shows Chinese on a Chinese Windows and English elsewhere."),
+                        "Settings", "Following macOS shows Chinese when macOS uses Simplified Chinese and English elsewhere."),
                     .keywords = GS_TRANSLATE_NOOP("Settings", "language chinese english locale"),
                     .live = true});
         v.text("lastVersion", m.lastVersion, kMaxVersionLength);
@@ -61,12 +61,12 @@ struct Tray {
     static void visit(V& v, Self& m)
     {
         v.boolean("closeToTray", m.closeToTray,
-                  {.title = GS_TRANSLATE_NOOP("Settings", "Close to the tray while tasks have a schedule"),
+                  {.title = GS_TRANSLATE_NOOP("Settings", "Keep in the menu bar while tasks have a schedule"),
                    .description = GS_TRANSLATE_NOOP("Settings", "Closing the main window keeps GameScrcpy running in "
-                                                                "the notification area while any task has a "
-                                                                "schedule, so the tasks still start on time. Quit from "
-                                                                "the menu of its icon there."),
-                   .keywords = GS_TRANSLATE_NOOP("Settings", "tray notification area background minimize close "
+                                                                "the menu bar while any task has a schedule, so the "
+                                                                "tasks still start on time. Quit from its menu bar "
+                                                                "icon."),
+                   .keywords = GS_TRANSLATE_NOOP("Settings", "menu bar tray background minimize close "
                                                              "schedule timer task quit"),
                    .live = true});
     }
@@ -118,7 +118,7 @@ struct Appearance {
     {
         v.choice("theme", m.theme, kThemeModeNames,
                  {.title = GS_TRANSLATE_NOOP("Settings", "Theme"),
-                  .description = GS_TRANSLATE_NOOP("Settings", "Dark, light, or as Windows is set."),
+                  .description = GS_TRANSLATE_NOOP("Settings", "Dark, light, or as macOS is set."),
                   .keywords = GS_TRANSLATE_NOOP("Settings", "dark light mode color scheme"),
                   .live = true});
         v.choice("accent", m.accent, kAccentNames,
@@ -128,15 +128,15 @@ struct Appearance {
                   .live = true});
         v.choice("reducedMotion", m.reducedMotion, kSystemToggleNames,
                  {.title = GS_TRANSLATE_NOOP("Settings", "Reduce motion"),
-                  .description = GS_TRANSLATE_NOOP("Settings", "Turns animations off. Following Windows uses the "
-                                                               "animation effects switch in Windows settings."),
+                  .description = GS_TRANSLATE_NOOP("Settings", "Turns animations off. Following macOS uses Reduce "
+                                                               "motion in System Settings > Accessibility > Display."),
                   .keywords = GS_TRANSLATE_NOOP("Settings", "animation motion accessibility"),
                   .live = true});
         v.choice("reducedTransparency", m.reducedTransparency, kSystemToggleNames,
                  {.title = GS_TRANSLATE_NOOP("Settings", "Reduce transparency"),
                   .description = GS_TRANSLATE_NOOP("Settings", "Draws solid surfaces instead of see-through ones. "
-                                                               "Following Windows uses the transparency effects "
-                                                               "switch in Windows settings."),
+                                                               "Following macOS uses Reduce transparency in System "
+                                                               "Settings > Accessibility > Display."),
                   .keywords = GS_TRANSLATE_NOOP("Settings", "transparent opacity blur accessibility"),
                   .live = true});
         v.text("palette", m.palette, kMaxPaletteLength);
@@ -349,7 +349,7 @@ struct Speech {
         v.text("engine", m.engine, kMaxEngineLength,
                {.title = GS_TRANSLATE_NOOP("Settings", "Speech engine"),
                 .description = GS_TRANSLATE_NOOP("Settings", "What reads text aloud when logic calls speech.say: "
-                                                             "Windows, or an engine that an extension provides."),
+                                                             "macOS, or an engine that an extension provides."),
                 .keywords = GS_TRANSLATE_NOOP("Settings", "speech say read aloud voice tts text to speech engine"),
                 .live = true});
         v.text("voice", m.voice, kMaxVoiceLength,
@@ -372,7 +372,7 @@ struct Speech {
         v.text("listenEngine", m.listenEngine, kMaxEngineLength,
                {.title = GS_TRANSLATE_NOOP("Settings", "Voice command engine"),
                 .description = GS_TRANSLATE_NOOP("Settings", "What listens for the commands of speech.listen in "
-                                                             "logic: Windows, or an engine that an extension "
+                                                             "logic: macOS, or an engine that an extension "
                                                              "provides."),
                 .keywords = GS_TRANSLATE_NOOP("Settings", "speech listen voice command recognition microphone "
                                                           "engine"),
@@ -463,8 +463,7 @@ struct Touch {
                                                                "picture. Takes effect the next time the phone "
                                                                "connects."),
                   .keywords = GS_TRANSLATE_NOOP("Settings", "touch uhid inject injection multitouch fingers hid aoa "
-                                                            "usb otg accessory winusb zadig driver none no touch "
-                                                            "view only"),
+                                                            "usb otg accessory none no touch view only"),
                   .scope = Scope::Device});
         v.text("extension", m.extension, kMaxExtensionLength,
                {.title = GS_TRANSLATE_NOOP("Settings", "Touch method from an extension"),
@@ -472,7 +471,7 @@ struct Touch {
                                                              "UHID and AOA. While the extension is off or fails, "
                                                              "touches go the normal way. Takes effect the next time "
                                                              "the phone connects."),
-                .keywords = GS_TRANSLATE_NOOP("Settings", "touch extension dll native box board method"),
+                .keywords = GS_TRANSLATE_NOOP("Settings", "touch extension dylib native box board method"),
                 .scope = Scope::Device});
         v.text("device", m.device, kMaxDeviceLength,
                {.title = GS_TRANSLATE_NOOP("Settings", "Device for the touch method"),
@@ -583,7 +582,7 @@ struct Capture {
                {.title = GS_TRANSLATE_NOOP("Settings", "Recording location"),
                 .description = GS_TRANSLATE_NOOP("Settings", "The folder new recordings go into, each as a folder of "
                                                              "its own; exported videos are saved next to it. "
-                                                             "Empty uses GameScrcpy in your Videos folder."),
+                                                             "Empty uses GameScrcpy in your Movies folder."),
                 .keywords = GS_TRANSLATE_NOOP("Settings", "recording record video folder location save path mp4"),
                 .live = true});
     }
@@ -819,7 +818,7 @@ struct AiEndpoint {
                {.title = GS_TRANSLATE_NOOP("Settings", "Address"),
                 .description = GS_TRANSLATE_NOOP("Settings", "Where the service answers; empty uses the service's "
                                                              "own address. The assistant connects only to this "
-                                                             "address, through the Windows proxy when there is one."),
+                                                             "address, through the macOS network proxy when one is set."),
                 .keywords = GS_TRANSLATE_NOOP("Settings", "ai assistant address url endpoint base api server ollama "
                                                           "proxy"),
                 .live = true});

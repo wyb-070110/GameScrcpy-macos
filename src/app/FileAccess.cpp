@@ -178,7 +178,7 @@ QString reasonOf(const std::error_code& error)
         return QStringLiteral("another program is using it");
     }
     if (error == std::errc::permission_denied) {
-        return QStringLiteral("Windows does not allow it");
+        return QStringLiteral("macOS does not allow it");
     }
     if (error == std::errc::no_space_on_device) {
         return QStringLiteral("the disk is full");
@@ -213,7 +213,7 @@ std::optional<fs::path> inside(const fs::path& root, const QString& relative, QS
     const QByteArray utf8 = written.toUtf8();
     if (!ext::safeArchivePath(std::string_view(utf8.constData(), static_cast<std::size_t>(utf8.size())))) {
         problem = invalidWith(QStringLiteral("\"%1\" is not a path inside the folder: write it with / between names, "
-                                             "without .., a drive or characters Windows does not allow")
+                                             "without .. or invalid path characters")
                                   .arg(relative));
         return std::nullopt;
     }
@@ -246,7 +246,7 @@ FileOutcome readPiece(const fs::path& file, const QString& shown, qint64 offset,
     QFile handle(pathText(file));
     if (!handle.open(QIODevice::ReadOnly)) {
         return {{}, failedWith(fs::exists(file, error)
-                                   ? QStringLiteral("%1 cannot be read: another program may be using it, or Windows "
+                                   ? QStringLiteral("%1 cannot be read: another program may be using it, or macOS "
                                                     "does not allow it")
                                          .arg(shown)
                                    : QStringLiteral("%1 does not exist").arg(shown))};

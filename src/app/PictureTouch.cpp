@@ -44,8 +44,8 @@ LinkChoices linkChoices(const PhoneLinks& phone)
     choices.touch.push_back(makeChoice(QStringLiteral("uhid"), {}, adb, needsAdb()));
     choices.touch.push_back(makeChoice(QStringLiteral("aoa"), {}, unknown || phone.aoa,
                                        QCoreApplication::translate("gs::app::PictureTouch",
-                                                                   "Needs this phone on a USB cable with the WinUSB "
-                                                                   "driver")));
+                                                                   "AOA touch over USB is not available on macOS yet; "
+                                                                   "use Normal or UHID touch screen")));
     choices.touch.push_back(makeChoice(QStringLiteral("none"), {}, true, {}));
     for (const ExtensionTouchOffer& offer : phone.extensions) {
         choices.touch.push_back(

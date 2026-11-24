@@ -178,15 +178,13 @@ QString unknownLanguage(const std::string& language)
 {
     const std::vector<std::string> installed = platform::textLanguages();
     if (installed.empty()) {
-        return QStringLiteral("GS-API-171 this computer has no text recognition: add a language with optical "
-                              "character recognition in Windows Settings, Time & language, Language & region");
+        return QStringLiteral("GS-API-171 macOS Vision text recognition is not available on this computer");
     }
     QStringList have;
     for (const std::string& tag : installed) {
         have.append(fromUtf8(tag));
     }
-    return QStringLiteral("GS-API-171 this computer has no text recognition for \"%1\" (it has %2): add the language "
-                          "in Windows Settings, Time & language, Language & region")
+    return QStringLiteral("GS-API-171 macOS Vision does not support text recognition for \"%1\" (available: %2)")
         .arg(fromUtf8(language), have.join(QStringLiteral(", ")));
 }
 
@@ -266,7 +264,7 @@ VisionEngineInfo SystemVisionEngine::info() const
         languages = m_languages;
     }
     return {.id = fromView(VisionEngines::kSystem),
-            .title = QStringLiteral("Windows"),
+            .title = QStringLiteral("macOS"),
             .kinds = {fromView(exthost::visionKindName(exthost::VisionKind::Ocr))},
             .languages = std::move(languages)};
 }
@@ -304,7 +302,7 @@ VisionReply SystemVisionEngine::recognize(const VisionPicture& picture, const Vi
     if (!read) {
         reply.json.clear();
         reply.problem = read.error() == platform::TextProblem::Failed
-                            ? QStringLiteral("GS-API-173 Windows could not read the text in the picture")
+                            ? QStringLiteral("GS-API-173 macOS could not read the text in the picture")
                             : unknownLanguage(language);
         return reply;
     }

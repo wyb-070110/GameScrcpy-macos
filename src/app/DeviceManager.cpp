@@ -675,7 +675,7 @@ QVariant DeviceManager::data(const QModelIndex& index, int role) const
             return tr("Not detected");
         }
         if (row.aoaOnly) {
-            return row.usb && row.usb->driver == platform::UsbDriver::Ready ? tr("Online") : tr("Needs a driver");
+            return row.usb && row.usb->driver == platform::UsbDriver::Ready ? tr("Online") : tr("Not available on macOS");
         }
         if (row.provided) {
             return row.provided->state == u"busy"      ? tr("In use")
@@ -2408,7 +2408,7 @@ QStringList DeviceManager::describe(const Measures& measures)
     const auto modeText = [](render::PresentationMode mode) {
         switch (mode) {
         case render::PresentationMode::Composed:
-            return tr("composed by Windows");
+            return tr("composed by macOS");
         case render::PresentationMode::HardwareOverlay:
             return tr("hardware overlay");
         case render::PresentationMode::Unknown:
@@ -2417,7 +2417,7 @@ QStringList DeviceManager::describe(const Measures& measures)
         return tr("presentation unknown");
     };
     QStringList lines;
-    lines << tr("Video: %1 fps received, %2 drawn, %3 replaced before drawn, %4 dropped by Windows")
+    lines << tr("Video: %1 fps received, %2 drawn, %3 replaced before drawn, %4 dropped by macOS")
                  .arg(number(sample.framesPerSecond, 0), number(shownPerSecond, 0), number(replacedPerSecond, 0),
                       number(measures.discardedPerSecond, 1));
     lines << tr("Bit rate: %1 Mbit/s").arg(number(sample.megabitsPerSecond, 1));
@@ -2431,9 +2431,9 @@ QStringList DeviceManager::describe(const Measures& measures)
     if (measures.inputToScreen) {
         lines << tr("Input to screen: %1 ms").arg(number(*measures.inputToScreen, 1));
     }
-    lines << tr("Touch merging on the PC: %1 ms on average, %2 ms at most (moves wait up to %3 ms for the next send)")
+    lines << tr("Touch merging on this Mac: %1 ms on average, %2 ms at most (moves wait up to %3 ms for the next send)")
                  .arg(maybe(sample.mergeWaitMeanMs), maybe(sample.mergeWaitMaxMs), maybe(measures.mergeTickMs));
-    lines << tr("Touch from the PC's send queue into the phone's input queue: %1 ms now, %2 ms best in 16 s "
+    lines << tr("Touch from this Mac's send queue into the phone's input queue: %1 ms now, %2 ms best in 16 s "
                 "(estimate); waiting for the next frame: %3 ms")
                  .arg(maybe(sample.inputMs), maybe(sample.inputBestMs), maybe(sample.frameWaitMs));
     if (measures.touchDots) {
@@ -4817,7 +4817,7 @@ bool DeviceManager::hideToTrayOnClose()
     }
     if (!std::exchange(m_trayNoticeShown, true)) {
         showNotice(QStringLiteral("GameScrcpy"),
-                   tr("GameScrcpy is still running in the tray; scheduled tasks run as usual"), NoticeTarget{});
+                   tr("GameScrcpy is still running in the menu bar; scheduled tasks run as usual"), NoticeTarget{});
     }
     qInfo("main window hidden to the tray: a task has a schedule");
     return true;
@@ -6313,14 +6313,12 @@ bool DeviceManager::wantsAoa(const QString& deviceId) const
 std::optional<Advice> DeviceManager::aoaAdviceOf(const Row& row) const
 {
     const bool missing = row.usb && row.usb->driver == platform::UsbDriver::Missing;
-    const Advice needsDriver{tr("This phone needs the WinUSB driver before it can be controlled over AOA"),
-                             tr("Install it with Zadig as the illustrated guide shows. GameScrcpy notices by itself "
-                                "once it is installed")};
+    const Advice needsDriver{tr("AOA touch over USB is not available on macOS yet"),
+                             tr("Connect with USB debugging or wireless debugging instead.")};
     if (!row.aoaOnly) {
         if (missing && wantsAoa(row.deviceId) && !streaming(row)) {
-            return Advice{tr("AOA needs the WinUSB driver for this phone"),
-                          tr("Until it is installed, touches go the normal way. The illustrated guide shows how to "
-                             "install it with Zadig")};
+            return Advice{tr("AOA touch over USB is not available on macOS yet"),
+                          tr("Touches go the normal way over adb instead.")};
         }
         return std::nullopt;
     }
@@ -6543,7 +6541,7 @@ void DeviceManager::warnTouchUnavailable(const QString& serial)
     QString text;
     switch (row.controller->aoaFailure()) {
     case platform::UsbFailure::NoDriver:
-        text = tr("AOA needs the WinUSB driver for this phone; touches go the normal way.");
+        text = tr("AOA touch over USB is not available on macOS yet; touches go the normal way.");
         break;
     case platform::UsbFailure::Busy:
         text = tr("Another program is using this phone's USB, so AOA cannot start; touches go the normal way.");
@@ -6562,7 +6560,7 @@ void DeviceManager::warnTouchUnavailable(const QString& serial)
     if (row.controller->aoaFailure() == platform::UsbFailure::NoDriver) {
         row.toastAction = [this] { emit appCommandRequested(QStringLiteral("app.help"), aoaHelpSlug()); };
         row.toastSecondAction = {};
-        row.mirror->showToast(text, QStringLiteral("info"), tr("View the driver guide"));
+        row.mirror->showToast(text, QStringLiteral("info"), tr("About AOA on macOS"));
         return;
     }
     row.mirror->showToast(text, QStringLiteral("info"));
@@ -6620,7 +6618,7 @@ void DeviceManager::usbChanged()
             row.model = known->second[2];
         }
         qInfo("%s is on USB without adb: it can be controlled over AOA (%s)", qUtf8Printable(row.name()),
-              usb.driver == platform::UsbDriver::Ready ? "the WinUSB driver is installed" : "it needs the WinUSB driver");
+              usb.driver == platform::UsbDriver::Ready ? "AOA USB is ready" : "AOA USB is not available");
         m_rows.push_back(std::move(row));
         endInsertRows();
     }
@@ -6649,7 +6647,7 @@ void DeviceManager::usbChanged()
                 name = row.name();
             }
         }
-        qInfo("the WinUSB driver for %s is installed: it can be controlled over AOA now", qUtf8Printable(name));
+        qInfo("USB AOA for %s is ready: it can be controlled over AOA now", qUtf8Printable(name));
         emit usbDriverReady(name.isEmpty() ? QString::fromStdString(phone.serial) : name);
     }
     if (!m_rows.empty()) {
@@ -6989,7 +6987,7 @@ void DeviceManager::syncLanService()
                         }
                         stored.companionKey = key;
                         m_settings.setDevice(id, stored);
-                        qInfo("companion on %s: the pairing key is protected by Windows now", qUtf8Printable(name));
+                        qInfo("companion on %s: the pairing key is protected by macOS Keychain now", qUtf8Printable(name));
                     },
                     Qt::QueuedConnection);
             }
@@ -7290,7 +7288,7 @@ void DeviceManager::companionNotice(const QString& serial, quint64 ticket, const
                     this,
                     [this, id = row.deviceId.toStdString(), text = pairingText(*paired)] {
                         if (text.key.empty()) {
-                            qWarning("companion pairing of %s is not kept: Windows could not protect its key",
+                            qWarning("companion pairing of %s is not kept: macOS Keychain could not protect its key",
                                      id.c_str());
                             return;
                         }
