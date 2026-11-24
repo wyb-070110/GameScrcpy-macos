@@ -20,10 +20,10 @@
           "slug": "aoa-driver",
           "icon": "usb",
           "tile": "teal",
-          "title": { "en": "AOA touch and the WinUSB driver", "zh_CN": "AOA 触控与 WinUSB 驱动" },
+          "title": { "en": "AOA touch over USB", "zh_CN": "AOA 有线触控" },
           "summary": {
-            "en": "Control a phone over the USB cable, even without USB debugging: install the WinUSB driver once with Zadig.",
-            "zh_CN": "不开 USB 调试也能经数据线控制手机：先用 Zadig 装一次 WinUSB 驱动。"
+            "en": "Control a phone without USB debugging and pair GameScrcpy Companion over Wi-Fi. (AOA over USB is not available on macOS yet.)",
+            "zh_CN": "不开 USB 调试时控制手机并经 Wi‑Fi 连接 GameScrcpy 伴侣。（macOS 暂未支持 AOA 有线触控。）"
           }
         },
         {

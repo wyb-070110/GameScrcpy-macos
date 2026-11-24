@@ -65,19 +65,19 @@ The last two groups of the library are components made with logic; they go on th
 
 ## Move and arrange keys
 
-- Click a key to select it. <kbd>Ctrl</kbd>-click or <kbd>Shift</kbd>-click adds more keys; drag over an empty place to select an area. <kbd>Esc</kbd> clears the selection.
-- Drag keys to move them. They snap to other keys and to the center; hold <kbd>Alt</kbd> while dragging to place them freely, or turn off **Snap to other keys and the center**.
+- Click a key to select it. <kbd>⌘ Command</kbd>-click or <kbd>Shift</kbd>-click adds more keys; drag over an empty place to select an area. <kbd>Esc</kbd> clears the selection.
+- Drag keys to move them. They snap to other keys and to the center; hold <kbd>⌥ Option</kbd> while dragging to place them freely, or turn off **Snap to other keys and the center**.
 - The arrow keys move the selected keys a little; with <kbd>Shift</kbd> they move further.
 - Double-click a key's label on the picture to press a new key for it.
 - With two or more keys selected, the side shows **Align** and **Distribute**.
 - **Freeze the picture** stops the picture, so you can place keys on a button that shows only for a moment.
-- Zoom with the zoom buttons or <kbd>Ctrl</kbd> and the mouse wheel. Click the percentage to fit the picture again.
+- Zoom with the zoom buttons or <kbd>⌘ Command</kbd> and the mouse wheel. Click the percentage to fit the picture again.
 
 ## Change a key
 
 Select one component, and its properties open on the side, in one column:
 
-- **Name**: at the top, with the kind of component and what it does under it. **More** (…) has **Rename**, **Duplicate** (puts a copy next to it), **Copy** and **Paste in the middle**, **Set as default for new keys**, **Restore factory default** and **Delete**. Select components on the picture and press Ctrl+C to copy them, then Ctrl+V to paste them where the pointer is (or in the middle when the pointer is not over the picture); copied components stay until the program closes, can be pasted in another phone's editor too, and keep their keys and settings.
+- **Name**: at the top, with the kind of component and what it does under it. **More** (…) has **Rename**, **Duplicate** (puts a copy next to it), **Copy** and **Paste in the middle**, **Set as default for new keys**, **Restore factory default** and **Delete**. Select components on the picture and press ⌘C to copy them, then ⌘V to paste them where the pointer is (or in the middle when the pointer is not over the picture); copied components stay until the program closes, can be pasted in another phone's editor too, and keep their keys and settings.
 - **Key**: the keys the component uses; click a key box and press a key to change it. For a mouse button you can also choose **When it applies**.
 - **Position** and the settings of its kind, such as how long a long press lasts, the turbo rate or the view's sensitivity. The **Anchor** is the corner or edge of the picture the component keeps its distance to: when the screen has another size or shape (another phone, a tablet), the component stays as far from that corner or edge as it is now, like the game's own buttons. Pick the side the game's button sits on, such as **Bottom right** for a skill button in the bottom right corner; dragging the component on the picture picks the nearest one by itself. When a WASD stick has a sprint key, **How far sprint pushes** says how many times the radius the finger goes while the sprint key is held; it is the dashed ring on the picture, and you can drag the dot on the ring too.
 - **On at start**: when this is off, the component does nothing after the profile loads until logic turns it on.
@@ -105,7 +105,7 @@ When two keys use the same key, the top bar shows how many conflicts there are. 
 | Delete only the component | Only the component goes; its blocks stay in the logic. |
 | Cancel | Nothing changes. |
 
-A block whose component is gone is drawn with a red outline and a warning mark and says **Cannot find the component “…” : it was deleted**; a warning strip over the blueprint says how many there are. Each such block has two buttons: **Replace with another component…** points it at the component you choose, and **Delete block** takes it out of the logic. <kbd>Ctrl</kbd>+<kbd>Z</kbd> takes back the deletion or a fix.
+A block whose component is gone is drawn with a red outline and a warning mark and says **Cannot find the component “…” : it was deleted**; a warning strip over the blueprint says how many there are. Each such block has two buttons: **Replace with another component…** points it at the component you choose, and **Delete block** takes it out of the logic. <kbd>⌘ Command</kbd>+<kbd>Z</kbd> takes back the deletion or a fix.
 
 ## Picture and logic
 
@@ -140,11 +140,11 @@ The editor is read-only in that mode. A bar at the top says whose draft it is, w
 
 | Keys | What they do |
 |---|---|
-| <kbd>Ctrl</kbd>+<kbd>Z</kbd> | Undo the last edit |
-| <kbd>Ctrl</kbd>+<kbd>Y</kbd> | Redo the edit |
-| <kbd>Ctrl</kbd>+<kbd>S</kbd> | Save the profile |
-| <kbd>Ctrl</kbd>+<kbd>D</kbd> | Duplicate the selected keys |
-| <kbd>Ctrl</kbd>+<kbd>A</kbd> | Select every key |
+| <kbd>⌘ Command</kbd>+<kbd>Z</kbd> | Undo the last edit |
+| <kbd>⌘ Command</kbd>+<kbd>Y</kbd> | Redo the edit |
+| <kbd>⌘ Command</kbd>+<kbd>S</kbd> | Save the profile |
+| <kbd>⌘ Command</kbd>+<kbd>D</kbd> | Duplicate the selected keys |
+| <kbd>⌘ Command</kbd>+<kbd>A</kbd> | Select every key |
 | <kbd>Delete</kbd> | Delete the selected keys |
 
 You can change these keys in **Settings > Keyboard shortcuts**.

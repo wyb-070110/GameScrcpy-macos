@@ -1,4 +1,4 @@
-Extensions add features to GameScrcpy: touch boxes, new ways to reach phones, places pictures and sound come from and go to, reading aloud and voice commands, interface languages, AI model services, importing and exporting other formats, and panels, components, themes and picture filters. GameScrcpy comes with no extensions; each comes from its own author. Look at what one asks for before installing it; once installed, it can do only what you allow.
+Extensions add features to GameScrcpy: touch boxes, new ways to reach phones, places pictures and sound come from and go to, reading aloud and voice commands, interface languages, AI model services, importing and exporting other formats, and panels, components, themes and picture filters (extension video filters are not available on macOS yet). GameScrcpy comes with no extensions; each comes from its own author. Look at what one asks for before installing it; once installed, it can do only what you allow.
 
 Where the things extensions add show up: [What extensions add](help:extension-features)
 
@@ -22,7 +22,7 @@ An author can put a `gamescrcpy://` link on a web page; choosing it hands the li
 The installed version takes `gamescrcpy://` links by itself. A portable copy needs **Register gamescrcpy:// links** under **Settings > General > Extension links**. When that card says "Another copy of GameScrcpy opens these links now.", the links go to another copy on this computer; choose **Register gamescrcpy:// links** again to have this copy open them. To stop, choose **Remove gamescrcpy:// links**.
 
 > [!NOTE]
-> **A link goes to GameScrcpy on its own**: when you open a link from a command line or a shortcut, the link must be the only thing after `GameScrcpy.exe`. Given together with other arguments, GameScrcpy neither opens the link nor starts.
+> **A link goes to GameScrcpy on its own**: when you pass a link from Terminal, the link must be the only argument after `GameScrcpy.app/Contents/MacOS/GameScrcpy`. Given together with other arguments, GameScrcpy neither opens the link nor starts.
 
 ## Signatures and publishers {#signing}
 
@@ -36,13 +36,13 @@ A package whose signature does not match its files, an unsigned package for an i
 
 ## Extensions with native code {#native}
 
-Some extensions bring Windows code of their own (DLLs), such as those that drive touch boxes. Before installing, GameScrcpy checks that code and shows what it found in the install dialog:
+Some extensions bring native macOS code of their own (`.dylib` libraries), such as those that drive touch boxes. Before installing, GameScrcpy checks that library and shows what it found in the install dialog:
 
-- :shield: **Restricted native code**: when an extension declares that it runs restricted, its DLL runs in a separate process without rights of its own: it cannot open your files, use the network or start other programs, and it reaches devices only through GameScrcpy, as far as you allow. The dialog says "Restricted: it can only do what it declares".
-- :triangle-alert: **Native code**: a DLL that is not restricted has full rights on this computer. The dialog lists which of the checked system functions its code uses (network, files, keyboard and mouse, other programs), and adds a clear warning when it is not signed. Install it only if you trust where it came from.
-- :circle-x: **Not installed, for your safety**: GameScrcpy refuses code that can inject itself into other programs, code in which Windows Security found a threat, code this computer's security settings block, and code whose signature does not match its files, and says why. When the check finds nothing, the dialog says "Windows Security found no threat".
+- :shield: **Restricted native code**: when an extension declares that it runs restricted, its library runs in a separate sandboxed process without rights of its own: it cannot open your files, use the network or start other programs, and it reaches devices only through GameScrcpy, as far as you allow. The dialog says "Restricted: it can only do what it declares".
+- :triangle-alert: **Native code**: a library that is not restricted has your user account's rights on this Mac. The dialog lists which of the checked system functions its code uses (network, files, keyboard and mouse, other programs), and adds a clear warning when it is not signed. Install it only if you trust where it came from.
+- :circle-x: **Not installed, for your safety**: GameScrcpy refuses code that can inject itself into other programs, code for another processor architecture, code that macOS security checks block, and code whose signature does not match its files, and says why. Gatekeeper and XProtect also check native libraries when macOS loads them.
 
-An extension's DLL always runs in a process of its own; when that process stops three times within a minute, the extension is turned off (see "When something goes wrong" below).
+An extension's native library always runs in a process of its own; when that process stops three times within a minute, the extension is turned off (see "When something goes wrong" below).
 
 ## Turn on, set up and remove {#manage}
 
@@ -81,6 +81,6 @@ After GameScrcpy is updated, the first start that finishes with your extensions 
 - :circle-x: **Turned off by itself**: when an extension's process stops three times within a minute, or its attachments or behaviors fail three times within 10 seconds, GameScrcpy turns it off and the card says why. Once the author fixes it and you update to the new version, turn the switch on to try again.
 - :activity: **Health**: when an extension stopped in the last 7 days, its card says how many times. The **Health** part of its **Details** lists what happened each time, when, in which version and the crash report; **Clear the record** empties it.
 - :search: **Find a problem extension**: when you do not know which extension causes a problem, choose **Find a problem extension** on the **Extensions** page. Each step loads only some of your extensions; try what went wrong and answer **Still happens** or **Gone**. After a few steps it names the extension, and you can **Turn it off** or **Keep it on**.
-- :shield: **Safe mode**: start `GameScrcpy.exe --safe-mode` to load no extension this time; start it without that argument to load them again.
+- :shield: **Safe mode**: start `open -a GameScrcpy --args --safe-mode` to load no extension this time; start it normally to load them again.
 
 When GameScrcpy ends unexpectedly while extensions are loaded, the next start loads none and the Extensions page says "No extension is loaded this time", with **Find the extension** to look for the cause; the start after that loads them as usual. When reporting a problem, attach a diagnostics file (**Settings > About > Export diagnostics…**), which lists your extensions and their latest crash reports.

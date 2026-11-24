@@ -23,7 +23,7 @@ Unplug the cable and plug it in again. If it stays offline, turn USB debugging o
 
 ### The Devices page says adb is not available {#adb-missing}
 
-GameScrcpy talks to phones through adb. Install Android SDK Platform-Tools, or make sure no other program blocks adb. Then select **Retry** on the **Devices** page.
+GameScrcpy talks to phones through adb. Install Android SDK Platform-Tools (for example with Homebrew: `brew install --cask android-platform-tools`), or make sure no other program blocks adb. Then select **Retry** on the **Devices** page.
 
 ### USB debugging is greyed out on a Samsung phone {#samsung-grey}
 
@@ -39,7 +39,7 @@ Turn off **Settings > Security and privacy > Auto Blocker** first.
 
 ### WiFi direct does not connect {#wifi-direct}
 
-The computer and the phone must be on the same network. Some routers keep their devices apart (AP isolation), and a firewall can block UDP. If it still fails, choose **adb tunnel** on the phone's card on the **Devices** page.
+This Mac and the phone must be on the same network, and GameScrcpy must be allowed under **System Settings > Privacy & Security > Local Network**. Some routers keep their devices apart (AP isolation), and a firewall can block UDP. If it still fails, choose **adb tunnel** on the phone's card on the **Devices** page.
 
 ### The picture stutters or lags {#lag}
 
@@ -47,7 +47,7 @@ The computer and the phone must be on the same network. Some routers keep their 
 - In **Settings > Mirroring & quality**, lower **Maximum resolution** or **Bit rate limit**.
 - **Low-latency mode** in the same place gives the least delay, with occasional tearing.
 - The status capsule and the diagnostics overlay show the frame rate and the delay.
-- If the **Devices** page says the video runs without a graphics card, update the graphics driver. In virtual machines and remote desktops the processor draws the picture, which may stutter.
+- If the **Devices** page says Metal hardware acceleration is not available, run GameScrcpy directly on a Mac with Metal support. In some virtual machines the processor draws the picture, which may stutter.
 
 When the network gets slow, GameScrcpy lowers the resolution or the frame rate by itself, and brings them back when the network recovers.
 
@@ -89,15 +89,15 @@ At the next start, GameScrcpy offers to export diagnostics; you can also do it a
 
 ### An extension causes trouble {#extension-trouble}
 
-On the **Extensions** page, **Find a problem extension** loads your extensions a few at a time and asks whether the problem still happens, until it finds the one behind it. To start once without any extension, start `GameScrcpy.exe --safe-mode`.
+On the **Extensions** page, **Find a problem extension** loads your extensions a few at a time and asks whether the problem still happens, until it finds the one behind it. To start once without any extension, run `open -a GameScrcpy --args --safe-mode`.
 
 When an extension stops three times within a minute, GameScrcpy turns it off by itself and its card says why; the card also counts the stops of the last 7 days, and the extension's **Details** list each one with its crash report. More in [Extensions · When something goes wrong](help:extensions#trouble).
 
 ### Where are my settings and profiles? {#data-folder}
 
-In `%APPDATA%\GameScrcpy`: your profiles are in `profiles`, the logs in `logs`.
+In `~/Library/Application Support/GameScrcpy`: your profiles are in `profiles`, the logs in `logs`.
 
-To keep everything next to the program instead, put an empty file named `portable.flag` in the folder with `GameScrcpy.exe`. GameScrcpy then uses the `data` folder there.
+To use a separate data folder, set the `GS_DATA_DIR` environment variable before starting GameScrcpy.
 
 ### Which phones work? {#which-phones}
 
@@ -105,4 +105,4 @@ Phones with Android 9 or later. HarmonyOS 5 and later is not Android and cannot 
 
 ### Where can I find all commands? {#all-commands}
 
-Press <kbd>Ctrl</kbd>+<kbd>K</kbd> for the command palette. Type a few letters to find a command, then press <kbd>Enter</kbd> to run it; the palette also shows each command's keys. <kbd>F1</kbd> opens this help.
+Press <kbd>⌘ Command</kbd>+<kbd>K</kbd> for the command palette. Type a few letters to find a command, then press <kbd>Return</kbd> to run it; the palette also shows each command's keys. <kbd>F1</kbd> opens this help.
