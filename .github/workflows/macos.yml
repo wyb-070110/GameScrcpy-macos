@@ -32,6 +32,19 @@ jobs:
           clang --version
           cmake --version
 
+      - name: Timer precision of this machine
+        run: |
+          python3 - <<'EOF'
+          import statistics, time
+          late = []
+          for _ in range(60):
+              start = time.perf_counter()
+              time.sleep(0.004)
+              late.append((time.perf_counter() - start - 0.004) * 1e6)
+          late.sort()
+          print(f"sleep(4 ms) lateness: p50={statistics.median(late):.0f}us p90={late[53]:.0f}us max={late[-1]:.0f}us")
+          EOF
+
       - name: Configure, build and test
         run: cmake --workflow --preset ${{ matrix.preset }}
 
