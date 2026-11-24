@@ -415,3 +415,13 @@ target_compile_definitions(gs_exthost_tests PRIVATE
     GS_EXTHOST_TESTS_PROGRAM="$<TARGET_FILE:gs_exthost_tests>"
 )
 add_dependencies(gs_exthost_tests gs_test_native gs_exthost_program)
+
+# Rendering on macOS (built with the app): how frames are timed to the screen.
+if(TARGET gs::render)
+    gs_add_unit_test(gs_render_tests
+        SOURCES
+            unit/render/FrameTimingTests.cpp
+        LIBRARIES
+            gs::render
+    )
+endif()

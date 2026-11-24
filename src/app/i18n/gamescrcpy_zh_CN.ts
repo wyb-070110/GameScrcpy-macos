@@ -18589,6 +18589,42 @@
         <translation>touch send rate frequency hz moves latency aim camera smooth polling 触控 发送 频率 回报率 移动 延迟 转视角 跟手 平滑</translation>
     </message>
     <message>
+        <source>Trackpad swipe speed</source>
+        <translation>触控板滑动速度</translation>
+    </message>
+    <message>
+        <source>How far a two-finger swipe on the trackpad moves the finger on the phone: 100% moves it as far as the fingers move over the picture.</source>
+        <translation>触控板双指滑动时，手机上的手指移动多远：100% 表示和手指在画面上滑过的距离一样。</translation>
+    </message>
+    <message>
+        <source>trackpad touchpad swipe speed sensitivity scroll two fingers</source>
+        <translation>触控板 滑动 速度 灵敏度 滚动 双指</translation>
+    </message>
+    <message>
+        <source>Trackpad swipe inertia</source>
+        <translation>触控板滑动惯性</translation>
+    </message>
+    <message>
+        <source>After a quick swipe the finger on the phone keeps going with the trackpad&apos;s momentum, then lifts. Off lifts it as soon as your fingers leave the trackpad.</source>
+        <translation>快速滑动后，手机上的手指会跟着触控板的惯性继续滑一段再抬起。关闭后，手指离开触控板就立刻抬起。</translation>
+    </message>
+    <message>
+        <source>trackpad touchpad swipe inertia momentum fling glide</source>
+        <translation>触控板 滑动 惯性 动量 甩动 滑行</translation>
+    </message>
+    <message>
+        <source>Inertia strength</source>
+        <translation>惯性强度</translation>
+    </message>
+    <message>
+        <source>How far the finger keeps going after a quick swipe: 100% follows the trackpad&apos;s momentum as it is.</source>
+        <translation>快速滑动后手指继续滑多远：100% 表示按触控板原本的惯性滑行。</translation>
+    </message>
+    <message>
+        <source>trackpad inertia momentum strength distance fling</source>
+        <translation>触控板 惯性 动量 强度 距离 甩动</translation>
+    </message>
+    <message>
         <source>Picture source</source>
         <translation>画面来源</translation>
     </message>

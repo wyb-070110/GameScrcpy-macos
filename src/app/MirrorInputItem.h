@@ -5,12 +5,14 @@
 #include <gs/input/Geometry.h>
 #include <gs/input/MappingEngine.h>
 
+#include <QElapsedTimer>
 #include <QList>
 #include <QPointF>
 #include <QQuickItem>
 #include <QRectF>
 #include <QSizeF>
 #include <QString>
+#include <QTimer>
 #include <QVariant>
 
 #include <cstdint>
@@ -34,6 +36,9 @@ public:
     void setTyping(bool on);
     [[nodiscard]] bool typing() const noexcept { return m_typing; }
     void setRelativeMouse(bool on, QSizeF target = {}, int turn = 0);
+    // Trackpad swipes: how far the finger on the phone moves for the fingers' travel (1 = the same distance on
+    // the picture), and whether, and how strongly, it keeps going with the trackpad's momentum after they leave.
+    void setTrackpad(double speed, bool inertia, double inertiaStrength);
     [[nodiscard]] bool relativeMouse() const noexcept { return m_relative; }
 
     [[nodiscard]] static std::optional<input::Vec2> normalized(const QRectF& content, QPointF position, bool clamped);
@@ -83,6 +88,8 @@ private:
     };
 
     void cancel();
+    void moveSwipe(QPointF delta, bool ending);
+    void liftSwipe();
     void releaseKeys();
     void follow(QPointF position);
     [[nodiscard]] bool pressRelative(QMouseEvent* event, bool down);
@@ -93,6 +100,18 @@ private:
     // The finger reached the phone's edge and was lifted; the rest of this swipe is dropped.
     bool m_swipeSpent = false;
     QPointF m_swipePoint;
+    // After the fingers left: the finger on the phone keeps moving with the trackpad's momentum (scaled by the
+    // inertia strength) until the momentum ends, stops coming, or has gone on for long enough.
+    bool m_coasting = false;
+    QElapsedTimer m_coastClock;
+    QTimer m_coastIdle;
+    QElapsedTimer m_swipeClock;
+    double m_swipeSpeed = 0.0;
+    double m_trackpadSpeed = 1.0;
+    bool m_inertia = true;
+    double m_inertiaStrength = 0.3;
+    // How far the finger has coasted, in points of the picture.
+    double m_coasted = 0.0;
     QPointF m_lastPress;
     bool m_capturing = false;
     bool m_typing = false;

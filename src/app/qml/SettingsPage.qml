@@ -804,6 +804,25 @@ Item {
                             note: page.touchRateText(0)
                         })
                     }
+
+                    SliderSetting {
+                        path: "touch.trackpadSpeed"
+                        unit: "%"
+                        step: 5
+                        marks: [50, 100, 150, 200, 300]
+                    }
+
+                    SwitchSetting {
+                        path: "touch.trackpadInertia"
+                    }
+
+                    SliderSetting {
+                        path: "touch.trackpadInertiaStrength"
+                        unit: "%"
+                        step: 10
+                        marks: [50, 100, 150, 200, 300]
+                        enabled: AppSettings.values["touch.trackpadInertia"] ?? true
+                    }
                 }
             }
 

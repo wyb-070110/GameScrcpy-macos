@@ -444,6 +444,9 @@ struct Touch {
     std::string extension;
     std::string device;
     std::int32_t rateHz = 0;
+    std::int32_t trackpadSpeed = 100;
+    bool trackpadInertia = true;
+    std::int32_t trackpadInertiaStrength = 30;
 
     template <typename V, typename Self>
     static void visit(V& v, Self& m)
@@ -486,6 +489,31 @@ struct Touch {
                                                                 "phone work harder."),
                    .keywords = GS_TRANSLATE_NOOP("Settings", "touch send rate frequency hz moves latency aim camera "
                                                              "smooth polling"),
+                   .scope = Scope::Device,
+                   .live = true});
+        v.integer("trackpadSpeed", m.trackpadSpeed, 25, 400,
+                  {.title = GS_TRANSLATE_NOOP("Settings", "Trackpad swipe speed"),
+                   .description = GS_TRANSLATE_NOOP("Settings", "How far a two-finger swipe on the trackpad moves the "
+                                                                "finger on the phone: 100% moves it as far as the "
+                                                                "fingers move over the picture."),
+                   .keywords = GS_TRANSLATE_NOOP("Settings", "trackpad touchpad swipe speed sensitivity scroll two "
+                                                             "fingers"),
+                   .scope = Scope::Device,
+                   .live = true});
+        v.boolean("trackpadInertia", m.trackpadInertia,
+                  {.title = GS_TRANSLATE_NOOP("Settings", "Trackpad swipe inertia"),
+                   .description = GS_TRANSLATE_NOOP("Settings", "After a quick swipe the finger on the phone keeps "
+                                                                "going with the trackpad's momentum, then lifts. Off "
+                                                                "lifts it as soon as your fingers leave the "
+                                                                "trackpad."),
+                   .keywords = GS_TRANSLATE_NOOP("Settings", "trackpad touchpad swipe inertia momentum fling glide"),
+                   .scope = Scope::Device,
+                   .live = true});
+        v.integer("trackpadInertiaStrength", m.trackpadInertiaStrength, 10, 300,
+                  {.title = GS_TRANSLATE_NOOP("Settings", "Inertia strength"),
+                   .description = GS_TRANSLATE_NOOP("Settings", "How far the finger keeps going after a quick swipe: "
+                                                                "100% follows the trackpad's momentum as it is."),
+                   .keywords = GS_TRANSLATE_NOOP("Settings", "trackpad inertia momentum strength distance fling"),
                    .scope = Scope::Device,
                    .live = true});
     }
