@@ -527,7 +527,11 @@ TEST_CASE("ADB-007: pairing or connecting where nothing listens fails with adb's
     const auto connected = client.connect("127.0.0.1:1");
     REQUIRE_FALSE(connected);
     CHECK(connected.error().kind == AdbErrorKind::Rejected);
-    CHECK(connected.error().message.starts_with("cannot connect to 127.0.0.1:1"));
+    // adb before 37 says "cannot connect to 127.0.0.1:1: ...", adb 37 "failed to connect to '127.0.0.1:1': ...".
+    MESSAGE(connected.error().message);
+    const std::string& reason = connected.error().message;
+    CHECK((reason.starts_with("cannot connect to 127.0.0.1:1") ||
+           reason.starts_with("failed to connect to '127.0.0.1:1'")));
 }
 
 TEST_CASE("ADB-007: the adb server lists the wireless services it discovers")
