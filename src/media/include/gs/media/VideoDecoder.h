@@ -83,10 +83,13 @@ struct VideoDecodeError {
     std::string message;
 };
 
+enum class Decoding : std::uint8_t { Software, Hardware };
+
 class VideoDecoder
 {
 public:
     explicit VideoDecoder(ID3D11Device* device = nullptr);
+    explicit VideoDecoder(Decoding decoding);
     ~VideoDecoder();
     VideoDecoder(const VideoDecoder&) = delete;
     VideoDecoder& operator=(const VideoDecoder&) = delete;

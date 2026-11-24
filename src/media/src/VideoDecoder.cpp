@@ -4,13 +4,17 @@
 
 #include "gs/base/Log.h"
 
+#if defined(_WIN32)
 #include <d3d11_4.h>
 #include <wrl/client.h>
+#endif
 
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavutil/hwcontext.h>
+#if defined(_WIN32)
 #include <libavutil/hwcontext_d3d11va.h>
+#endif
 }
 
 #include <bit>
@@ -27,9 +31,15 @@ namespace gs::media {
 
 namespace {
 
+#if defined(_WIN32)
 using Microsoft::WRL::ComPtr;
 
-constexpr int kSurfacesHeldAfterDecoding = 5;
+constexpr AVPixelFormat kHardwareFormat = AV_PIX_FMT_D3D11;
+#else
+constexpr AVPixelFormat kHardwareFormat = AV_PIX_FMT_VIDEOTOOLBOX;
+#endif
+
+[[maybe_unused]] constexpr int kSurfacesHeldAfterDecoding = 5;
 constexpr std::string_view kLog = "video";
 
 VideoDecodeError ffmpegFailure(std::string_view what, int code)
@@ -57,6 +67,7 @@ const AVCodec* findDecoder(protocol::VideoCodec codec, bool hardware)
     return nullptr;
 }
 
+#if defined(_WIN32)
 AVBufferRef* createDeviceContext(ID3D11Device* device)
 {
     AVBufferRef* context = av_hwdevice_ctx_alloc(AV_HWDEVICE_TYPE_D3D11VA);
@@ -99,6 +110,28 @@ AVPixelFormat chooseFormat(AVCodecContext* context, const AVPixelFormat* formats
     }
     return avcodec_default_get_format(context, formats);
 }
+
+#else
+AVBufferRef* createDeviceContext()
+{
+    AVBufferRef* context = nullptr;
+    if (av_hwdevice_ctx_create(&context, AV_HWDEVICE_TYPE_VIDEOTOOLBOX, nullptr, nullptr, 0) < 0) {
+        return nullptr;
+    }
+    return context;
+}
+
+AVPixelFormat chooseFormat(AVCodecContext* context, const AVPixelFormat* formats)
+{
+    for (const AVPixelFormat* format = formats; *format != AV_PIX_FMT_NONE; ++format) {
+        if (*format == kHardwareFormat) {
+            return kHardwareFormat;
+        }
+    }
+    return avcodec_default_get_format(context, formats);
+}
+
+#endif
 
 void releaseOwner(void* opaque, std::uint8_t*)
 {
@@ -311,7 +344,7 @@ struct VideoDecoder::State {
             if (received < 0) {
                 return makeUnexpected(ffmpegFailure("decoding", received));
             }
-            hardware = frame->format == AV_PIX_FMT_D3D11;
+            hardware = frame->format == kHardwareFormat;
             if (reported != hardware) {
                 reported = hardware;
                 log::info(kLog, "video session {}: {} {}x{} decoded {}", session, protocol::enumName(described->codec),
@@ -380,7 +413,7 @@ VideoFrame::~VideoFrame()
 
 bool VideoFrame::hardware() const noexcept
 {
-    return m_frame != nullptr && m_frame->format == AV_PIX_FMT_D3D11;
+    return m_frame != nullptr && m_frame->format == kHardwareFormat;
 }
 
 int VideoFrame::width() const noexcept
@@ -406,6 +439,7 @@ VideoFrame VideoFrame::share() const
     return VideoFrame(av_frame_clone(m_frame), m_session, m_receivedUs);
 }
 
+#if defined(_WIN32)
 VideoDecoder::VideoDecoder(ID3D11Device* device) : m_state(std::make_unique<State>())
 {
     m_thread.detach();
@@ -419,6 +453,19 @@ VideoDecoder::VideoDecoder(ID3D11Device* device) : m_state(std::make_unique<Stat
     }
     m_state->hardwareDevice = createDeviceContext(device);
 }
+
+VideoDecoder::VideoDecoder(Decoding) : VideoDecoder(static_cast<ID3D11Device*>(nullptr)) {}
+#else
+VideoDecoder::VideoDecoder(ID3D11Device*) : VideoDecoder(Decoding::Software) {}
+
+VideoDecoder::VideoDecoder(Decoding decoding) : m_state(std::make_unique<State>())
+{
+    m_thread.detach();
+    if (decoding == Decoding::Hardware) {
+        m_state->hardwareDevice = createDeviceContext();
+    }
+}
+#endif
 
 VideoDecoder::~VideoDecoder() = default;
 

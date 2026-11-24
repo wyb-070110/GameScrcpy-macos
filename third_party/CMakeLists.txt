@@ -77,6 +77,8 @@ set_target_properties(libusb::libusb PROPERTIES
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/libusb/bin/libusb-1.0.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libusb-1.0.dll"
                COPYONLY)
 
+else()
+    include(Posix.cmake)
 endif()
 
 if(GS_BUILD_APP)

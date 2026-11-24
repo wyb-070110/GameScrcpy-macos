@@ -7,8 +7,12 @@ extern "C" {
 #include <libavutil/pixfmt.h>
 }
 
+#if defined(_WIN32)
 #include <d3d11.h>
 #include <wrl/client.h>
+#else
+#include "PlaneReader.h"
+#endif
 
 #include <algorithm>
 #include <array>
@@ -24,7 +28,17 @@ namespace gs::media {
 
 namespace {
 
+#if defined(_WIN32)
 using Microsoft::WRL::ComPtr;
+
+constexpr AVPixelFormat kSurfaceFormat = AV_PIX_FMT_D3D11;
+constexpr UINT kDoNotWait = D3D11_MAP_FLAG_DO_NOT_WAIT;
+#else
+using UINT = unsigned int;
+
+constexpr AVPixelFormat kSurfaceFormat = AV_PIX_FMT_VIDEOTOOLBOX;
+constexpr UINT kDoNotWait = 1;
+#endif
 
 constexpr int kMostSlots = 8;
 constexpr unsigned kWantLuma = 1U;
@@ -38,7 +52,9 @@ struct Region {
 };
 
 struct Slot {
+#if defined(_WIN32)
     ComPtr<ID3D11Texture2D> staging;
+#endif
     UINT width = 0;
     UINT height = 0;
     bool pending = false;
@@ -108,6 +124,7 @@ void copyMemory(LumaSnapshot& made, const AVFrame& frame, int left, int top)
     }
 }
 
+#if defined(_WIN32)
 void copyMapped(LumaSnapshot& made, const D3D11_MAPPED_SUBRESOURCE& mapped, UINT textureHeight, int left, int top)
 {
     const auto* pixels = static_cast<const std::uint8_t*>(mapped.pData);
@@ -145,6 +162,7 @@ HRESULT makeStaging(ID3D11Device& device, UINT width, UINT height, ComPtr<ID3D11
     return device.CreateTexture2D(&layout, nullptr, &staging);
 }
 
+#endif
 }
 
 struct FrameSnapshots::State {
@@ -156,8 +174,10 @@ struct FrameSnapshots::State {
 
     State() : last(av_frame_alloc()) {}
 
+#if defined(_WIN32)
     ComPtr<ID3D11Device> device;
     ComPtr<ID3D11DeviceContext> context;
+#endif
     std::vector<Slot> ring;
     std::atomic<unsigned> wanted{0};
     std::atomic<std::uint64_t> offered{0};
@@ -173,8 +193,10 @@ struct FrameSnapshots::State {
     LumaSnapshot lastMeta;
     int lastLeft = 0;
     int lastTop = 0;
+#if defined(_WIN32)
     std::mutex captureMutex;
     ComPtr<ID3D11Texture2D> captureStaging;
+#endif
     std::mutex cropMutex;
     std::array<double, 4> crop{0.0, 0.0, 1.0, 1.0};
     bool cropped = false;
@@ -256,6 +278,7 @@ struct FrameSnapshots::State {
         }
     }
 
+#if defined(_WIN32)
     Copy copySurface(const AVFrame& frame, const LumaSnapshot& meta, bool color, const Region& region)
     {
         if (!context) {
@@ -331,6 +354,33 @@ struct FrameSnapshots::State {
         return made;
     }
 
+#else
+    Copy copySurface(const AVFrame& frame, const LumaSnapshot& meta, bool color, const Region& region)
+    {
+        std::shared_ptr<LumaSnapshot> made = captureSurface(frame, meta, color, region.left, region.top);
+        if (made == nullptr) {
+            return Copy::Failed;
+        }
+        made->sequence = nextSequence();
+        count(&SnapshotCounters::copied);
+        publish(std::move(made));
+        return Copy::Queued;
+    }
+
+    std::shared_ptr<LumaSnapshot> captureSurface(const AVFrame& frame, const LumaSnapshot& meta, bool color, int left,
+                                                 int top)
+    {
+        std::shared_ptr<LumaSnapshot> made;
+        readMapped(frame, [&](const AVFrame& memory) {
+            if (inMemory(memory.format) && left + meta.width <= memory.width && top + meta.height <= memory.height) {
+                made = blankFor(meta, color);
+                copyMemory(*made, memory, left, top);
+            }
+        });
+        return made;
+    }
+
+#endif
     Slot* oldestPending()
     {
         Slot* oldest = nullptr;
@@ -342,6 +392,7 @@ struct FrameSnapshots::State {
         return oldest;
     }
 
+#if defined(_WIN32)
     bool map(Slot& slot, UINT flags)
     {
         D3D11_MAPPED_SUBRESOURCE mapped{};
@@ -362,14 +413,24 @@ struct FrameSnapshots::State {
         publish(std::move(made));
         return true;
     }
+#else
+    bool map(Slot& slot, UINT)
+    {
+        slot.pending = false;
+        --pending;
+        return true;
+    }
+#endif
 };
 
-FrameSnapshots::FrameSnapshots(ID3D11Device* device, int depth) : m_state(std::make_unique<State>())
+FrameSnapshots::FrameSnapshots([[maybe_unused]] ID3D11Device* device, int depth) : m_state(std::make_unique<State>())
 {
+#if defined(_WIN32)
     if (device != nullptr) {
         m_state->device = device;
         device->GetImmediateContext(&m_state->context);
     }
+#endif
     m_state->ring.resize(static_cast<std::size_t>(std::clamp(depth, 1, kMostSlots)));
 }
 
@@ -446,7 +507,7 @@ void FrameSnapshots::offer(const AVFrame& frame, std::int64_t ptsUs, std::uint16
         state.publish(std::move(made));
         return;
     }
-    if (frame.format != AV_PIX_FMT_D3D11) {
+    if (frame.format != kSurfaceFormat) {
         state.count(&SnapshotCounters::failed);
         return;
     }
@@ -464,7 +525,7 @@ void FrameSnapshots::poll()
     State& state = *m_state;
     while (state.pending > 0) {
         Slot* oldest = state.oldestPending();
-        if (oldest == nullptr || !state.map(*oldest, D3D11_MAP_FLAG_DO_NOT_WAIT)) {
+        if (oldest == nullptr || !state.map(*oldest, kDoNotWait)) {
             return;
         }
     }
@@ -520,7 +581,7 @@ std::shared_ptr<const LumaSnapshot> FrameSnapshots::capture(bool color)
     if (inMemory(held->format)) {
         made = blankFor(meta, color);
         copyMemory(*made, *held, left, top);
-    } else if (held->format == AV_PIX_FMT_D3D11) {
+    } else if (held->format == kSurfaceFormat) {
         made = state.captureSurface(*held, meta, color, left, top);
     }
     if (made == nullptr) {

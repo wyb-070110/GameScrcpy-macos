@@ -7,8 +7,10 @@ extern "C" {
 #include <libavutil/hwcontext.h>
 }
 
+#if defined(_WIN32)
 #include <d3d11.h>
 #include <wrl/client.h>
+#endif
 
 #include <doctest/doctest.h>
 
@@ -27,7 +29,9 @@ using gs::media::FrameSink;
 using gs::media::VideoDecoder;
 using gs::media::VideoDecodeErrorKind;
 using gs::media::VideoFrame;
+#if defined(_WIN32)
 using Microsoft::WRL::ComPtr;
+#endif
 
 namespace {
 
@@ -57,6 +61,7 @@ std::int64_t steadyMicros()
         .count();
 }
 
+#if defined(_WIN32)
 bool sampleable(const VideoFrame& frame)
 {
     auto* texture = reinterpret_cast<ID3D11Texture2D*>(frame.avFrame()->data[0]);
@@ -64,6 +69,12 @@ bool sampleable(const VideoFrame& frame)
     texture->GetDesc(&description);
     return (description.BindFlags & D3D11_BIND_SHADER_RESOURCE) != 0;
 }
+#else
+bool sampleable(const VideoFrame& frame)
+{
+    return frame.hardware();
+}
+#endif
 
 std::uint64_t lumaHash(const VideoFrame& frame)
 {
@@ -174,6 +185,7 @@ TEST_CASE("video decoder: software decodes every frame, at the size of its sessi
     }
 }
 
+#if defined(_WIN32)
 TEST_CASE("video decoder: D3D11VA where the GPU decodes the codec, software elsewhere (MED-002)")
 {
     ComPtr<ID3D11Device> device;
@@ -190,7 +202,9 @@ TEST_CASE("video decoder: D3D11VA where the GPU decodes the codec, software else
         CHECK(outcome.luma == decodeRecording(name, nullptr).luma);
     }
 }
+#endif
 
+#if defined(_WIN32)
 TEST_CASE("video decoder: a renderer on WARP, as without a GPU (R12), gets software pictures")
 {
     ComPtr<ID3D11Device> warp;
@@ -200,6 +214,7 @@ TEST_CASE("video decoder: a renderer on WARP, as without a GPU (R12), gets softw
     CHECK(outcome.hardwarePictures == 0);
     CHECK(outcome.luma == decodeRecording("emulator_h264.media", nullptr).luma);
 }
+#endif
 
 TEST_CASE("video decoder: packets out of order are reported")
 {

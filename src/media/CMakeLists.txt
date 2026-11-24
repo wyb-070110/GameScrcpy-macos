@@ -1,3 +1,8 @@
+if(NOT WIN32)
+    include(Posix.cmake)
+    return()
+endif()
+
 # gs_media: decoding of the media channels (PLAN 4.4) with FFmpeg and D3D11VA (ADR-0015, ADR-0046),
 # and audio playback through WASAPI.
 

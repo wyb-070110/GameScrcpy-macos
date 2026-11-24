@@ -8,8 +8,10 @@ extern "C" {
 #include <libavutil/frame.h>
 }
 
+#if defined(_WIN32)
 #include <d3d11.h>
 #include <wrl/client.h>
+#endif
 
 #include <doctest/doctest.h>
 
@@ -29,7 +31,9 @@ using gs::media::LumaSampler;
 using gs::media::LumaSpot;
 using gs::media::VideoDecoder;
 using gs::media::VideoFrame;
+#if defined(_WIN32)
 using Microsoft::WRL::ComPtr;
+#endif
 
 namespace {
 
@@ -83,7 +87,7 @@ struct Readings final : FrameSink {
     bool hardware = false;
 };
 
-std::vector<std::vector<LumaReading>> readingsOf(const char* recordingName, ID3D11Device* device, bool& hardware)
+[[maybe_unused]] std::vector<std::vector<LumaReading>> readingsOf(const char* recordingName, ID3D11Device* device, bool& hardware)
 {
     const auto recording = readRecording(recordingName);
     VideoDecoder decoder(device);
@@ -136,6 +140,7 @@ TEST_CASE("luma readings: none for formats the decoder does not make")
     av_frame_free(&frame);
 }
 
+#if defined(_WIN32)
 TEST_CASE("luma readings: a picture the GPU decoded reads the same as decoded in software")
 {
     ComPtr<ID3D11Device> device;
@@ -160,3 +165,5 @@ TEST_CASE("luma readings: a picture the GPU decoded reads the same as decoded in
         CHECK(fromGpu[i] == fromSoftware[i]);
     }
 }
+#endif
+

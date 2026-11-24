@@ -60,6 +60,7 @@ Thumbnail scaleDown(const Planes& planes, int width, int height, const ColorMatr
 
 }
 
+#if defined(_WIN32)
 struct Thumbnailer::State {
     explicit State(ID3D11Device* device) : reader(device)
     {
@@ -83,10 +84,21 @@ struct Thumbnailer::State {
     std::optional<Thumbnail> ready;
 };
 
+#else
+struct Thumbnailer::State {
+    explicit State(ID3D11Device* device) : reader(device) {}
+
+    PlaneReader reader;
+    std::optional<Thumbnail> ready;
+};
+
+#endif
+
 Thumbnailer::Thumbnailer(ID3D11Device* device) : m_state(std::make_unique<State>(device)) {}
 
 Thumbnailer::~Thumbnailer() = default;
 
+#if defined(_WIN32)
 void Thumbnailer::request(const VideoFrame& frame, int longSide)
 {
     if (!frame) {
@@ -157,6 +169,22 @@ std::optional<Thumbnail> Thumbnailer::collect()
     }
     return std::exchange(state.ready, std::nullopt);
 }
+
+#else
+void Thumbnailer::request(const VideoFrame& frame, int longSide)
+{
+    if (!frame) {
+        return;
+    }
+    m_state->ready = make(*frame.avFrame(), longSide);
+}
+
+std::optional<Thumbnail> Thumbnailer::collect()
+{
+    return std::exchange(m_state->ready, std::nullopt);
+}
+
+#endif
 
 std::optional<Thumbnail> Thumbnailer::make(const VideoFrame& frame, int longSide)
 {

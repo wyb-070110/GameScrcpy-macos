@@ -8,8 +8,10 @@ extern "C" {
 #include <libavutil/pixfmt.h>
 }
 
+#if defined(_WIN32)
 #include <d3d11.h>
 #include <wrl/client.h>
+#endif
 
 #include <doctest/doctest.h>
 
@@ -29,10 +31,13 @@ using gs::media::Nv12Planes;
 using gs::media::VideoColor;
 using gs::media::VideoFrame;
 using gs::media::VideoMatrix;
+#if defined(_WIN32)
 using Microsoft::WRL::ComPtr;
+#endif
 
 namespace {
 
+#if defined(_WIN32)
 ComPtr<ID3D11Device> graphicsDevice()
 {
     ComPtr<ID3D11Device> device;
@@ -44,8 +49,9 @@ ComPtr<ID3D11Device> graphicsDevice()
     }
     return nullptr;
 }
+#endif
 
-std::shared_ptr<const LumaSnapshot> snapshotOf(const VideoFrame& frame, ID3D11Device* device,
+[[maybe_unused]] std::shared_ptr<const LumaSnapshot> snapshotOf(const VideoFrame& frame, ID3D11Device* device,
                                                std::optional<std::array<double, 4>> crop = std::nullopt)
 {
     FrameSnapshots snapshots(device);
@@ -86,7 +92,7 @@ Nv12 pattern(int width, int height)
     return picture;
 }
 
-std::vector<std::uint8_t> yuy2Pattern(int width, int height, std::ptrdiff_t pitch)
+[[maybe_unused]] std::vector<std::uint8_t> yuy2Pattern(int width, int height, std::ptrdiff_t pitch)
 {
     std::vector<std::uint8_t> bytes(static_cast<std::size_t>(pitch * height), 0);
     for (int y = 0; y < height; ++y) {
@@ -101,7 +107,7 @@ std::vector<std::uint8_t> yuy2Pattern(int width, int height, std::ptrdiff_t pitc
     return bytes;
 }
 
-int worstDifference(const std::vector<std::uint8_t>& a, const std::vector<std::uint8_t>& b)
+[[maybe_unused]] int worstDifference(const std::vector<std::uint8_t>& a, const std::vector<std::uint8_t>& b)
 {
     REQUIRE(a.size() == b.size());
     int worst = 0;
@@ -127,6 +133,7 @@ TEST_CASE("the CPU reference turns YUY2 into NV12: luma as it is, chroma average
     CHECK(chroma == std::vector<std::uint8_t>{105, 205, 107, 208, 120, 220, 121, 221});
 }
 
+#if defined(_WIN32)
 TEST_CASE("the frame uploader turns YUY2 into the same NV12 as the CPU reference, and snapshots can crop it (MED-014)")
 {
     const ComPtr<ID3D11Device> device = graphicsDevice();
@@ -183,7 +190,9 @@ TEST_CASE("the frame uploader turns YUY2 into the same NV12 as the CPU reference
         }
     }
 }
+#endif
 
+#if defined(_WIN32)
 TEST_CASE("the frame uploader copies NV12 planes into a small ring of textures and drops a picture when all are shown")
 {
     const ComPtr<ID3D11Device> device = graphicsDevice();
@@ -221,7 +230,9 @@ TEST_CASE("the frame uploader copies NV12 planes into a small ring of textures a
     CHECK(inMemory.avFrame()->format == AV_PIX_FMT_NV12);
     CHECK_FALSE(software.drawsOnGpu());
 }
+#endif
 
+#if defined(_WIN32)
 TEST_CASE("the frame uploader draws a picture into the middle of a larger black frame, for the demo capture card")
 {
     const ComPtr<ID3D11Device> device = graphicsDevice();
@@ -265,6 +276,7 @@ TEST_CASE("the frame uploader draws a picture into the middle of a larger black 
     CHECK(std::abs(chromaAt(32, 18, 0) - 90) <= 2);
     CHECK(std::abs(chromaAt(32, 18, 1) - 160) <= 2);
 }
+#endif
 
 TEST_CASE("video frames made from NV12 in memory keep the planes, times and colour description")
 {
@@ -297,6 +309,7 @@ TEST_CASE("video frames made from NV12 in memory keep the planes, times and colo
     CHECK_FALSE(VideoFrame::copyNv12(picture.luma.data(), 10, picture.chroma.data(), 10, 0, 6, 0, 0, 0));
 }
 
+#if defined(_WIN32)
 TEST_CASE("a video frame wrapping a texture keeps its owner alive until the last share is gone")
 {
     const ComPtr<ID3D11Device> device = graphicsDevice();
@@ -342,6 +355,7 @@ TEST_CASE("a video frame wrapping a texture keeps its owner alive until the last
     CHECK_FALSE(VideoFrame::wrapTexture(nullptr, 0, 16, 8, nullptr, 0, 0, 0));
     CHECK_FALSE(VideoFrame::wrapTexture(texture.Get(), 0, 0, 8, nullptr, 0, 0, 0));
 }
+#endif
 
 TEST_CASE("a video frame adopts a picture made elsewhere with the session and arrival time it is given")
 {

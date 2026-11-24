@@ -1,7 +1,11 @@
 #pragma once
 
+#if defined(_WIN32)
 #include <d3d11.h>
 #include <wrl/client.h>
+#else
+struct ID3D11Device;
+#endif
 
 #include <cstddef>
 #include <cstdint>
@@ -30,11 +34,15 @@ public:
 private:
     bool readSurface(const AVFrame& frame, const std::function<void(const Planes&)>& use);
 
+#if defined(_WIN32)
     Microsoft::WRL::ComPtr<ID3D11Device> m_device;
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_context;
     Microsoft::WRL::ComPtr<ID3D11Texture2D> m_staging;
     UINT m_stagingWidth = 0;
     UINT m_stagingHeight = 0;
+#endif
 };
+
+bool readMapped(const AVFrame& frame, const std::function<void(const AVFrame&)>& use);
 
 }

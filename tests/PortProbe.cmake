@@ -263,3 +263,30 @@ add_dependencies(gs_scripthost_tests gs_scripthost_program)
 if(NOT APPLE)
     set_tests_properties(gs_scripthost_tests PROPERTIES ENVIRONMENT "GS_SCRIPTHOST_UNSANDBOXED=1")
 endif()
+
+# Media: decoding (VideoToolbox on macOS), snapshots, sound. The Direct3D 11 cases are Windows-only; the
+# POSIX hardware tests compare VideoToolbox pictures with software ones.
+gs_add_unit_test(gs_media_tests
+    SOURCES
+        unit/media/AudioPlayerTests.cpp
+        unit/media/AudioRegulatorTests.cpp
+        unit/media/ColorMatrixTests.cpp
+        unit/media/FfmpegLogTests.cpp
+        unit/media/FrameSnapshotTests.cpp
+        unit/media/FrameUploaderTests.cpp
+        unit/media/LumaSamplerTests.cpp
+        unit/media/PendingArrivalsTests.cpp
+        unit/media/ThumbnailerTests.cpp
+        unit/media/VideoDecoderTests.cpp
+        unit/media/posix/HardwareFrameTests.cpp
+    LIBRARIES
+        gs::media
+        gs::vision
+        FFmpeg::avcodec
+        FFmpeg::swresample
+)
+target_compile_definitions(gs_media_tests PRIVATE GS_VIDEO_TEST_DATA_DIR="${PROJECT_SOURCE_DIR}/tests/data/video")
+target_include_directories(gs_media_tests PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${PROJECT_SOURCE_DIR}/src/media/src"
+)

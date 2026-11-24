@@ -9,8 +9,10 @@ extern "C" {
 #include <libavutil/frame.h>
 }
 
+#if defined(_WIN32)
 #include <d3d11.h>
 #include <wrl/client.h>
+#endif
 
 #include <doctest/doctest.h>
 
@@ -32,14 +34,16 @@ using gs::media::FrameSnapshots;
 using gs::media::LumaSnapshot;
 using gs::media::VideoDecoder;
 using gs::media::VideoFrame;
+#if defined(_WIN32)
 using Microsoft::WRL::ComPtr;
+#endif
 
 namespace {
 
 #if defined(NDEBUG) && !defined(__SANITIZE_ADDRESS__)
-constexpr bool kOptimised = true;
+[[maybe_unused]] constexpr bool kOptimised = true;
 #else
-constexpr bool kOptimised = false;
+[[maybe_unused]] constexpr bool kOptimised = false;
 #endif
 
 struct FrameDeleter {
@@ -116,7 +120,7 @@ struct Decoded {
     bool hardware = false;
 };
 
-Decoded snapshotsOf(const char* recordingName, ID3D11Device* device, bool color = false)
+[[maybe_unused]] Decoded snapshotsOf(const char* recordingName, ID3D11Device* device, bool color = false)
 {
     const auto recording = readRecording(recordingName);
     FrameSnapshots snapshots(device);
@@ -138,7 +142,7 @@ Decoded snapshotsOf(const char* recordingName, ID3D11Device* device, bool color 
     return decoded;
 }
 
-double percentile(std::vector<double> values, double fraction)
+[[maybe_unused]] double percentile(std::vector<double> values, double fraction)
 {
     if (values.empty()) {
         return 0.0;
@@ -241,6 +245,7 @@ TEST_CASE("frame snapshots: a color request copies the chroma and the matrix too
     }
 }
 
+#if defined(_WIN32)
 TEST_CASE("frame snapshots: GPU pictures bring the same chroma back as software decoding (VIS-004)")
 {
     ComPtr<ID3D11Device> device;
@@ -274,6 +279,7 @@ TEST_CASE("frame snapshots: GPU pictures bring the same chroma back as software 
               == media::rgbOf(*same->second, 0, 0, snapshot->width, snapshot->height));
     }
 }
+#endif
 
 TEST_CASE("frame snapshots: nothing is copied until one is asked for, then the next frame's luma, packed")
 {
@@ -393,6 +399,7 @@ TEST_CASE("frame snapshots: one snapshot serves several template searches withou
     CHECK(snapshots.counters().made == 1);
 }
 
+#if defined(_WIN32)
 TEST_CASE("frame snapshots: GPU pictures come back through the staging ring without waiting, as in software")
 {
     ComPtr<ID3D11Device> device;
@@ -443,3 +450,5 @@ TEST_CASE("frame snapshots: GPU pictures come back through the staging ring with
         CHECK(slowest < 16.0);
     }
 }
+#endif
+

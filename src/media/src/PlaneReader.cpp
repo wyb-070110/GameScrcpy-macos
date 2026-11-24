@@ -2,6 +2,7 @@
 
 extern "C" {
 #include <libavutil/frame.h>
+#include <libavutil/hwcontext.h>
 #include <libavutil/pixfmt.h>
 }
 
@@ -9,6 +10,30 @@ extern "C" {
 
 namespace gs::media {
 
+bool readMapped(const AVFrame& frame, const std::function<void(const AVFrame&)>& use)
+{
+    if (frame.hw_frames_ctx == nullptr) {
+        return false;
+    }
+    AVFrame* mapped = av_frame_alloc();
+    if (mapped == nullptr) {
+        return false;
+    }
+    mapped->format = reinterpret_cast<const AVHWFramesContext*>(frame.hw_frames_ctx->data)->sw_format;
+    const bool ok = av_hwframe_map(mapped, &frame, AV_HWFRAME_MAP_READ) >= 0;
+    if (ok) {
+        mapped->width = frame.width;
+        mapped->height = frame.height;
+        mapped->colorspace = frame.colorspace;
+        mapped->color_range = frame.color_range;
+        mapped->pts = frame.pts;
+        use(*mapped);
+    }
+    av_frame_free(&mapped);
+    return ok;
+}
+
+#if defined(_WIN32)
 PlaneReader::PlaneReader(ID3D11Device* device)
 {
     if (device != nullptr) {
@@ -16,6 +41,9 @@ PlaneReader::PlaneReader(ID3D11Device* device)
         device->GetImmediateContext(&m_context);
     }
 }
+#else
+PlaneReader::PlaneReader(ID3D11Device*) {}
+#endif
 
 bool PlaneReader::read(const AVFrame& frame, const std::function<void(const Planes&)>& use)
 {
@@ -30,13 +58,19 @@ bool PlaneReader::read(const AVFrame& frame, const std::function<void(const Plan
     case AV_PIX_FMT_NV12:
         use({frame.data[0], frame.linesize[0], frame.data[1], frame.data[1] + 1, frame.linesize[1], 2});
         return true;
+#if defined(_WIN32)
     case AV_PIX_FMT_D3D11:
         return readSurface(frame, use);
+#else
+    case AV_PIX_FMT_VIDEOTOOLBOX:
+        return readSurface(frame, use);
+#endif
     default:
         return false;
     }
 }
 
+#if defined(_WIN32)
 bool PlaneReader::readSurface(const AVFrame& frame, const std::function<void(const Planes&)>& use)
 {
     if (!m_device) {
@@ -79,5 +113,18 @@ bool PlaneReader::readSurface(const AVFrame& frame, const std::function<void(con
     m_context->Unmap(m_staging.Get(), 0);
     return true;
 }
+#else
+bool PlaneReader::readSurface(const AVFrame& frame, const std::function<void(const Planes&)>& use)
+{
+    bool read = false;
+    const bool mapped = readMapped(frame, [&](const AVFrame& memory) {
+        if (memory.format == AV_PIX_FMT_NV12) {
+            use({memory.data[0], memory.linesize[0], memory.data[1], memory.data[1] + 1, memory.linesize[1], 2});
+            read = true;
+        }
+    });
+    return mapped && read;
+}
+#endif
 
 }

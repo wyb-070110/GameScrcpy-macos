@@ -8,8 +8,10 @@ extern "C" {
 #include <libavutil/frame.h>
 }
 
+#if defined(_WIN32)
 #include <d3d11.h>
 #include <wrl/client.h>
+#endif
 
 #include <doctest/doctest.h>
 
@@ -28,7 +30,9 @@ using gs::media::Thumbnail;
 using gs::media::Thumbnailer;
 using gs::media::VideoDecoder;
 using gs::media::VideoFrame;
+#if defined(_WIN32)
 using Microsoft::WRL::ComPtr;
+#endif
 
 namespace {
 
@@ -79,7 +83,7 @@ struct Thumbnails final : FrameSink {
     bool hardware = false;
 };
 
-std::vector<Thumbnail> thumbnailsOf(const char* recordingName, ID3D11Device* device, bool& hardware)
+[[maybe_unused]] std::vector<Thumbnail> thumbnailsOf(const char* recordingName, ID3D11Device* device, bool& hardware)
 {
     const auto recording = readRecording(recordingName);
     VideoDecoder decoder(device);
@@ -131,6 +135,7 @@ TEST_CASE("thumbnails: none for formats the decoder does not make")
     av_frame_free(&frame);
 }
 
+#if defined(_WIN32)
 TEST_CASE("thumbnails: a picture the GPU decoded gives the same thumbnail as decoded in software")
 {
     ComPtr<ID3D11Device> device;
@@ -185,7 +190,9 @@ struct LaterThumbnails final : FrameSink {
 };
 
 }
+#endif
 
+#if defined(_WIN32)
 TEST_CASE("thumbnails: asked for without waiting, a GPU picture's thumbnail arrives on a later frame unchanged")
 {
     ComPtr<ID3D11Device> device;
@@ -224,3 +231,5 @@ TEST_CASE("thumbnails: asked for without waiting, a GPU picture's thumbnail arri
         CHECK(same != sink.expected.end());
     }
 }
+#endif
+
