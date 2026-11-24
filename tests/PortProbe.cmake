@@ -100,10 +100,11 @@ gs_add_unit_test(gs_platform_tests
         gs::platform
 )
 if(APPLE)
-    target_sources(gs_platform_tests PRIVATE unit/platform/mac/TextReaderMacTests.mm)
-    set_source_files_properties(unit/platform/mac/TextReaderMacTests.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
+    target_sources(gs_platform_tests PRIVATE unit/platform/mac/SpeechMacTests.mm unit/platform/mac/TextReaderMacTests.mm)
+    set_source_files_properties(unit/platform/mac/SpeechMacTests.mm unit/platform/mac/TextReaderMacTests.mm
+                                PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
     target_link_libraries(gs_platform_tests PRIVATE "-framework Foundation" "-framework CoreGraphics"
-                          "-framework CoreText")
+                          "-framework CoreText" "-framework Speech")
 endif()
 
 gs_add_unit_test(gs_adb_tests
