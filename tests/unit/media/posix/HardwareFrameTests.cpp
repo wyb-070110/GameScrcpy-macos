@@ -10,6 +10,8 @@
 
 #include <doctest/doctest.h>
 
+#include <algorithm>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -61,6 +63,29 @@ private:
     LumaSampler m_sampler;
 };
 
+std::string difference(const std::vector<std::uint8_t>& gpu, const std::vector<std::uint8_t>& cpu)
+{
+    if (gpu.size() != cpu.size()) {
+        return "sizes " + std::to_string(gpu.size()) + " and " + std::to_string(cpu.size());
+    }
+    std::size_t differing = 0;
+    int largest = 0;
+    std::size_t first = gpu.size();
+    for (std::size_t at = 0; at < gpu.size(); ++at) {
+        const int gap = std::abs(static_cast<int>(gpu[at]) - static_cast<int>(cpu[at]));
+        if (gap != 0) {
+            first = std::min(first, at);
+            ++differing;
+            largest = std::max(largest, gap);
+        }
+    }
+    if (differing == 0) {
+        return {};
+    }
+    return std::to_string(differing) + " of " + std::to_string(gpu.size()) + " bytes differ, by up to " +
+           std::to_string(largest) + ", first at " + std::to_string(first);
+}
+
 std::vector<Seen> decoded(std::string_view name, Decoding decoding)
 {
     std::ifstream file(std::filesystem::path(GS_VIDEO_TEST_DATA_DIR) / name, std::ios::binary);
@@ -94,9 +119,10 @@ TEST_CASE("hardware decoding: the GPU decodes H.264 and H.265, and its pictures 
             CAPTURE(i);
             CHECK_FALSE(cpu[i].hardware);
             onGpu += gpu[i].hardware ? 1 : 0;
-            CHECK(gpu[i].luma == cpu[i].luma);
-            CHECK(gpu[i].chroma == cpu[i].chroma);
-            CHECK(gpu[i].thumbnail == cpu[i].thumbnail);
+            CHECK(difference(gpu[i].luma, cpu[i].luma) == "");
+            CHECK(difference(gpu[i].chroma, cpu[i].chroma) == "");
+            CHECK(gpu[i].thumbnail.width == cpu[i].thumbnail.width);
+            CHECK((gpu[i].thumbnail.pixels == cpu[i].thumbnail.pixels));
             CHECK(gpu[i].readings == cpu[i].readings);
         }
         MESSAGE(std::string(name) << ": " << onGpu << " of " << gpu.size() << " pictures from the GPU");
