@@ -59,4 +59,15 @@ Antigravity 的模型：**Gemini 4 Carbon (Medium)**（Claude 系列在你的套
 | G2 | **调研：扩展滤镜在 Metal 上运行**。扩展滤镜是 Direct3D 的 HLSL 像素着色器（见 `src/ext/` 的 FilterSource 与 `docs/extensions/`）。比较 DXC/SPIRV-Cross、glslang 的 HLSL 前端、Qt ShaderTools 等方案：能否离线随程序发布、许可证、对现有滤镜的兼容程度、工作量 | `docs/handoff/gemini/research-filters.md` |
 | G3 | **调研：Universal 版与公证**。FFmpeg、SDL3、OpenSSL 的 Universal 构建或获取方式，Developer ID 签名与公证（notarization）的要求与步骤 | `docs/handoff/gemini/research-universal.md` |
 
+#### 第二批（G1–G3 已交，Claude 已读）
+
+| # | 任务 | 产出 |
+|---|---|---|
+| G4 | **更新使用指南**：键鼠映射已不需要"输入监控"授权（读的是程序自己窗口里的按键，`ed4672b`）；手柄走 SDL3，支持 Xbox/PS4/PS5 与震动；投屏打字改由手机上的 GameScrcpy Companion 输入法接收，手机自带键盘不再弹出（第一次投屏会自动装 Companion）；赞助入口已删除；新增"工具栏位置"（上/下/左/右）。把过时的说法改掉，常见问题里加"打字时手机键盘还弹出来怎么办" | 改 `docs/handoff/gemini/macos-guide.md` |
+| G5 | **调研：有线投屏延迟忽高忽低**。手机是三星 Galaxy Z Flip（SM-F971B，Android 16 左右），120 Hz 屏。已知：跟随手机帧率时编码器积压到 8 秒，限到 60 fps 后平均 5 ms、最大 33 ms，但用户仍觉得有线不稳。查：MediaCodec 低延迟相关键（`KEY_LATENCY`、`KEY_PRIORITY`、`KEY_OPERATING_RATE`、`KEY_MAX_B_FRAMES`、`KEY_INTRA_REFRESH_PERIOD`、三星/高通厂商私有键）、scrcpy 上游与社区对三星机型的经验、USB 2/3 与 adb 转发对抖动的影响、可以在电脑端测量的指标。每条建议写清：改哪个文件（`android/server/` 或 `src/`）、预期效果、风险 | `docs/handoff/gemini/research-latency.md` |
+| G6 | **调研：触控板滑动映射成手机触摸怎样才顺**。现在双指滑动会变成一次单指拖动（`src/app/MirrorInputItem.cpp` 的 `swipeWithTrackpad`），用户说桌面左右滑仍有卡顿。查：macOS 触控板事件的频率与相位（began/changed/ended、惯性 momentum）、Android 判定 fling 的速度条件（`ViewConfiguration` 的最小/最大 fling 速度、触摸事件时间戳）、注入触摸时补点/插值/按时间戳发送的做法，以及 scrcpy、Vysor 等工具怎么做 | `docs/handoff/gemini/research-swipe.md` |
+| G7 | **macOS 版更新说明草稿**（中英）：从 `git log` 里本分支的提交整理出用户看得懂的变化列表，不写内部细节 | `docs/handoff/gemini/release-notes-macos.md` |
+
+G4 → G5 → G6 → G7 按顺序做，每篇开头写日期和结论，做完在 `docs/handoff/gemini/README.md` 记一笔。
+
 Gemini 桌面版如果不能直接写文件，就把成文的 Markdown 交给用户，存到上面的路径即可，Claude 会读。
