@@ -1,5 +1,5 @@
-// gs-scripthost off Windows: sandbox the process before anything is read (macOS: the pure-computation
-// profile), then serve the pipes the parent passed.
+// gs-scripthost off Windows: sandbox the process before anything is read (macOS: deny everything, as the
+// pure-computation profile does), then serve the pipes the parent passed.
 #include "Server.h"
 
 #include <cstdlib>
@@ -12,7 +12,6 @@
 
 // From <sandbox.h>, which this module's own Sandbox.h hides on a case-insensitive file system.
 extern "C" {
-extern const char kSBXProfilePureComputation[];
 int sandbox_init(const char* profile, std::uint64_t flags, char** error);
 void sandbox_free_error(char* error);
 }
@@ -25,9 +24,12 @@ constexpr int kSandboxFailed = 4;
 bool sandboxed() noexcept
 {
 #if defined(__APPLE__)
-    constexpr std::uint64_t kNamedProfile = 0x0001;
+    // The profile is written out rather than named: macOS 27 kills a process that asks sandbox_init for any
+    // named profile (kSBXProfilePureComputation included). Denying by default leaves the pipes already open
+    // usable and refuses files, the network, other programs and IPC, which is what pure computation means.
+    constexpr const char* kPureComputation = "(version 1)(deny default)";
     char* error = nullptr;
-    const bool applied = sandbox_init(kSBXProfilePureComputation, kNamedProfile, &error) == 0;
+    const bool applied = sandbox_init(kPureComputation, 0, &error) == 0;
     if (error != nullptr) {
         sandbox_free_error(error);
     }

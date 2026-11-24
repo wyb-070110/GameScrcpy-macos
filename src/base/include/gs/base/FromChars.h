@@ -1,5 +1,7 @@
 // std::from_chars for integers and floating point everywhere: libc++ before LLVM 20 (Apple Clang included)
 // has no floating-point from_chars, so there it parses with strtod in the C locale, keeping from_chars' rules.
+// Newer libc++ (22 at least) writes ±inf or 0 into the value on result_out_of_range, where the standard keeps
+// the value as it was, so the floating-point form always parses into a temporary first.
 #pragma once
 
 #include <charconv>
@@ -76,7 +78,12 @@ std::from_chars_result fromChars(const char* first, const char* last, T& value) 
         return {first, std::errc::not_enough_memory};
     }
 #else
-    return std::from_chars(first, last, value);
+    T parsed{};
+    const std::from_chars_result result = std::from_chars(first, last, parsed);
+    if (result.ec == std::errc{}) {
+        value = parsed;
+    }
+    return result;
 #endif
 }
 
