@@ -8,7 +8,14 @@
 #include <vector>
 
 #if defined(__APPLE__)
-#include <sandbox.h>
+#include <cstdint>
+
+// From <sandbox.h>, which this module's own Sandbox.h hides on a case-insensitive file system.
+extern "C" {
+extern const char kSBXProfilePureComputation[];
+int sandbox_init(const char* profile, std::uint64_t flags, char** error);
+void sandbox_free_error(char* error);
+}
 #endif
 
 namespace {
@@ -18,14 +25,12 @@ constexpr int kSandboxFailed = 4;
 bool sandboxed() noexcept
 {
 #if defined(__APPLE__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    constexpr std::uint64_t kNamedProfile = 0x0001;
     char* error = nullptr;
-    const bool applied = sandbox_init(kSBXProfilePureComputation, SANDBOX_NAMED, &error) == 0;
+    const bool applied = sandbox_init(kSBXProfilePureComputation, kNamedProfile, &error) == 0;
     if (error != nullptr) {
         sandbox_free_error(error);
     }
-#pragma clang diagnostic pop
     return applied;
 #else
     const char* allowed = std::getenv("GS_SCRIPTHOST_UNSANDBOXED");
