@@ -1,3 +1,8 @@
+if(NOT WIN32)
+    include(Posix.cmake)
+    return()
+endif()
+
 add_library(gs_hardware STATIC
     include/gs/hardware/Backend.h
     include/gs/hardware/Devices.h

@@ -342,3 +342,12 @@ gs_add_unit_test(gs_capture_tests
         gs::protocol
 )
 target_compile_definitions(gs_capture_tests PRIVATE GS_CAPTURE_TEST_DATA_DIR="${PROJECT_SOURCE_DIR}/tests/data/capture")
+
+# Hardware for scripts: device ids and names, the fake backend, and the macOS backend that lists no devices yet.
+gs_add_unit_test(gs_hardware_tests
+    SOURCES
+        unit/hardware/HardwareTests.cpp
+        unit/hardware/posix/NoDevicesBackendTests.cpp
+    LIBRARIES
+        gs::hardware
+)
