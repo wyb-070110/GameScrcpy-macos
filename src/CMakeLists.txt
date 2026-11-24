@@ -1,6 +1,6 @@
 if(NOT WIN32)
     # Port probe: only the modules that do not touch Windows APIs.
-    foreach(gs_portable_module IN ITEMS base platform protocol adb session input vision tsstrip blueprint script ext)
+    foreach(gs_portable_module IN ITEMS base platform protocol adb session input vision tsstrip blueprint script ext scripthost)
         add_subdirectory(${gs_portable_module})
     endforeach()
     return()

@@ -1,5 +1,21 @@
+#if defined(_WIN32)
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#else
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <spawn.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+#include <cerrno>
+#include <filesystem>
+
+extern char** environ;
+#endif
 
 #include "Server.h"
 
@@ -501,6 +517,7 @@ bool taskEnd(script::ReportKind kind) noexcept
            kind == script::ReportKind::TaskFailed || kind == script::ReportKind::TaskInterrupted;
 }
 
+#if defined(_WIN32)
 detail::SelfTestOutcome tryFile(const std::string& path)
 {
     const std::filesystem::path file = detail::pathOf(path);
@@ -579,6 +596,68 @@ detail::SelfTestOutcome tryProcess()
     CloseHandle(started.hProcess);
     return {"process", false, 0, "another program was started"};
 }
+
+#else
+detail::SelfTestOutcome tryFile(const std::string& path)
+{
+    const std::filesystem::path file = detail::pathOf(path);
+    const int opened = ::open(file.c_str(), O_RDONLY | O_CLOEXEC);
+    if (opened < 0) {
+        return {"file", true, static_cast<std::uint32_t>(errno), "the file under the user's profile could not be opened"};
+    }
+    ::close(opened);
+    return {"file", false, 0, "the file under the user's profile was opened"};
+}
+
+detail::SelfTestOutcome trySocket(std::uint16_t port)
+{
+    const int handle = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (handle < 0) {
+        return {"socket", true, static_cast<std::uint32_t>(errno), "no socket could be made"};
+    }
+    ::fcntl(handle, F_SETFL, ::fcntl(handle, F_GETFL) | O_NONBLOCK);
+    sockaddr_in address{};
+    address.sin_family = AF_INET;
+    address.sin_port = htons(port);
+    address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    bool connected = ::connect(handle, reinterpret_cast<const sockaddr*>(&address), sizeof(address)) == 0;
+    int error = connected ? 0 : errno;
+    if (!connected && error == EINPROGRESS) {
+        fd_set writable;
+        FD_ZERO(&writable);
+        FD_SET(handle, &writable);
+        timeval wait{kSocketWaitSeconds, 0};
+        const int ready = ::select(handle + 1, nullptr, &writable, nullptr, &wait);
+        if (ready > 0) {
+            int code = 0;
+            socklen_t size = sizeof(code);
+            ::getsockopt(handle, SOL_SOCKET, SO_ERROR, &code, &size);
+            connected = code == 0;
+            error = code;
+        } else {
+            error = ready == 0 ? ETIMEDOUT : errno;
+        }
+    }
+    ::close(handle);
+    return {"socket", !connected, static_cast<std::uint32_t>(error),
+            connected ? "a TCP connection to this computer was made" : "no TCP connection could be made"};
+}
+
+detail::SelfTestOutcome tryProcess()
+{
+    char program[] = "/usr/bin/true";
+    char* arguments[] = {program, nullptr};
+    pid_t child = 0;
+    const int spawned = ::posix_spawn(&child, program, nullptr, nullptr, arguments, environ);
+    if (spawned != 0) {
+        return {"process", true, static_cast<std::uint32_t>(spawned), "no other program could be started"};
+    }
+    int status = 0;
+    ::waitpid(child, &status, 0);
+    return {"process", false, 0, "another program was started"};
+}
+
+#endif
 
 int selfTest(detail::PipeReader& in, detail::PipeWriter& out, std::wstring_view token)
 {

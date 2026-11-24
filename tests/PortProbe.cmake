@@ -239,3 +239,27 @@ target_compile_definitions(gs_script_tests PRIVATE
     GS_SDK_DIR="${PROJECT_SOURCE_DIR}/sdk"
     GS_EXAMPLE_COMPONENTS_DIR="${PROJECT_SOURCE_DIR}/examples/components"
 )
+
+# Script logic in its own process (gs-scripthost). Linux has no sandbox for it, so there it runs unsandboxed
+# for the tests only and the sandbox self-test is left out; macOS runs everything in the sandbox.
+gs_add_unit_test(gs_scripthost_tests
+    SOURCES
+        unit/script/ScriptFixture.h
+        unit/scripthost/RemoteLogicHostTests.cpp
+    LIBRARIES
+        gs::scripthost
+        gs::script
+    ARGUMENTS
+        $<$<NOT:$<PLATFORM_ID:Darwin>>:--test-case-exclude=*cannot?open?the?user*>
+)
+target_include_directories(gs_scripthost_tests BEFORE PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/compat/posix"
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+target_compile_definitions(gs_scripthost_tests PRIVATE
+    GS_SCRIPTHOST_PROGRAM="$<TARGET_FILE:gs_scripthost_program>"
+)
+add_dependencies(gs_scripthost_tests gs_scripthost_program)
+if(NOT APPLE)
+    set_tests_properties(gs_scripthost_tests PROPERTIES ENVIRONMENT "GS_SCRIPTHOST_UNSANDBOXED=1")
+endif()

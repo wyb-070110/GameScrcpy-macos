@@ -131,13 +131,19 @@ void closeHandle(HANDLE& handle) noexcept
 
 }
 
+#if defined(_WIN32)
+constexpr wchar_t kProgramName[] = L"gs-scripthost.exe";
+#else
+constexpr wchar_t kProgramName[] = L"gs-scripthost";
+#endif
+
 std::filesystem::path defaultProgram()
 {
     std::wstring buffer(MAX_PATH, L'\0');
     for (;;) {
         const DWORD length = GetModuleFileNameW(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
         if (length == 0) {
-            return L"gs-scripthost.exe";
+            return kProgramName;
         }
         if (length < buffer.size()) {
             buffer.resize(length);
@@ -145,16 +151,22 @@ std::filesystem::path defaultProgram()
         }
         buffer.resize(buffer.size() * 2);
     }
-    return std::filesystem::path(buffer).parent_path() / L"gs-scripthost.exe";
+    return std::filesystem::path(buffer).parent_path() / kProgramName;
 }
 
 std::string_view modeName(SandboxMode mode) noexcept
 {
     switch (mode) {
+#if defined(_WIN32)
     case SandboxMode::AppContainer:
         return "an AppContainer";
     case SandboxMode::Restricted:
         return "a restricted token with low integrity";
+#else
+    case SandboxMode::AppContainer:
+    case SandboxMode::Restricted:
+        return "the pure-computation sandbox";
+#endif
     case SandboxMode::None:
         break;
     }

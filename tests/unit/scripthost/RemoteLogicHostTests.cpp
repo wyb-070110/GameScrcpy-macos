@@ -207,6 +207,7 @@ private:
     std::uint16_t m_port = 0;
 };
 
+#if defined(_WIN32)
 std::filesystem::path profileFolder()
 {
     wchar_t* value = nullptr;
@@ -218,6 +219,13 @@ std::filesystem::path profileFolder()
     std::free(value);
     return folder;
 }
+#else
+std::filesystem::path profileFolder()
+{
+    const char* home = std::getenv("HOME");
+    return home != nullptr ? std::filesystem::path(home) : std::filesystem::temp_directory_path();
+}
+#endif
 
 class ProbeFile
 {

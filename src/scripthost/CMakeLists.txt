@@ -1,3 +1,8 @@
+if(NOT WIN32)
+    include(Posix.cmake)
+    return()
+endif()
+
 add_library(gs_scripthost_wire STATIC
     src/Pipe.cpp
     src/Pipe.h
