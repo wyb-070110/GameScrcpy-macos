@@ -7,7 +7,7 @@
 | 阶段 | 内容 | 状态 |
 |---|---|---|
 | 1 | 核心层（base、protocol、input、vision、tsstrip、blueprint）在 macOS / Linux 上编译、测试 | 完成（GitHub Actions macOS arm64 通过） |
-| 2 | platform 层 POSIX 实现，adb 与 session 模块，真机启动手机端服务并收流 | 单元测试在 macOS arm64 通过，待接手机验证 |
+| 2 | platform 层 POSIX 实现，adb 与 session 模块，真机启动手机端服务并收流 | 完成（2026-11-24 真机验收，USB 与无线调试均通过，见下文） |
 | 3 | 画面与声音（VideoToolbox、Qt RHI / Metal、SDL3） | 未开始 |
 | 4 | Qt Quick 界面与键鼠捕获 | 未开始 |
 | 5 | 脚本进程隔离、OCR、录屏、打包 | 未开始 |
@@ -52,6 +52,47 @@ build/posix-core/bin/gs_session_device_tests
 ```
 
 `gs_session_device_tests` 会通过 adb 推送并启动手机端服务，打开视频、音频和控制通道，检查收到的画面数据，反复开关会话，并确认线程、文件描述符和内存没有泄漏。全部通过就算第 2 步验收完成。
+
+### 无线调试
+
+WiFi 直连那一项只在无线序列号（`IP:端口`）下运行，所以 USB 和无线都要跑一遍。手机需要 Android 11 或更高版本，并且和 Mac 在同一网段。
+
+1. 手机「开发者选项 → 无线调试」打开，点「使用配对码配对设备」，然后在 Mac 上：
+
+```bash
+adb pair <手机 WLAN 地址>:<配对端口> <六位配对码>
+adb connect <手机 WLAN 地址>:<无线调试端口>
+export GS_ADB_TEST_SERIAL=<手机 WLAN 地址>:<无线调试端口>
+```
+
+2. 再运行上面两个测试程序。
+
+注意：
+
+- 手机开着 VPN（比如 FlClash）时，无线调试页面显示的可能是 VPN 网卡的地址（例如 `198.18.0.1`）。要用 `adb shell ip -4 addr show wlan0` 查到的 WLAN 地址；两个端口都监听所有网卡。
+- Mac 开着代理软件的 TUN 模式也不用关，只要两边在同一网段：发往局域网的流量走物理网卡，不经过 TUN。跨网段时流量会经过默认路由（也就是 TUN），手机也连不回 Mac，WiFi 直连会失败。
+- 手机重启或换 Wi-Fi 后无线调试会关掉、端口会变，重新打开后再 `adb connect` 即可，不必重新配对。
+
+### 验收记录（2026-11-24）
+
+Apple Silicon Mac（macOS 27），三星 Galaxy Z Fold8（SM-F971B，Android 17），提交 `5292501`，Debug 构建。
+
+| 测试 | 连接 | 结果 |
+|---|---|---|
+| `gs_adb_device_tests` | 无线 | 11 个用例通过，88 个断言 |
+| `gs_session_device_tests` | 无线（两轮） | 15 个用例通过，733 个断言 |
+| `gs_session_device_tests` | USB | 15 个用例通过，123 个断言 |
+
+无线下的主要数据：
+
+- 推送服务到开始收流 981 ms；之后连续 5 次启动，中位数 362 ms（USB 215 ms）。
+- 只用 WiFi 直连，417 ms 开始收流。
+- 无损截图 1248×1972，139 ms；截图期间控制通道往返中位数 7.7 ms。
+- 双向各丢 10% 的链路上 200 次控制往返 82 ms，顺序正确。
+- 连续 5 次开关会话：句柄 45 → 45，私有内存 11.3 → 11.5 MB。
+- 会话结束后 UDP 端口 58 ms 内关闭；断线后保留 3 s 再关闭。
+
+未运行：两台设备同时收流（需要 `GS_ADB_TEST_OTHER_SERIAL`）、adb 服务重启后恢复（需要 `GS_ADB_TEST_RESTART=1`）。
 
 ## 平台层的 macOS 实现
 
