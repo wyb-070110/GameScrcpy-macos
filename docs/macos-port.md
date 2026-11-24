@@ -6,11 +6,15 @@
 
 | 阶段 | 内容 | 状态 |
 |---|---|---|
-| 1 | 核心层（base、protocol、input、vision、tsstrip、blueprint）在 macOS / Linux 上编译、测试 | 完成（Linux x86_64 与 aarch64 已验证，待 M4 实机） |
-| 2 | platform 层 POSIX 实现，adb 与 session 模块，真机启动手机端服务并收流 | 代码完成，单元测试在 Linux 通过，待 Mac + 手机验证 |
+| 1 | 核心层（base、protocol、input、vision、tsstrip、blueprint）在 macOS / Linux 上编译、测试 | 完成（GitHub Actions macOS arm64 通过） |
+| 2 | platform 层 POSIX 实现，adb 与 session 模块，真机启动手机端服务并收流 | 单元测试在 macOS arm64 通过，待接手机验证 |
 | 3 | 画面与声音（VideoToolbox、Qt RHI / Metal、SDL3） | 未开始 |
 | 4 | Qt Quick 界面与键鼠捕获 | 未开始 |
 | 5 | 脚本进程隔离、OCR、录屏、打包 | 未开始 |
+
+## 持续集成
+
+每次推送都会触发 `.github/workflows/macos.yml`，在 GitHub 的 Apple Silicon 虚拟机（`macos-15`）上用 Apple Clang 编译 Debug 和优化两个版本并运行单元测试，优化版本还会打印识图和脚本处理的耗时。真机测试在那里会显示为“跳过”。
 
 ## 准备 Mac
 
