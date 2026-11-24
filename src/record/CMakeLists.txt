@@ -1,3 +1,8 @@
+if(NOT WIN32)
+    include(Posix.cmake)
+    return()
+endif()
+
 add_library(gs_record STATIC
     include/gs/record/MediaFile.h
     include/gs/record/Mp4Export.h

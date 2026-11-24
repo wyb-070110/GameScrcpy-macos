@@ -128,7 +128,8 @@ void AudioOutput::run(const std::stop_token& stop)
 void AudioOutput::run(const std::stop_token& stop)
 {
     platform::setCurrentThreadName("gs-audio-out");
-    log::warning(kLog, "no sound: this build has no audio output");
+    log::warning(kLog, "no sound: this build has no audio output for {} channels at {} Hz (gain {:.2f}, {} frames waiting)",
+                 m_channels, m_sampleRate, m_gain.load(std::memory_order_relaxed), m_source.buffered());
     std::unique_lock lock(m_wake->mutex);
     m_wake->stopped.wait(lock, stop, [] { return false; });
 }

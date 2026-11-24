@@ -290,3 +290,34 @@ target_include_directories(gs_media_tests PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${PROJECT_SOURCE_DIR}/src/media/src"
 )
+
+# Recording: the recorder, operations, MP4 export and replay (the pictures need ImageIO, so Linux skips them).
+add_executable(gs_recorder_child unit/media/RecorderChild.cpp compat/posix/WideMain.cpp)
+target_link_libraries(gs_recorder_child PRIVATE gs::record)
+gs_apply_compiler_policy(gs_recorder_child)
+
+gs_add_unit_test(gs_record_tests
+    SOURCES
+        unit/media/AacRecordingTests.cpp
+        unit/media/RecordingTests.cpp
+    LIBRARIES
+        gs::media
+        gs::record
+        gs::script
+        gs::vision
+        FFmpeg::avcodec
+        FFmpeg::avformat
+        FFmpeg::swresample
+    ARGUMENTS
+        $<$<NOT:$<PLATFORM_ID:Darwin>>:--test-case-exclude=*replaying?a?recording*>
+)
+target_compile_definitions(gs_record_tests PRIVATE
+    GS_VIDEO_TEST_DATA_DIR="${PROJECT_SOURCE_DIR}/tests/data/video"
+    GS_RECORDER_CHILD="$<TARGET_FILE:gs_recorder_child>"
+)
+target_include_directories(gs_record_tests BEFORE PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/compat/posix"
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${PROJECT_SOURCE_DIR}/src/media/src"
+)
+add_dependencies(gs_record_tests gs_recorder_child)

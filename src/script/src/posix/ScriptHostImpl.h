@@ -54,6 +54,7 @@ void* ScriptHost::Impl::entry(void* opaque)
 void ScriptHost::Impl::run()
 {
     platform::setCurrentThreadName("gs-script");
+    platform::setCurrentThreadRole(platform::ThreadRole::Input);
     detail::Engine engine(sink, limits, stopRequested, lastTask, detail::EngineOptions{.services = services});
     while (!stopRequested.load(std::memory_order_acquire)) {
         runCommands(engine);
