@@ -173,7 +173,7 @@ public:
 
 private:
     template <typename Read>
-    auto locked(Read read) const
+    auto locked(Read read) const -> decltype(read())
     {
         const std::lock_guard lock(m_mutex);
         return read();

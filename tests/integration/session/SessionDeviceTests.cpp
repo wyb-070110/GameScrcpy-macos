@@ -3,7 +3,7 @@
 //   GS_ADB_TEST_SERIAL        device to test (required; the program reports "skipped" without it)
 //   GS_ADB_TEST_OTHER_SERIAL  a second device, streamed at the same time (SES-002)
 //   GS_ADB_TEST_RESTART=1     also kill the adb server mid-session and resume once it is back (SES-006)
-//   GS_ADB_EXECUTABLE         adb.exe for that restart (default %ANDROID_HOME%\platform-tools)
+//   GS_ADB_EXECUTABLE         adb for that restart (default the platform-tools under ANDROID_HOME)
 //   GS_SERVER_APK             the server build (default: the Gradle release output)
 //   GS_SESSION_TEST_CYCLES    sessions opened and closed in a row (default 5; SES-004 asks for 100)
 //   GS_SESSION_TEST_LAUNCHES  launches in a row that must not race (default 5; SES-007 asks for 1000)
@@ -28,9 +28,13 @@
 #include "gs/session/AdbServerHost.h"
 #include "gs/session/Session.h"
 
+#if defined(_WIN32)
 #include <windows.h>
 #include <psapi.h>
 #include <tlhelp32.h>
+#else
+#include "ProcessProbe.h"
+#endif
 
 #include <miniz.h>
 
@@ -72,6 +76,7 @@ int g_cycles = 5;
 int g_launches = 5;
 const adb::AdbClient g_adb;
 
+#if defined(_WIN32)
 std::string environment(const char* name)
 {
     char* value = nullptr;
@@ -81,6 +86,13 @@ std::string environment(const char* name)
     std::free(value);
     return text;
 }
+#else
+std::string environment(const char* name)
+{
+    const char* value = std::getenv(name);
+    return value != nullptr ? value : "";
+}
+#endif
 
 class StderrSink final : public log::Sink
 {
@@ -159,6 +171,7 @@ bool forwarded(const std::string& serial)
            });
 }
 
+#if defined(_WIN32)
 int sessionThreads()
 {
     const HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
@@ -200,6 +213,24 @@ double privateMegabytes()
     GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&counters), sizeof(counters));
     return static_cast<double>(counters.PrivateUsage) / (1024.0 * 1024.0);
 }
+#else
+using DWORD = std::uint32_t;
+
+int sessionThreads()
+{
+    return gs::test::threadsNamed("gs-");
+}
+
+DWORD handleCount()
+{
+    return gs::test::openHandles();
+}
+
+double privateMegabytes()
+{
+    return gs::test::privateMegabytes();
+}
+#endif
 
 SessionOptions options(bool video)
 {
@@ -952,7 +983,11 @@ int main(int argc, char** argv)
     g_allowRestart = environment("GS_ADB_TEST_RESTART") == "1";
     g_adbExecutable = environment("GS_ADB_EXECUTABLE");
     if (g_adbExecutable.empty()) {
+#if defined(_WIN32)
         g_adbExecutable = std::filesystem::path(environment("ANDROID_HOME")) / "platform-tools" / "adb.exe";
+#else
+        g_adbExecutable = std::filesystem::path(environment("ANDROID_HOME")) / "platform-tools" / "adb";
+#endif
     }
     std::string apk = environment("GS_SERVER_APK");
     if (apk.empty()) {

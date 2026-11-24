@@ -1,6 +1,11 @@
 # gs_platform: Windows integration below every other module (sockets, CNG cryptography, files).
 # Public headers stay free of Windows headers.
 
+if(NOT WIN32)
+    include(Posix.cmake)
+    return()
+endif()
+
 add_library(gs_platform STATIC
     include/gs/platform/Accessibility.h
     include/gs/platform/AtomicFile.h

@@ -15,7 +15,11 @@
 #include <string_view>
 #include <vector>
 
+#if defined(_WIN32)
 #include <windows.h>
+#else
+#include <cstdlib>
+#endif
 
 using namespace gs;
 using namespace gs::session;
@@ -76,6 +80,7 @@ SessionFailure runUntilFailed(adb::AdbClient client, std::shared_ptr<const Serve
     return *listener.failure();
 }
 
+#if defined(_WIN32)
 class EnvironmentVariable
 {
 public:
@@ -101,6 +106,50 @@ private:
     std::wstring m_value;
     bool m_had = false;
 };
+#else
+class EnvironmentVariable
+{
+public:
+    EnvironmentVariable(const wchar_t* name, const wchar_t* value) : m_name(narrow(name))
+    {
+        if (const char* current = std::getenv(m_name.c_str())) {
+            m_had = true;
+            m_value = current;
+        }
+        if (value != nullptr) {
+            ::setenv(m_name.c_str(), narrow(value).c_str(), 1);
+        } else {
+            ::unsetenv(m_name.c_str());
+        }
+    }
+
+    ~EnvironmentVariable()
+    {
+        if (m_had) {
+            ::setenv(m_name.c_str(), m_value.c_str(), 1);
+        } else {
+            ::unsetenv(m_name.c_str());
+        }
+    }
+
+    EnvironmentVariable(const EnvironmentVariable&) = delete;
+    EnvironmentVariable& operator=(const EnvironmentVariable&) = delete;
+
+private:
+    static std::string narrow(const wchar_t* text)
+    {
+        std::string ascii;
+        for (; *text != L'\0'; ++text) {
+            ascii.push_back(static_cast<char>(*text));
+        }
+        return ascii;
+    }
+
+    std::string m_name;
+    std::string m_value;
+    bool m_had = false;
+};
+#endif
 
 }
 
