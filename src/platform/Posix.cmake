@@ -59,6 +59,11 @@ if(APPLE)
     target_sources(gs_platform PRIVATE src/posix/UserKeyKeychain.cpp src/posix/UserKeyFile.cpp src/mac/Credentials.cpp
                    src/mac/KeyCodes.h ${gs_platform_mac_sources})
     set_source_files_properties(${gs_platform_mac_sources} PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
+    if(TARGET SDL3::SDL3)
+        # Gamepads (InputCapture.mm) through SDL, as on Windows.
+        target_link_libraries(gs_platform PRIVATE SDL3::SDL3)
+        target_compile_definitions(gs_platform PRIVATE GS_HAVE_SDL3)
+    endif()
     target_link_libraries(gs_platform PRIVATE "-framework CoreFoundation" "-framework Security"
                           "-framework Foundation" "-framework CoreGraphics" "-framework Vision" "-framework AppKit"
                           "-framework Carbon" "-framework AVFoundation" "-framework UserNotifications"
