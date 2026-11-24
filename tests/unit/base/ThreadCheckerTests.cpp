@@ -9,7 +9,7 @@ namespace {
 
 std::atomic<int> g_failures{0};
 
-void countFailure(const char*, int) noexcept
+[[maybe_unused]] void countFailure(const char*, int) noexcept
 {
     g_failures.fetch_add(1);
 }

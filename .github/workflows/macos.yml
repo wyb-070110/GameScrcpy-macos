@@ -1,0 +1,43 @@
+name: macOS port
+
+on:
+  push:
+    paths-ignore: ["*.md", "docs/**", ".github/ISSUE_TEMPLATE/**", ".github/PULL_REQUEST_TEMPLATE.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    name: Core (macOS arm64, ${{ matrix.preset }})
+    runs-on: macos-15
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [posix-core, posix-core-release]
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Tools
+        run: |
+          brew install ninja openssl@3
+          uname -m
+          sw_vers
+          clang --version
+          cmake --version
+
+      - name: Configure, build and test
+        run: cmake --workflow --preset ${{ matrix.preset }}
+
+      - name: Timings on Apple Silicon
+        if: matrix.preset == 'posix-core-release'
+        run: |
+          bin=build/${{ matrix.preset }}/bin
+          "$bin/gs_vision_tests" --test-case="*enchmark*" --success | grep -E "MESSAGE|test cases"
+          "$bin/gs_tsstrip_tests" --test-case="TS-014*" --success | grep -E "MESSAGE|test cases"

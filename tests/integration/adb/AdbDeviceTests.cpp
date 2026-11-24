@@ -5,7 +5,7 @@
 //                              address; emulators get one automatically through 127.0.0.1
 //   GS_ADB_TEST_OTHER_SERIAL   a different device, whose identity must differ
 //   GS_ADB_TEST_RESTART=1      also kill the adb server and let ensureServer() start it again
-//   GS_ADB_EXECUTABLE          adb.exe for that restart (default %ANDROID_HOME%\platform-tools)
+//   GS_ADB_EXECUTABLE          adb for that restart (default the platform-tools under ANDROID_HOME)
 
 #define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest/doctest.h>
@@ -18,8 +18,12 @@
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#if defined(_WIN32)
 #include <iphlpapi.h>
 #include <tlhelp32.h>
+#else
+#include "ProcessProbe.h"
+#endif
 
 #include <algorithm>
 #include <array>
@@ -49,6 +53,7 @@ bool g_allowRestart = false;
 
 const std::filesystem::path kMissingAdb = "Z:/nonexistent/adb.exe";
 
+#if defined(_WIN32)
 std::string environment(const char* name)
 {
     char* value = nullptr;
@@ -58,6 +63,20 @@ std::string environment(const char* name)
     std::free(value);
     return text;
 }
+#else
+using DWORD = std::uint32_t;
+
+DWORD GetCurrentProcessId()
+{
+    return static_cast<DWORD>(getpid());
+}
+
+std::string environment(const char* name)
+{
+    const char* value = std::getenv(name);
+    return value != nullptr ? value : "";
+}
+#endif
 
 double millisecondsSince(Clock::time_point start)
 {
@@ -85,6 +104,7 @@ std::vector<std::string> lines(std::string_view text)
     return result;
 }
 
+#if defined(_WIN32)
 DWORD listenerProcess(std::uint16_t port)
 {
     ULONG size = 0;
@@ -116,6 +136,17 @@ int childProcessCount()
     CloseHandle(snapshot);
     return count;
 }
+#else
+DWORD listenerProcess(std::uint16_t port)
+{
+    return gs::test::tcpListenerProcess(port);
+}
+
+int childProcessCount()
+{
+    return gs::test::childProcesses();
+}
+#endif
 
 std::string sha256Hex(std::span<const std::uint8_t> data)
 {
@@ -153,9 +184,10 @@ public:
         FD_ZERO(&ready);
         FD_SET(m_socket, &ready);
         const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(timeout);
-        timeval limit{static_cast<long>(seconds.count()),
-                      static_cast<long>(std::chrono::duration_cast<std::chrono::microseconds>(timeout - seconds).count())};
-        if (select(0, &ready, nullptr, nullptr, &limit) != 1) {
+        timeval limit{static_cast<decltype(timeval::tv_sec)>(seconds.count()),
+                      static_cast<decltype(timeval::tv_usec)>(
+                          std::chrono::duration_cast<std::chrono::microseconds>(timeout - seconds).count())};
+        if (select(static_cast<int>(m_socket) + 1, &ready, nullptr, nullptr, &limit) != 1) {
             return INVALID_SOCKET;
         }
         return accept(m_socket, nullptr, nullptr);
@@ -192,8 +224,14 @@ public:
 private:
     void setReadTimeout(std::chrono::milliseconds timeout)
     {
+#if defined(_WIN32)
         const auto ms = static_cast<DWORD>(timeout.count());
         setsockopt(m_socket, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&ms), sizeof(ms));
+#else
+        const timeval limit{static_cast<decltype(timeval::tv_sec)>(timeout.count() / 1000),
+                            static_cast<decltype(timeval::tv_usec)>(timeout.count() % 1000 * 1000)};
+        setsockopt(m_socket, SOL_SOCKET, SO_RCVTIMEO, &limit, sizeof(limit));
+#endif
     }
 
 public:
@@ -547,7 +585,11 @@ int main(int argc, char** argv)
     g_allowRestart = environment("GS_ADB_TEST_RESTART") == "1";
     g_adbExecutable = environment("GS_ADB_EXECUTABLE");
     if (g_adbExecutable.empty()) {
+#if defined(_WIN32)
         g_adbExecutable = std::filesystem::path(environment("ANDROID_HOME")) / "platform-tools" / "adb.exe";
+#else
+        g_adbExecutable = std::filesystem::path(environment("ANDROID_HOME")) / "platform-tools" / "adb";
+#endif
     }
     WSADATA data{};
     WSAStartup(MAKEWORD(2, 2), &data);

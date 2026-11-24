@@ -6,8 +6,12 @@
 
 #include <doctest/doctest.h>
 
+#if defined(_WIN32)
 #include <windows.h>
 #include <tlhelp32.h>
+#else
+#include "ProcessProbe.h"
+#endif
 
 #include <algorithm>
 #include <array>
@@ -149,6 +153,7 @@ SessionFailure failureOf(FailureKind kind, std::string detail)
     return failure;
 }
 
+#if defined(_WIN32)
 int sessionThreads()
 {
     const HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
@@ -175,6 +180,12 @@ int sessionThreads()
     CloseHandle(snapshot);
     return count;
 }
+#else
+int sessionThreads()
+{
+    return gs::test::threadsNamed("gs-");
+}
+#endif
 
 bool waitForSessionThreads(int expected)
 {

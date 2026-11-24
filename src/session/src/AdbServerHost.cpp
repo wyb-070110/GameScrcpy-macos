@@ -23,7 +23,11 @@
 #include <thread>
 #include <utility>
 
+#if defined(_WIN32)
 #include <windows.h>
+#else
+#include <cstdlib>
+#endif
 
 namespace gs::session {
 
@@ -210,6 +214,8 @@ ServerPackage::ServerPackage(std::vector<std::uint8_t> bytes, std::filesystem::p
 
 namespace {
 
+#if defined(_WIN32)
+#define GS_ENV_NAME(text) L##text
 std::optional<int> environmentNumber(const wchar_t* name, int minimum, int maximum)
 {
     std::array<wchar_t, 16> text{};
@@ -231,16 +237,31 @@ std::optional<int> environmentNumber(const wchar_t* name, int minimum, int maxim
     }
     return value;
 }
+#else
+#define GS_ENV_NAME(text) text
+std::optional<int> environmentNumber(const char* name, int minimum, int maximum)
+{
+    const char* text = std::getenv(name);
+    if (text == nullptr) {
+        return std::nullopt;
+    }
+    const std::optional<int> value = parseNumber<int>(std::string_view(text));
+    if (!value || *value < minimum || *value > maximum) {
+        return std::nullopt;
+    }
+    return value;
+}
+#endif
 
 std::string touchLeadArgument()
 {
-    const std::optional<int> lead = environmentNumber(L"GS_TOUCH_LEAD_MS", 0, 8);
+    const std::optional<int> lead = environmentNumber(GS_ENV_NAME("GS_TOUCH_LEAD_MS"), 0, 8);
     return lead ? std::format(" touchLead={}", *lead) : std::string{};
 }
 
 std::string blockInputArgument()
 {
-    const std::optional<int> block = environmentNumber(L"GS_BLOCK_INPUT", 0, 1);
+    const std::optional<int> block = environmentNumber(GS_ENV_NAME("GS_BLOCK_INPUT"), 0, 1);
     return block ? std::format(" blockInput={}", *block) : std::string{};
 }
 
