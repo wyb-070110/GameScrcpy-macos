@@ -113,7 +113,7 @@ SettingCard {
         visible: serviceRow.matched && !card.external
         divider: true
         title: qsTr("API key")
-        description: qsTr("Kept in Windows Credential Manager under %1 and never shown again. A service on this "
+        description: qsTr("Kept in the macOS Keychain under %1 and never shown again. A service on this "
                           + "computer, such as Ollama, may need none.").arg(AiAssistant.keyTarget)
         note: AiAssistant.keyProblem !== "" ? AiAssistant.keyProblem
               : AiAssistant.hasKey ? qsTr("A key is saved.") : qsTr("No key is saved.")

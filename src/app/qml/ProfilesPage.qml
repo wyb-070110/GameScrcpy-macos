@@ -1108,7 +1108,7 @@ Item {
         Text {
             width: parent.width
             textFormat: Text.PlainText
-            text: qsTr("The file moves to the Recycle Bin. Phones using this profile stop using it.")
+            text: qsTr("The file moves to the Trash. Phones using this profile stop using it.")
             color: Theme.colors.textSecondary
             font.pixelSize: Theme.type.body.size
             wrapMode: Text.Wrap

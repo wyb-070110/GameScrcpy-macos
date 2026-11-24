@@ -59,7 +59,7 @@ Dialog {
             return
         }
         dialog.entries = dialog.entries.filter(item => item.folder !== entry.folder)
-        dialog.notified(qsTr("Moved the recording to the Recycle Bin"), "trash-2")
+        dialog.notified(qsTr("Moved the recording to the Trash"), "trash-2")
     }
 
     objectName: "recordingsDialog"
@@ -146,8 +146,8 @@ Dialog {
         id: trashConfirm
 
         objectName: "recordingTrashConfirm"
-        title: qsTr("Move this recording to the Recycle Bin?")
-        acceptText: qsTr("Move to the Recycle Bin")
+        title: qsTr("Move this recording to the Trash?")
+        acceptText: qsTr("Move to the Trash")
         danger: true
         onAccepted: dialog.trash()
 
@@ -320,7 +320,7 @@ Dialog {
 
                         objectName: "recordingRowTrash"
                         iconName: "trash-2"
-                        text: qsTr("Move to the Recycle Bin…")
+                        text: qsTr("Move to the Trash…")
                         onTriggered: dialog.askTrash(row.modelData)
                     }
                 }

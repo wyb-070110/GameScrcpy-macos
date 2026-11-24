@@ -213,7 +213,7 @@ Window {
                     anchors.verticalCenter: parent.verticalCenter
                     small: true
                     text: qsTr("Save")
-                    toolTip: qsTr("Save all files (Ctrl+S)")
+                    toolTip: qsTr("Save all files (⌘S)")
                     enabled: root.bench.dirtyCount > 0
                     onClicked: root.bench.saveAll()
                 }

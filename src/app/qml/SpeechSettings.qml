@@ -62,7 +62,7 @@ SettingCard {
         objectName: "speechEngine"
         path: "speech.engine"
         globalText: card.titleOf(card.speakers, card.speaker)
-        fact: card.speakers.length === 0 ? qsTr("Windows has no voice; add one under Time & language, Speech.") : ""
+        fact: card.speakers.length === 0 ? qsTr("macOS has no voice installed; download one in System Settings > Accessibility > Spoken Content.") : ""
 
         Select {
             objectName: "speechEngineSelect"
@@ -139,7 +139,7 @@ SettingCard {
         path: "speech.listenEngine"
         globalText: card.titleOf(card.listeners, card.listener)
         fact: card.listeners.length === 0
-              ? qsTr("Windows has no speech recognizer; add a speech language under Time & language, Speech.") : ""
+              ? qsTr("macOS has no speech recognizer available; check System Settings > Keyboard > Dictation or Privacy & Security > Speech Recognition.") : ""
 
         Select {
             objectName: "speechListenSelect"

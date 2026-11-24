@@ -189,7 +189,7 @@ SettingsSheet {
                 objectName: "capturePhone"
                 visible: sheet.phones.length > 0
                 model: sheet.phones.map(phone => phone.ready ? phone.name
-                                                             : qsTr("%1 · needs the WinUSB driver").arg(phone.name))
+                                                             : qsTr("%1 · AOA unavailable on macOS").arg(phone.name))
                 currentIndex: sheet.phones.findIndex(phone => phone.serial === sheet.capture.aoaPhone)
                 displayText: phoneChoice.currentIndex >= 0 ? phoneChoice.currentText : qsTr("Choose a phone")
                 Accessible.name: qsTr("Phone on USB")
@@ -206,7 +206,7 @@ SettingsSheet {
                 small: true
                 tone: "ghost"
                 iconName: "circle-help"
-                text: qsTr("How to install the driver")
+                text: qsTr("About AOA on macOS")
                 onClicked: Commands.trigger("app.help", "aoa-driver")
             }
         }

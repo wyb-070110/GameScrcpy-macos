@@ -546,7 +546,7 @@ Item {
             width: parent.width
             textFormat: Text.PlainText
             wrapMode: Text.Wrap
-            text: qsTr("Its folder goes to the Recycle Bin, with its code and settings.")
+            text: qsTr("Its folder goes to the Trash, with its code and settings.")
             color: Theme.colors.textSecondary
             font.pixelSize: Theme.type.body.size
         }

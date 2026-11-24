@@ -614,7 +614,7 @@ Item {
             {
                 centered: true,
                 title: qsTr("That's tasks"),
-                text: qsTr("With the setting for it on, closing the window leaves GameScrcpy in the notification area "
+                text: qsTr("With the setting for it on, closing the window leaves GameScrcpy in the menu bar "
                            + "so that tasks with a schedule still run on time. Help can replay this tour.")
             }
         ]

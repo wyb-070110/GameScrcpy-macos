@@ -101,7 +101,7 @@ Item {
         case "contextMenu":
             return qsTr("More menu of cards")
         case "tray":
-            return qsTr("Tray menu")
+            return qsTr("Menu bar menu")
         default:
             return where
         }
