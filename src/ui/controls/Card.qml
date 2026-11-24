@@ -61,7 +61,7 @@ T.Pane {
             y: Theme.size.stroke
             width: face.width - 2 * face.radius
             height: Theme.size.stroke
-            color: Theme.colors.highlight
+            color: Theme.glass ? Theme.colors.glassEdge : Theme.colors.highlight
         }
     }
 }

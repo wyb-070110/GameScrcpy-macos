@@ -25,6 +25,7 @@ Item {
         color: Theme.shadow.key
     }
 
+    // Liquid Glass: a tinted pane with a soft sheen from the top and a lit top edge.
     Rectangle {
         id: face
 
@@ -32,6 +33,26 @@ Item {
         radius: surface.radius
         color: Theme.colors.bgElevated
         border.width: Theme.size.stroke
-        border.color: Theme.colors.strokeStrong
+        border.color: Theme.glass ? Theme.colors.strokeDefault : Theme.colors.strokeStrong
+
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: Theme.size.stroke
+            radius: Math.max(0, face.radius - Theme.size.stroke)
+            visible: Theme.glass
+            gradient: Gradient {
+                GradientStop { position: 0; color: Theme.dark ? "#14FFFFFF" : "#66FFFFFF" }
+                GradientStop { position: 0.4; color: "#00FFFFFF" }
+            }
+        }
+
+        Rectangle {
+            x: face.radius
+            y: Theme.size.stroke
+            width: Math.max(0, face.width - 2 * face.radius)
+            height: Theme.size.stroke
+            visible: Theme.glass
+            color: Theme.colors.glassEdge
+        }
     }
 }
