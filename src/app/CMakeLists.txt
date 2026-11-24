@@ -121,7 +121,6 @@ qt_add_qml_module(GameScrcpy
         qml/ShortcutRow.qml
         qml/SliderSetting.qml
         qml/SpeechSettings.qml
-        qml/SponsorDialog.qml
         qml/StartPanel.qml
         qml/SwitchSetting.qml
         qml/SyncDialog.qml
@@ -423,7 +422,6 @@ qt_add_qml_module(GameScrcpy
         SettingVariant.h
         SetupGuide.cpp
         SetupGuide.h
-        SponsorPrompt.h
         SyncGroups.cpp
         SyncGroups.h
         SystemPanelService.cpp

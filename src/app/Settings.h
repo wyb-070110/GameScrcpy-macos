@@ -673,6 +673,8 @@ struct Hints {
     std::string crashNotice;
     std::vector<std::string> tours;
     std::int32_t launches = 0;
+    // From the sponsor question, which this build no longer asks: still read, so older files load without a
+    // warning, and never used.
     std::int32_t sponsorAsked = 0;
 
     template <typename V, typename Self>

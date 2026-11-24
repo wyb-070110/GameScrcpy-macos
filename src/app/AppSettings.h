@@ -43,7 +43,6 @@ class AppSettings : public QObject
     Q_PROPERTY(bool mirrorToolbarHintShown READ mirrorToolbarHintShown NOTIFY hintsChanged FINAL)
     Q_PROPERTY(bool setupGuideShown READ setupGuideShown NOTIFY hintsChanged FINAL)
     Q_PROPERTY(bool toursQuiet READ toursQuiet WRITE setToursQuiet NOTIFY toursQuietChanged FINAL)
-    Q_PROPERTY(int sponsorMilestone READ sponsorMilestone NOTIFY hintsChanged FINAL)
 
 public:
     explicit AppSettings(const std::filesystem::path& directory, QObject* parent = nullptr);
@@ -111,8 +110,6 @@ public:
     void acknowledgeCrash(const QString& name);
     [[nodiscard]] int launches() const;
     void countLaunch();
-    [[nodiscard]] int sponsorMilestone() const;
-    Q_INVOKABLE void markSponsorAsked(int milestone);
     [[nodiscard]] QString lastVersion() const;
     void setLastVersion(const QString& version);
     [[nodiscard]] bool settingsFileExisted() const noexcept { return m_settingsExisted; }
