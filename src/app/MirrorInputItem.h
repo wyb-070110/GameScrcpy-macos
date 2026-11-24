@@ -38,7 +38,9 @@ public:
     void setRelativeMouse(bool on, QSizeF target = {}, int turn = 0);
     // Trackpad swipes: how far the finger on the phone moves for the fingers' travel (1 = the same distance on
     // the picture), and whether, and how strongly, it keeps going with the trackpad's momentum after they leave.
-    void setTrackpad(double speed, bool inertia, double inertiaStrength);
+    // longest: the farthest one swipe, momentum included, moves the finger, as a share of the picture in the
+    // direction it goes (1 = no limit).
+    void setTrackpad(double speed, bool inertia, double inertiaStrength, double longest);
     [[nodiscard]] bool relativeMouse() const noexcept { return m_relative; }
 
     [[nodiscard]] static std::optional<input::Vec2> normalized(const QRectF& content, QPointF position, bool clamped);
@@ -109,7 +111,12 @@ private:
     double m_swipeSpeed = 0.0;
     double m_trackpadSpeed = 1.0;
     bool m_inertia = true;
-    double m_inertiaStrength = 0.3;
+    double m_inertiaStrength = 1.0;
+    double m_longestSwipe = 0.5;
+    // Where this swipe's finger went down, and whether it reached the longest swipe (it then stays where it is
+    // until the fingers leave, so the phone does not fling it farther).
+    QPointF m_swipeStart;
+    bool m_swipeCapped = false;
     // How far the finger has coasted, in points of the picture.
     double m_coasted = 0.0;
     QPointF m_lastPress;

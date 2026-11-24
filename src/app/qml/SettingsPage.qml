@@ -817,6 +817,13 @@ Item {
                     }
 
                     SliderSetting {
+                        path: "touch.trackpadLongestSwipe"
+                        unit: "%"
+                        step: 5
+                        marks: [25, 50, 75, 100]
+                    }
+
+                    SliderSetting {
                         path: "touch.trackpadInertiaStrength"
                         unit: "%"
                         step: 10

@@ -2930,7 +2930,8 @@ void DeviceManager::openMirror(Row& row)
     row.mirror->setTitleBarFixed(display.titleBar == settings::TitleBarMode::Fixed);
     row.mirror->setToolbarPinned(display.toolbar == settings::ToolbarMode::Pinned);
     const settings::Touch touch = m_settings.effective(row.deviceId.toStdString()).touch;
-    row.mirror->setTrackpad(touch.trackpadSpeed / 100.0, touch.trackpadInertia, touch.trackpadInertiaStrength / 100.0);
+    row.mirror->setTrackpad(touch.trackpadSpeed / 100.0, touch.trackpadInertia, touch.trackpadInertiaStrength / 100.0,
+                            touch.trackpadLongestSwipe / 100.0);
     row.filters.clear();
     applyFilters(row);
     if (QQmlEngine* engine = m_engine.data(); engine != nullptr) {
@@ -7579,7 +7580,8 @@ void DeviceManager::applyLiveSettings()
             row.mirror->setTitleBarFixed(effective.display.titleBar == settings::TitleBarMode::Fixed);
             row.mirror->setToolbarPinned(effective.display.toolbar == settings::ToolbarMode::Pinned);
             row.mirror->setTrackpad(effective.touch.trackpadSpeed / 100.0, effective.touch.trackpadInertia,
-                                    effective.touch.trackpadInertiaStrength / 100.0);
+                                    effective.touch.trackpadInertiaStrength / 100.0,
+                                    effective.touch.trackpadLongestSwipe / 100.0);
             followApp(row);
         }
         syncCompanion(row);

@@ -18625,6 +18625,18 @@
         <translation>触控板 惯性 动量 强度 距离 甩动</translation>
     </message>
     <message>
+        <source>Longest trackpad swipe</source>
+        <translation>单次滑动上限</translation>
+    </message>
+    <message>
+        <source>The farthest one swipe moves the finger on the phone, inertia included, as a share of the screen in its direction. Once there the finger stops until your fingers leave, so a page turns once instead of flying on. 100% sets no limit.</source>
+        <translation>一次滑动（含惯性）最多让手机上的手指移动多远，按滑动方向上屏幕的比例算。到达上限后手指停住，直到你的手指离开触控板，这样一次只翻一页，不会一路飞过去。100% 表示不限制。</translation>
+    </message>
+    <message>
+        <source>trackpad swipe longest limit maximum distance page once overshoot</source>
+        <translation>触控板 滑动 上限 最大 距离 翻页 一次 过冲</translation>
+    </message>
+    <message>
         <source>Picture source</source>
         <translation>画面来源</translation>
     </message>

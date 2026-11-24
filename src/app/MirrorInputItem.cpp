@@ -380,16 +380,31 @@ void MirrorInputItem::hoverLeaveEvent(QHoverEvent* event)
 // fingers leave. A swipe is often longer than the phone's picture is wide: when the finger reaches the edge it is
 // lifted there, moving, which the phone takes as a fling, and the rest of the swipe is dropped. Wheels without
 // phases still scroll.
-void MirrorInputItem::setTrackpad(double speed, bool inertia, double inertiaStrength)
+void MirrorInputItem::setTrackpad(double speed, bool inertia, double inertiaStrength, double longest)
 {
     m_trackpadSpeed = std::clamp(speed, 0.1, 10.0);
     m_inertia = inertia;
     m_inertiaStrength = std::clamp(inertiaStrength, 0.0, 10.0);
+    m_longestSwipe = std::clamp(longest, 0.05, 1.0);
 }
 
 void MirrorInputItem::moveSwipe(QPointF delta, bool ending)
 {
+    if (m_swipeCapped) {
+        return;
+    }
     m_swipePoint += delta;
+    if (m_longestSwipe < 1.0) {
+        // The swipe's travel along each axis stops at the longest swipe; the finger then stays there.
+        const double mostX = m_longestSwipe * m_content.width();
+        const double mostY = m_longestSwipe * m_content.height();
+        const QPointF travel = m_swipePoint - m_swipeStart;
+        if (std::abs(travel.x()) > mostX || std::abs(travel.y()) > mostY) {
+            m_swipePoint = m_swipeStart + QPointF(std::clamp(travel.x(), -mostX, mostX),
+                                                  std::clamp(travel.y(), -mostY, mostY));
+            m_swipeCapped = true;
+        }
+    }
     const std::optional<input::Vec2> inside = normalized(m_content, m_swipePoint, false);
     const std::optional<input::Vec2> at = normalized(m_content, m_swipePoint, true);
     if (!inside && at) {
@@ -435,7 +450,7 @@ bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
     if (event->phase() == Qt::ScrollMomentum) {
         // Some systems send the momentum before the end of the swipe: the fingers have left all the same.
         if (m_swiping && !m_coasting) {
-            if (!m_inertia || m_swipeSpeed < kCoastFrom) {
+            if (!m_inertia || m_swipeCapped || m_swipeSpeed < kCoastFrom) {
                 liftSwipe();
                 return true;
             }
@@ -458,6 +473,9 @@ bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
         }
         m_coastIdle.start(kCoastPauseMs);
         moveSwipe(step, true);
+        if (m_swipeCapped) {
+            liftSwipe();
+        }
         return true;
     }
     if (m_coasting) {
@@ -483,7 +501,9 @@ bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
             return false;
         }
         m_swiping = true;
+        m_swipeCapped = false;
         m_swipePoint = event->position();
+        m_swipeStart = m_swipePoint;
         m_swipeSpeed = 0.0;
         m_swipeClock.start();
         forceActiveFocus(Qt::MouseFocusReason);
@@ -495,7 +515,7 @@ bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
     }
     moveSwipe(delta, event->phase() == Qt::ScrollEnd);
     if (event->phase() == Qt::ScrollEnd && m_swiping) {
-        if (m_inertia && m_swipeSpeed >= kCoastFrom && m_inertiaStrength > 0.0) {
+        if (m_inertia && !m_swipeCapped && m_swipeSpeed >= kCoastFrom && m_inertiaStrength > 0.0) {
             m_coasting = true;
             m_coasted = 0.0;
             m_coastClock.start();

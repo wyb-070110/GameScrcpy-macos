@@ -55,7 +55,7 @@ public:
 
     [[nodiscard]] const QString& serial() const noexcept { return m_serial; }
     void setDiagnostics(const QStringList& lines);
-    void setTrackpad(double speed, bool inertia, double inertiaStrength);
+    void setTrackpad(double speed, bool inertia, double inertiaStrength, double longest);
     void setSharpness(qreal sharpness);
     void setFilters(std::vector<render::VideoFilter> filters);
     [[nodiscard]] const std::vector<render::FilterStatus>& filterStatus() const;

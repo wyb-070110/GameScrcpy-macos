@@ -157,9 +157,9 @@ void MirrorWindow::setDiagnostics(const QStringList& lines)
     m_diagnostics->setLines(lines);
 }
 
-void MirrorWindow::setTrackpad(double speed, bool inertia, double inertiaStrength)
+void MirrorWindow::setTrackpad(double speed, bool inertia, double inertiaStrength, double longest)
 {
-    m_pointer->setTrackpad(speed, inertia, inertiaStrength);
+    m_pointer->setTrackpad(speed, inertia, inertiaStrength, longest);
 }
 
 void MirrorWindow::setSharpness(qreal sharpness)
