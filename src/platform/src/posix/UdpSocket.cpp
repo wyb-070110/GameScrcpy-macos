@@ -129,12 +129,12 @@ std::string UdpEndpoint::toString() const
         in6_addr raw{};
         std::memcpy(&raw, address.data(), 16);
         inet_ntop(AF_INET6, &raw, text, sizeof(text));
-        return std::format("[{}]:{}", text, port);
+        return std::format("[{}]:{}", static_cast<const char*>(text), port);
     }
     in_addr raw{};
     std::memcpy(&raw, address.data(), 4);
     inet_ntop(AF_INET, &raw, text, sizeof(text));
-    return std::format("{}:{}", text, port);
+    return std::format("{}:{}", static_cast<const char*>(text), port);
 }
 
 struct UdpSocket::VideoFlow {

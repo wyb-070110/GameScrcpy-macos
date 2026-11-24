@@ -225,9 +225,12 @@ std::uint32_t localModified(const std::filesystem::path& local)
     std::error_code error;
     const std::filesystem::file_time_type written = std::filesystem::last_write_time(local, error);
     if (!error) {
-        const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(
-                                 std::chrono::clock_cast<std::chrono::system_clock>(written).time_since_epoch())
-                                 .count();
+#if defined(_LIBCPP_VERSION)
+        const auto system = std::chrono::file_clock::to_sys(written);
+#else
+        const auto system = std::chrono::clock_cast<std::chrono::system_clock>(written);
+#endif
+        const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(system.time_since_epoch()).count();
         if (seconds > 0 && seconds <= std::numeric_limits<std::uint32_t>::max()) {
             return static_cast<std::uint32_t>(seconds);
         }

@@ -793,8 +793,12 @@ TEST_CASE("adb client: a file is pushed in 64 KiB chunks with its own mode and m
     const std::string content = pattern(150000);
     const std::filesystem::path local = temp.path() / "photo.jpg";
     writeFile(local, content);
-    std::filesystem::last_write_time(local, std::chrono::clock_cast<std::chrono::file_clock>(
-                                                std::chrono::sys_seconds(std::chrono::seconds(1700000000))));
+    const std::chrono::sys_seconds modified(std::chrono::seconds(1700000000));
+#if defined(_LIBCPP_VERSION)
+    std::filesystem::last_write_time(local, std::chrono::file_clock::from_sys(modified));
+#else
+    std::filesystem::last_write_time(local, std::chrono::clock_cast<std::chrono::file_clock>(modified));
+#endif
 
     std::vector<std::uint64_t> done;
     REQUIRE(client.pushFile("emulator-5556", local, "/sdcard/Download/photo.jpg",
