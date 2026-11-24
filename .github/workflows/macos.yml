@@ -17,6 +17,8 @@ jobs:
     name: Core (macOS arm64, ${{ matrix.preset }})
     runs-on: macos-15
     timeout-minutes: 60
+    env:
+      GS_COARSE_TIMERS: "1"
     strategy:
       fail-fast: false
       matrix:

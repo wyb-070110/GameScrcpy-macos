@@ -157,14 +157,15 @@ public:
             m_seen = m_generation;
         }
         m_changed.notify_all();
-        auto made = std::make_shared<std::shared_ptr<Pump>>();
+        auto made = std::make_shared<std::weak_ptr<Pump>>();
         auto stream = std::make_shared<TransportStream>(
             [made](std::span<const std::uint8_t> bytes) {
-                return *made != nullptr && (*made)->tcp.writeAll(bytes) ? StreamSend::Taken : StreamSend::Failed;
+                const std::shared_ptr<Pump> pump = made->lock();
+                return pump != nullptr && pump->tcp.writeAll(bytes) ? StreamSend::Taken : StreamSend::Failed;
             },
             [made] {
-                if (*made != nullptr) {
-                    (*made)->tcp.interrupt();
+                if (const std::shared_ptr<Pump> pump = made->lock()) {
+                    pump->tcp.interrupt();
                 }
             });
         if (refusal) {
