@@ -178,7 +178,18 @@ void WindowChrome::applyDarkMode()
 {
     if (m_attached) {
         setMacWindowDark(m_window, m_darkMode);
+        setMacWindowGlass(m_window, m_glass);
     }
+}
+
+void WindowChrome::setGlass(bool on)
+{
+    if (on == m_glass) {
+        return;
+    }
+    m_glass = on;
+    applyDarkMode();
+    emit glassChanged();
 }
 
 }

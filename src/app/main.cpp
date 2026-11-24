@@ -77,6 +77,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlComponent>
 #include <QQuickWindow>
+#include <QSurfaceFormat>
 #include <QSGRendererInterface>
 #include <QScopeGuard>
 #include <QScreen>
@@ -352,6 +353,12 @@ int main(int argc, char* argv[])
     }
 
     QQuickWindow::setGraphicsApi(QSGRendererInterface::Metal);
+    {
+        // Windows can be see-through (Liquid Glass): their surfaces carry an alpha channel.
+        QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+        format.setAlphaBufferSize(8);
+        QSurfaceFormat::setDefaultFormat(format);
+    }
     if (!qEnvironmentVariableIsSet("QT_QPA_UPDATE_IDLE_TIME")) {
         qputenv("QT_QPA_UPDATE_IDLE_TIME", "0");
     }

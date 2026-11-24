@@ -9,6 +9,8 @@ QtObject {
     property string accentName: "ember"
     property bool reducedMotion: false
     property bool reducedTransparency: false
+    // Liquid Glass (macOS): windows show the desktop, blurred, through their translucent surfaces.
+    readonly property bool glass: !reducedTransparency
     property var palette: ({})
 
     readonly property var accentChoices: ({

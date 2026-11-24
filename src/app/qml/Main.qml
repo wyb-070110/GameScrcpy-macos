@@ -14,7 +14,7 @@ Window {
     minimumHeight: 560
     visible: false
     title: qsTr("GameScrcpy")
-    color: Theme.colors.bgBase
+    color: Theme.glass ? "transparent" : Theme.colors.bgBase
 
     property bool wasMaximized: false
     property bool extensionsNoticeWanted: false
@@ -657,6 +657,7 @@ Window {
         maximizeButton: titleBar.maximizeButton
         closeButton: titleBar.closeButton
         darkMode: Theme.dark
+        glass: Theme.glass
     }
 
     TitleBar {

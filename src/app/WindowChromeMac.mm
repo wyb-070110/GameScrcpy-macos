@@ -44,6 +44,41 @@ void setMacWindowDark(QWindow* window, bool dark)
     }
 }
 
+void setMacWindowGlass(QWindow* window, bool on)
+{
+    NSString* const kGlassId = @"io.github.nuoran.gamescrcpy.glass";
+    NSWindow* host = nativeWindow(window);
+    if (host == nil || host.contentView == nil) {
+        return;
+    }
+    NSView* frame = host.contentView.superview;
+    NSVisualEffectView* glass = nil;
+    for (NSView* view in frame.subviews) {
+        if ([view isKindOfClass:[NSVisualEffectView class]] && [view.identifier isEqualToString:kGlassId]) {
+            glass = (NSVisualEffectView*)view;
+        }
+    }
+    if (!on) {
+        [glass removeFromSuperview];
+        host.opaque = YES;
+        host.backgroundColor = NSColor.windowBackgroundColor;
+        return;
+    }
+    host.opaque = NO;
+    host.backgroundColor = NSColor.clearColor;
+    if (glass == nil) {
+        glass = [[NSVisualEffectView alloc] initWithFrame:frame.bounds];
+        glass.identifier = kGlassId;
+        glass.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+        glass.blendingMode = NSVisualEffectBlendingModeBehindWindow;
+        glass.material = NSVisualEffectMaterialUnderWindowBackground;
+        glass.state = NSVisualEffectStateFollowsWindowActiveState;
+        [frame addSubview:glass positioned:NSWindowBelow relativeTo:host.contentView];
+    }
+    host.contentView.wantsLayer = YES;
+    host.contentView.layer.opaque = NO;
+}
+
 bool startMacWindowDrag(QWindow* window)
 {
     NSWindow* host = nativeWindow(window);

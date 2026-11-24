@@ -25,6 +25,8 @@ class WindowChrome : public QObject
     Q_PROPERTY(QQuickItem* closeButton READ closeButton WRITE setCloseButton NOTIFY
                    closeButtonChanged FINAL)
     Q_PROPERTY(bool darkMode READ darkMode WRITE setDarkMode NOTIFY darkModeChanged FINAL)
+    // macOS Liquid Glass behind the window (its QML colour must then be transparent).
+    Q_PROPERTY(bool glass READ glass WRITE setGlass NOTIFY glassChanged FINAL)
 
 public:
     explicit WindowChrome(QObject* parent = nullptr);
@@ -57,6 +59,8 @@ public:
 
     [[nodiscard]] bool darkMode() const { return m_darkMode; }
     void setDarkMode(bool dark);
+    [[nodiscard]] bool glass() const { return m_glass; }
+    void setGlass(bool on);
 
 signals:
     void windowChanged();
@@ -65,6 +69,7 @@ signals:
     void maximizeButtonChanged();
     void closeButtonChanged();
     void darkModeChanged();
+    void glassChanged();
 
 private:
     void applyTitleBar();
@@ -77,6 +82,7 @@ private:
     QPointer<QQuickItem> m_maximizeButton;
     QPointer<QQuickItem> m_closeButton;
     bool m_darkMode = true;
+    bool m_glass = false;
     QWK::QuickWindowAgent* m_agent = nullptr;
     bool m_attached = false;
 };
