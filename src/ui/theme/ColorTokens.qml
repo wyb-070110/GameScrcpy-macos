@@ -40,7 +40,10 @@ QtObject {
     final readonly property color textSecondary: overrides.textSecondary ?? (dark ? "#A3A9B6" : "#474E5C")
     final readonly property color textTertiary: overrides.textTertiary ?? (dark ? "#7F8693" : "#5E6572")
     final readonly property color textDisabled: overrides.textDisabled ?? (dark ? "#4A505A" : "#B4BAC4")
-    final readonly property color textOnAccent: overrides.textOnAccent ?? "#0B0C0F"
+    // Dark text on bright accents (lime, amber), white on deep ones (Apple blue).
+    final readonly property color textOnAccent: overrides.textOnAccent
+                                                ?? (0.2126 * accent.r + 0.7152 * accent.g + 0.0722 * accent.b > 0.55
+                                                    ? "#0B0C0F" : "#FFFFFF")
 
     final readonly property color accentSubtle: overrides.accentSubtle ?? Qt.rgba(accent.r, accent.g, accent.b, 0.14)
     final readonly property color accentLine: overrides.accentLine ?? Qt.rgba(accent.r, accent.g, accent.b, 0.45)

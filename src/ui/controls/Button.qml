@@ -80,7 +80,8 @@ T.Button {
     background: Rectangle {
         id: face
 
-        radius: Theme.radius.sm
+        // Liquid Glass: buttons are capsules.
+        radius: Theme.glass ? height / 2 : Theme.radius.sm
         topLeftRadius: control.joined === "end" ? 0 : radius
         bottomLeftRadius: control.joined === "end" ? 0 : radius
         topRightRadius: control.joined === "start" ? 0 : radius

@@ -4,9 +4,9 @@ QtObject {
     final readonly property int control: 32
     final readonly property int controlSmall: 26
     final readonly property int segment: 26
-    final readonly property int switchWidth: 40
+    final readonly property int switchWidth: 38
     final readonly property int switchHeight: 22
-    final readonly property int switchKnob: 14
+    final readonly property int switchKnob: 18
     final readonly property int checkbox: 18
     final readonly property int pill: 20
     final readonly property int pillDot: 6
