@@ -22,7 +22,9 @@ class CompanionIme : InputMethodService(), ImeTarget {
     private val hostWatcher: () -> Unit = { main.post { placeHint() } }
     private val optionsListener = PhoneOptions.Listener { main.post { placeHint() } }
     private var strip: TextView? = null
-    private var onTop = false
+    // No view of its own (zero height) while the computer is connected, or while the hint sits at the top: the
+    // phone's screen stays whole and the user types on the computer. The strip comes back once the computer is gone.
+    private var bare = false
 
     override fun onCreate() {
         super.onCreate()
@@ -44,8 +46,8 @@ class CompanionIme : InputMethodService(), ImeTarget {
     }
 
     override fun onCreateInputView(): View {
-        onTop = wantsTop()
-        if (onTop) {
+        bare = wantsBare()
+        if (bare) {
             strip = null
             return Space(this)
         }
@@ -105,10 +107,11 @@ class CompanionIme : InputMethodService(), ImeTarget {
         main.post { switchToPhoneKeyboard() }
     }
 
-    private fun wantsTop(): Boolean = PhoneOptions.of(this).imeBar == ImeBar.TOP && ImeBridge.topHost
+    private fun wantsBare(): Boolean =
+        CompanionState.connected || (PhoneOptions.of(this).imeBar == ImeBar.TOP && ImeBridge.topHost)
 
     private fun placeHint() {
-        if (wantsTop() != onTop) {
+        if (wantsBare() != bare) {
             setInputView(onCreateInputView())
         }
     }
@@ -124,6 +127,7 @@ class CompanionIme : InputMethodService(), ImeTarget {
 
     private fun connectionChanged() {
         main.removeCallbacks(check)
+        placeHint()
         refreshStrip()
         val delay = fallback.update(CompanionState.connected, SystemClock.uptimeMillis()) ?: return
         main.postDelayed(check, delay + 1) // source-rule-allow R9: going back to the phone's keyboard a few seconds after the computer is gone is the behaviour
