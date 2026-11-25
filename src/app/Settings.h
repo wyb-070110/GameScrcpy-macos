@@ -207,6 +207,8 @@ enum class EditingClose : std::uint8_t { Ask, ExitEditing, CloseWindow };
 inline constexpr std::array<std::string_view, 3> kEditingCloseNames{"ask", "exitEditing", "closeWindow"};
 
 struct Display {
+    static constexpr std::size_t kMaxToolbarHiddenLength = 512;
+
     bool lowLatency = false;
     std::int32_t sharpness = 0;
     TitleBarMode titleBar = TitleBarMode::Fixed;
@@ -218,6 +220,8 @@ struct Display {
     EditingClose closeWhileEditing = EditingClose::Ask;
     ScreenOffAction phoneScreenOff = ScreenOffAction::Ask;
     bool screenOffWhileMirroring = false;
+    // The mirror toolbar's buttons the user took off it, comma-separated ids (they stay in its "More" menu).
+    std::string toolbarHidden;
 
     template <typename V, typename Self>
     static void visit(V& v, Self& m)
@@ -311,6 +315,12 @@ struct Display {
                    .keywords = GS_TRANSLATE_NOOP("Settings", "screen off dark display power battery heat mirroring "
                                                              "start"),
                    .scope = Scope::Device});
+        v.text("toolbarHidden", m.toolbarHidden, kMaxToolbarHiddenLength,
+               {.title = GS_TRANSLATE_NOOP("Settings", "Toolbar buttons"),
+                .description = GS_TRANSLATE_NOOP("Settings", "Which buttons the mirror toolbar shows; choose them "
+                                                             "from the toolbar's More menu."),
+                .keywords = GS_TRANSLATE_NOOP("Settings", "toolbar buttons customize customise hide show"),
+                .live = true});
     }
 
     friend bool operator==(const Display&, const Display&) = default;

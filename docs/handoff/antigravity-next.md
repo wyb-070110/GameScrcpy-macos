@@ -42,3 +42,30 @@ layers for direction A (`docs/handoff/gemini/icon/layers/`): do not use those.
 `tools/touch_trace.py` (like `tools/frame_trace.py`): per gesture, the moves' spacing in ms, the speed over the last
 100 ms before the lift, and the gap between the last move and the lift (Android treats > 40 ms as a stopped finger;
 see `docs/handoff/swipe-design.md`). Test it on a trace from a demo copy; do not touch the user's phone.
+
+## A8 — Test the mirror toolbar changes (the user asked you to test them)
+
+Claude changed the mirror toolbar (commits `ba65956`, `4a4473c` on `ccr-e32722c2-75w11u`; merge the mainline first):
+`src/ui/controls/FloatingToolbar.qml` now keeps its buttons in one `Grid` (a row, or one column when
+`vertical`) instead of moving them between a Row and a Column; `ToolbarSeparator.qml` lies across when its parent
+grid has one column; `src/app/qml/MirrorOverlay.qml` has More → "工具栏按钮…" (`toolbarButtonsMenu`): check marks
+take buttons off the toolbar (they then appear in the More menu) and an "添加到工具栏" section adds More-menu
+commands (`toolbarExtras`); both are stored in the setting `display.toolbarHidden` (comma-separated ids, added
+commands start with `+`). The bug fixed: on a side toolbar, buttons hidden when they were moved were never drawn
+once shown (an empty gap in the toolbar).
+
+1. **Automated:** get `tests/ui/controls/tst_floating_toolbar.qml` (and `tst_toolbar_reveal.qml`) running in the
+   macOS build (see how `tests/CMakeLists.txt` runs the QML tests on Windows; add them to `tests/PortProbe.cmake`).
+   Add cases: a vertical toolbar whose button starts hidden and is shown later gets a real size and position
+   inside the toolbar; switching `vertical` back and forth keeps the order of the buttons; a separator lies across
+   in a vertical toolbar and stands up in a horizontal one. Keep `ctest --preset mac-app` green.
+2. **By eye, in a demo copy only** (never the user's running GameScrcpy): a fresh `GS_DATA_DIR` with a
+   `settings.json` such as
+   `{"format":"gamescrcpy.settings","version":1,"general":{"language":"zh_CN"},"display":{"toolbar":"pinned","toolbarSide":"right","toolbarHidden":"diagnostics,+device.files,+device.notifications"}}`,
+   started with `--demo-device tests/data/video/emulator_h264.media`. Note: the app rewrites `settings.json` and
+   drops values equal to the default, so write a fresh file for every run. Capture the mirror window with
+   `screencapture -x -o -l <window id>` (window ids of the demo's pid via `CGWindowListCopyWindowInfo`, see how
+   Claude did it). Check all four sides (top, bottom, left, right), a tall and a short window, buttons taken off
+   and added, and "恢复默认" (an empty `toolbarHidden`). Put the captures in `docs/handoff/glass/toolbar-*.png`.
+3. Report what you found in `docs/handoff/antigravity.md` (bugs with steps; fix small ones in their own commit,
+   leave bigger ones described for Claude), mark 可合并.

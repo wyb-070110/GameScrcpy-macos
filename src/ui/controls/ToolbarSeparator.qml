@@ -6,7 +6,7 @@ Item {
 
     // Lying across a toolbar whose buttons stand in a column (FloatingToolbar.vertical).
     readonly property bool across: {
-        return parent instanceof Column
+        return parent instanceof Grid ? parent.columns === 1 : parent instanceof Column
     }
 
     implicitWidth: across ? Theme.size.toolbarButton : Theme.size.stroke + 2 * Theme.space.xs

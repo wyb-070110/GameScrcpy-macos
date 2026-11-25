@@ -487,6 +487,10 @@ Item {
                         labels: ({ ask: qsTr("Ask the first time"), keep: qsTr("Keep mirroring"),
                                    disconnect: qsTr("Stop mirroring") })
                     }
+                    SwitchSetting {
+                        objectName: "screenOffWhileMirroringSwitch"
+                        path: "display.screenOffWhileMirroring"
+                    }
                 }
 
                 SettingCard {

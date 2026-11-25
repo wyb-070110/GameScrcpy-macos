@@ -31,3 +31,8 @@
 - 需要数据时：`GS_TOUCH_TRACE=/tmp/touch.log` 记录发出的触摸帧（见 `src/app/ControlChannel.cpp`）。
 
 来源：AOSP `frameworks/native`（VelocityTracker.cpp / VelocityTracker.h）、`packages/apps/Launcher3`（PagedView.java、res/values/dimens.xml、config.xml），android.googlesource.com，main 分支；Gemini 的 `docs/handoff/gemini/research-swipe.md`。
+
+## 结果（2026-11-25 下午，用户实测）
+
+- 左右翻页：完美（时间戳 + 松手时按速度再走两步）。
+- 上下：录到每次滑完约 9 ms 后，macOS 的第一个惯性事件以“开始”相位带着位移到来，被当成新的一次滑动，在指针处按下一根手指，打断手机的惯性滚动（上下卡顿）。已丢弃这种事件（松手后 150 ms 内带位移的开始）。上下松手改回最初版本：直接抬起，由手机按真实移动算速度。用户实测：刷抖音“完美”。

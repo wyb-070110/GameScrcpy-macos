@@ -33,6 +33,44 @@ Item {
     property int reservedTop: 0
     readonly property string toolbarMode: AppSettings.values["display.toolbar"] ?? "pinned"
     readonly property string toolbarSide: AppSettings.values["display.toolbarSide"] ?? "top"
+    // display.toolbarHidden: the toolbar buttons the user took off (they stay in the More menu), and, starting
+    // with "+", the commands the user added to it. toolbarChoices can be taken off, toolbarExtras added.
+    readonly property var toolbarExtras: ["device.notifications", "device.quickSettings", "device.collapsePanels",
+                                          "device.files", "device.measureLatency", "device.mini",
+                                          "device.editKeymap", "device.settings", "device.disconnect"]
+    readonly property var toolbarHidden: String(AppSettings.values["display.toolbarHidden"] ?? "").split(",")
+                                         .filter(id => id !== "")
+    readonly property var toolbarChoices: [
+        { id: "keymap", text: qsTr("Key mapping") }, { id: "back", text: qsTr("Back") },
+        { id: "home", text: qsTr("Home") }, { id: "recents", text: qsTr("Recent apps") },
+        { id: "rotate", text: qsTr("Orientation") }, { id: "screen", text: qsTr("Turn the screen off") },
+        { id: "volume", text: qsTr("Volume") }, { id: "tasks", text: qsTr("Tasks") },
+        { id: "record", text: qsTr("Record") }, { id: "panels", text: qsTr("Extension panels") },
+        { id: "extensions", text: qsTr("Extension buttons") }, { id: "diagnostics", text: qsTr("Diagnostics") },
+        { id: "fullScreen", text: qsTr("Full screen") }, { id: "pin", text: qsTr("Pin the toolbar") }
+    ]
+
+    // The orientation choices sit in the More menu when the rotate button is not on the toolbar.
+    readonly property bool rotateInMore: toolbar.tight || !toolbarShows("rotate")
+
+    function toolbarShows(id) {
+        return toolbarHidden.indexOf(id) < 0
+    }
+
+    function toolbarAdds(command) {
+        return toolbarHidden.indexOf("+" + command) >= 0
+    }
+
+    function setToolbarAdded(command, added) {
+        setToolbarShown("+" + command, !added)
+    }
+
+    function setToolbarShown(id, shown) {
+        const hidden = toolbarHidden.filter(other => other !== id)
+        if (!shown)
+            hidden.push(id)
+        AppSettings.setValue("display.toolbarHidden", hidden.join(","))
+    }
     // The pinned toolbar on another side than the top: the title gets a row of its own above the picture, and the
     // toolbar a strip on its side (pinnedLeft, pinnedRight or pinnedBottom), which the window keeps free.
     readonly property bool sidePinned: toolbarPinned && toolbarSide !== "top"
@@ -996,7 +1034,7 @@ Item {
         }
         flat: overlay.toolbarPinned
         pinned: overlay.toolbarPinned || keymapMenu.visible || rotateMenu.visible || turnMenu.visible
-                || volumePanel.visible || moreMenu.visible || tasksMenu.visible || panelsMenu.visible || tour.running
+                || volumePanel.visible || moreMenu.visible || toolbarButtonsMenu.visible || tasksMenu.visible || panelsMenu.visible || tour.running
 
         T.AbstractButton {
             id: syncCapsule
@@ -1070,15 +1108,17 @@ Item {
             id: keymapButton
 
             objectName: "tourKeymap"
+            visible: overlay.toolbarShows("keymap")
             commandState: keymapCommand
             fallbackIcon: "keyboard"
         }
 
-        Item { width: Theme.space.xxs }
+        Item { width: Theme.space.xxs; visible: overlay.toolbarShows("keymap") }
 
         ToolbarButton {
             id: keymapMenuButton
 
+            visible: overlay.toolbarShows("keymap")
             compact: true
             iconName: "chevron-down"
             text: qsTr("Key mapping options")
@@ -1224,11 +1264,20 @@ Item {
             }
         }
 
-        ToolbarSeparator {}
+        ToolbarSeparator { visible: overlay.toolbarShows("keymap") }
 
-        CommandButton { id: backButton; commandState: backCommand; fallbackIcon: "arrow-left" }
-        CommandButton { id: homeButton; commandState: homeCommand; fallbackIcon: "house" }
-        CommandButton { id: appSwitchButton; commandState: appSwitchCommand; fallbackIcon: "square" }
+        CommandButton {
+            id: backButton; visible: overlay.toolbarShows("back"); commandState: backCommand; fallbackIcon: "arrow-left"
+        }
+        CommandButton {
+            id: homeButton; visible: overlay.toolbarShows("home"); commandState: homeCommand; fallbackIcon: "house"
+        }
+        CommandButton {
+            id: appSwitchButton
+            visible: overlay.toolbarShows("recents")
+            commandState: appSwitchCommand
+            fallbackIcon: "square"
+        }
 
         ToolbarSeparator { visible: !toolbar.tight }
 
@@ -1236,7 +1285,7 @@ Item {
             id: rotateButton
 
             objectName: "rotateButton"
-            visible: !toolbar.tight
+            visible: !toolbar.tight && overlay.toolbarShows("rotate")
             iconName: "rotate-cw"
             text: overlay.noPicture ? qsTr("How the phone is held")
                                     : overlay.captureCard ? qsTr("Which way the phone turns") : qsTr("Orientation")
@@ -1288,12 +1337,17 @@ Item {
             }
         }
 
-        CommandButton { id: screenButton; commandState: screenCommand; fallbackIcon: "power"; visible: !toolbar.compact }
+        CommandButton {
+            id: screenButton
+            commandState: screenCommand
+            fallbackIcon: "power"
+            visible: !toolbar.compact && overlay.toolbarShows("screen")
+        }
 
         ToolbarButton {
             id: volumeButton
 
-            visible: !toolbar.tight
+            visible: !toolbar.tight && overlay.toolbarShows("volume")
             iconName: muteCommand.checked ? "volume-x" : "volume-2"
             text: qsTr("Volume")
             enabled: muteCommand.enabled
@@ -1342,7 +1396,7 @@ Item {
             id: tasksButton
 
             objectName: "tasksButton"
-            visible: !toolbar.tight
+            visible: !toolbar.tight && overlay.toolbarShows("tasks")
             iconName: "bot"
             text: overlay.taskRuns.length > 0 ? qsTr("Tasks: %n running", "", overlay.taskRuns.length) : qsTr("Tasks")
             selected: tasksMenu.visible || overlay.taskRuns.length > 0
@@ -1408,7 +1462,7 @@ Item {
             id: recordButton
 
             objectName: "recordButton"
-            visible: !toolbar.tight
+            visible: !toolbar.tight && overlay.toolbarShows("record")
             text: recordCommand.title
             shortcut: recordCommand.shortcut
             enabled: recordCommand.enabled
@@ -1429,7 +1483,7 @@ Item {
             id: extensionPanelsButton
 
             objectName: "extensionPanelsButton"
-            visible: !toolbar.tight && overlay.sidePanels.length > 0
+            visible: !toolbar.tight && overlay.toolbarShows("panels") && overlay.sidePanels.length > 0
             iconName: "puzzle"
             text: qsTr("Extension panels")
             selected: extensionSide.shown || panelsMenu.visible
@@ -1475,7 +1529,7 @@ Item {
         }
 
         Repeater {
-            model: toolbar.tight ? 0 : overlay.toolbarButtons.length
+            model: toolbar.tight || !overlay.toolbarShows("extensions") ? 0 : overlay.toolbarButtons.length
 
             delegate: UiToolbarButton {
                 id: extensionButton
@@ -1486,13 +1540,32 @@ Item {
             }
         }
 
+        Repeater {
+            model: toolbar.tight ? [] : overlay.toolbarExtras.filter(command => overlay.toolbarAdds(command))
+
+            delegate: CommandButton {
+                id: extraButton
+
+                required property string modelData
+
+                objectName: "toolbarExtra:" + modelData
+                commandState: DeviceCommand { command: extraButton.modelData }
+                fallbackIcon: "circle"
+            }
+        }
+
         ToolbarSeparator {}
 
-        CommandButton { id: diagnosticsButton; commandState: diagnosticsCommand; fallbackIcon: "activity"; visible: !toolbar.compact }
+        CommandButton {
+            id: diagnosticsButton
+            commandState: diagnosticsCommand
+            fallbackIcon: "activity"
+            visible: !toolbar.compact && overlay.toolbarShows("diagnostics")
+        }
         CommandButton {
             id: fullScreenButton
 
-            visible: !toolbar.tight
+            visible: !toolbar.tight && overlay.toolbarShows("fullScreen")
             commandState: fullScreenCommand
             fallbackIcon: "maximize-2"
             checkedIcon: "minimize-2"
@@ -1513,64 +1586,143 @@ Item {
             }
 
             Menu {
+                id: toolbarButtonsMenu
+
+                objectName: "toolbarButtonsMenu"
+                x: overlay.popupX(moreButton, width, moreButton.width - width)
+                y: overlay.popupY(moreButton, height)
+
+                MenuLabel { text: qsTr("Show on the toolbar") }
+                Repeater {
+                    model: overlay.toolbarChoices
+
+                    delegate: MenuItem {
+                        required property var modelData
+
+                        checkable: true
+                        checked: overlay.toolbarShows(modelData.id)
+                        text: modelData.text
+                        onTriggered: overlay.setToolbarShown(modelData.id, checked)
+                    }
+                }
+                MenuSeparator {}
+                MenuLabel { text: qsTr("Add to the toolbar") }
+                Repeater {
+                    model: overlay.toolbarExtras
+
+                    delegate: MenuItem {
+                        id: extraChoice
+
+                        required property string modelData
+                        readonly property CommandState extra: DeviceCommand { command: extraChoice.modelData }
+
+                        checkable: true
+                        checked: overlay.toolbarAdds(modelData)
+                        text: extra.title
+                        onTriggered: overlay.setToolbarAdded(modelData, checked)
+                    }
+                }
+                MenuSeparator {}
+                MenuItem {
+                    text: qsTr("Restore defaults")
+                    enabled: overlay.toolbarHidden.length > 0
+                    onTriggered: AppSettings.setValue("display.toolbarHidden", "")
+                }
+            }
+
+            Menu {
                 id: moreMenu
 
                 x: overlay.popupX(moreButton, width, moreButton.width - width)
                 y: overlay.popupY(moreButton, height)
 
-                CommandMenuItem { commandState: screenCommand; visible: toolbar.compact && commandState.enabled }
-                CommandMenuItem { commandState: diagnosticsCommand; visible: toolbar.compact && commandState.enabled }
-                CommandMenuItem { commandState: fullScreenCommand; visible: toolbar.tight && commandState.enabled }
-                CommandMenuItem { commandState: muteCommand; visible: toolbar.tight && commandState.enabled }
+                CommandMenuItem {
+                    commandState: backCommand
+                    visible: !overlay.toolbarShows("back") && commandState.enabled
+                }
+                CommandMenuItem {
+                    commandState: homeCommand
+                    visible: !overlay.toolbarShows("home") && commandState.enabled
+                }
+                CommandMenuItem {
+                    commandState: appSwitchCommand
+                    visible: !overlay.toolbarShows("recents") && commandState.enabled
+                }
+                CommandMenuItem {
+                    commandState: keymapCommand
+                    visible: !overlay.toolbarShows("keymap") && commandState.enabled
+                }
+                CommandMenuItem {
+                    commandState: screenCommand
+                    visible: (toolbar.compact || !overlay.toolbarShows("screen")) && commandState.enabled
+                }
+                CommandMenuItem {
+                    commandState: diagnosticsCommand
+                    visible: (toolbar.compact || !overlay.toolbarShows("diagnostics")) && commandState.enabled
+                }
+                CommandMenuItem {
+                    commandState: fullScreenCommand
+                    visible: (toolbar.tight || !overlay.toolbarShows("fullScreen")) && commandState.enabled
+                }
+                CommandMenuItem {
+                    commandState: muteCommand
+                    visible: (toolbar.tight || !overlay.toolbarShows("volume")) && commandState.enabled
+                }
                 MenuItem {
-                    visible: toolbar.tight
+                    visible: toolbar.tight || !overlay.toolbarShows("pin")
                     height: visible ? implicitHeight : 0
                     iconName: "pin"
                     text: overlay.toolbarPinned ? qsTr("Unpin the toolbar") : qsTr("Pin the toolbar")
                     onTriggered: AppSettings.setValue("display.toolbar", overlay.toolbarPinned ? "dwell" : "pinned")
                 }
-                MenuLabel { text: qsTr("Orientation"); visible: toolbar.tight && rotateButton.enabled && !overlay.noPicture }
-                CommandMenuItem { commandState: followCommand; choice: true; visible: toolbar.tight && commandState.enabled }
+                MenuLabel { text: qsTr("Orientation"); visible: overlay.rotateInMore && rotateButton.enabled && !overlay.noPicture }
+                CommandMenuItem { commandState: followCommand; choice: true; visible: overlay.rotateInMore && commandState.enabled }
                 CommandMenuItem {
                     commandState: portraitCommand
                     choice: true
-                    visible: toolbar.tight && commandState.enabled
+                    visible: overlay.rotateInMore && commandState.enabled
                 }
                 CommandMenuItem {
                     commandState: landscapeCommand
                     choice: true
-                    visible: toolbar.tight && commandState.enabled
+                    visible: overlay.rotateInMore && commandState.enabled
                 }
-                MenuLabel { text: qsTr("How the phone is held"); visible: toolbar.tight && overlay.noPicture }
-                TurnChoice { turn: 0; text: qsTr("Portrait"); visible: toolbar.tight && overlay.noPicture }
+                MenuLabel { text: qsTr("How the phone is held"); visible: overlay.rotateInMore && overlay.noPicture }
+                TurnChoice { turn: 0; text: qsTr("Portrait"); visible: overlay.rotateInMore && overlay.noPicture }
                 TurnChoice {
                     turn: 1
                     text: qsTr("Landscape (turned left)")
-                    visible: toolbar.tight && overlay.noPicture
+                    visible: overlay.rotateInMore && overlay.noPicture
                 }
                 TurnChoice {
                     turn: 2
                     text: qsTr("Landscape (turned right)")
-                    visible: toolbar.tight && overlay.noPicture
+                    visible: overlay.rotateInMore && overlay.noPicture
                 }
                 MenuLabel {
                     text: qsTr("When the picture is landscape, the phone is")
-                    visible: toolbar.tight && overlay.captureCard
+                    visible: overlay.rotateInMore && overlay.captureCard
                 }
                 TurnChoice {
                     turn: 1
                     text: qsTr("Landscape (turned left)")
-                    visible: toolbar.tight && overlay.captureCard
+                    visible: overlay.rotateInMore && overlay.captureCard
                 }
                 TurnChoice {
                     turn: 2
                     text: qsTr("Landscape (turned right)")
-                    visible: toolbar.tight && overlay.captureCard
+                    visible: overlay.rotateInMore && overlay.captureCard
                 }
                 MenuLabel { text: qsTr("Status capsule") }
                 CapsuleChoice { mode: "auto"; text: qsTr("Automatic") }
                 CapsuleChoice { mode: "always"; text: qsTr("Always shown") }
                 CapsuleChoice { mode: "hidden"; text: qsTr("Hidden") }
+                MenuItem {
+                    objectName: "toolbarButtonsItem"
+                    iconName: "settings-2"
+                    text: qsTr("Toolbar buttons…")
+                    onTriggered: toolbarButtonsMenu.open()
+                }
                 MenuSeparator {}
                 CommandMenuItem { objectName: "notificationsInMore"; commandState: notificationsCommand }
                 CommandMenuItem { objectName: "quickSettingsInMore"; commandState: quickSettingsCommand }
@@ -1589,7 +1741,7 @@ Item {
                 }
                 MenuItem {
                     objectName: "tasksInMore"
-                    visible: toolbar.tight
+                    visible: toolbar.tight || !overlay.toolbarShows("tasks")
                     height: visible ? implicitHeight : 0
                     iconName: "bot"
                     text: qsTr("Tasks…")
@@ -1598,7 +1750,7 @@ Item {
                 CommandMenuItem {
                     objectName: "recordInMore"
                     commandState: recordCommand
-                    visible: toolbar.tight && commandState.enabled
+                    visible: (toolbar.tight || !overlay.toolbarShows("record")) && commandState.enabled
                 }
                 MenuItem {
                     objectName: "recordingsInMore"
@@ -1808,12 +1960,12 @@ Item {
             }
         }
 
-        ToolbarSeparator { visible: !toolbar.tight }
+        ToolbarSeparator { visible: !toolbar.tight && overlay.toolbarShows("pin") }
 
         ToolbarButton {
             id: pinButton
 
-            visible: !toolbar.tight
+            visible: !toolbar.tight && overlay.toolbarShows("pin")
             iconName: "pin"
             text: overlay.toolbarPinned ? qsTr("Unpin the toolbar") : qsTr("Pin the toolbar")
             selected: overlay.toolbarPinned

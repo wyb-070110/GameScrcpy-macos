@@ -445,6 +445,7 @@ void MirrorInputItem::flickStep()
         m_flickTimer.stop();
         m_swiping = false;
         m_coasting = false;
+        m_liftClock.start();
     }
 }
 
@@ -522,7 +523,10 @@ void MirrorInputItem::releaseSwipe()
     constexpr double kStepMs = 8.0;
     constexpr int kTailSteps = 2;
     const QPointF velocity = releaseVelocity();
-    if (!m_swiping || std::hypot(velocity.x(), velocity.y()) < kStillBelow) {
+    // Up and down (lists, short videos) lift where the fingers left, as the first macOS version did: the phone's
+    // own velocity from the real moves feels best there. Sideways (home screen pages) gets the steps.
+    const bool upDown = m_swipePath[2] + m_swipePath[3] > m_swipePath[0] + m_swipePath[1];
+    if (!m_swiping || upDown || std::hypot(velocity.x(), velocity.y()) < kStillBelow) {
         liftSwipe();
         return;
     }
@@ -574,6 +578,7 @@ void MirrorInputItem::liftSwipe()
         return;
     }
     m_swiping = false;
+    m_liftClock.start();
     const std::optional<input::Vec2> at = normalized(m_content, m_swipePoint, true);
     emit touched(at ? input::CursorPhase::Up : input::CursorPhase::Cancel, at.value_or(input::Vec2{}));
 }
@@ -592,9 +597,20 @@ bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
         return false;
     }
     const QPointF delta = event->pixelDelta().toPointF() * m_trackpadSpeed;
-    if (event->phase() == Qt::ScrollBegin && m_flickSteps > 0) {
-        m_flickSteps = 1;
-        flickStep();
+    if (event->phase() == Qt::ScrollBegin) {
+        // Fingers coming down start a scroll with no movement; a "start" that already moves, while the finger is
+        // still lifting or just after, is the momentum of the swipe that ended: drop it and what follows it.
+        constexpr qint64 kMomentumAfterLiftMs = 150;
+        const bool justLifted =
+            m_flickSteps > 0 || (m_liftClock.isValid() && m_liftClock.elapsed() < kMomentumAfterLiftMs);
+        if (justLifted && !delta.isNull()) {
+            m_swipeSpent = true;
+            return true;
+        }
+        if (m_flickSteps > 0) {
+            m_flickSteps = 1;
+            flickStep();
+        }
     }
     if (event->phase() == Qt::ScrollMomentum) {
         if (m_flickSteps > 0) {
