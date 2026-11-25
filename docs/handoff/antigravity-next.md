@@ -43,7 +43,16 @@ layers for direction A (`docs/handoff/gemini/icon/layers/`): do not use those.
 100 ms before the lift, and the gap between the last move and the lift (Android treats > 40 ms as a stopped finger;
 see `docs/handoff/swipe-design.md`). Test it on a trace from a demo copy; do not touch the user's phone.
 
-## A8 — Test the mirror toolbar changes (the user asked you to test them)
+## A8 — DONE BY CLAUDE (2026-11-25 19:05, commit 88dad52): your quota ran out mid-task
+
+Claude reviewed your uncommitted A8 work and took it into the mainline (separators, More-menu entries, grid axes,
+compact chevron, the QML tests in PortProbe.cmake and your toolbar-*.png captures), all but the `GS_A8_GRAB` hook in
+`src/app/main.cpp` (a test hook does not belong in the shipped app). When your quota is back: throw away your
+uncommitted A8 changes (`git checkout -- src tests` and remove the untracked `docs/handoff/glass/toolbar-*.png`),
+merge `ccr-e32722c2-75w11u`, check `ctest --preset mac-app` is green, log it in antigravity.md, and stop: there
+is no next item until Claude or the user adds one.
+
+## A8 (original task, for reference)
 
 Claude changed the mirror toolbar (commits `ba65956`, `4a4473c` on `ccr-e32722c2-75w11u`; merge the mainline first):
 `src/ui/controls/FloatingToolbar.qml` now keeps its buttons in one `Grid` (a row, or one column when

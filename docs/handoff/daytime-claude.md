@@ -35,3 +35,5 @@
 - 16:48 Antigravity stopped on its quota mid-A8 (2/4 steps; fixes uncommitted in MirrorOverlay.qml, FloatingToolbar.qml, ToolbarButton.qml, main.cpp, tests). Refresh 19:13; overages left off.
 - 16:48 Hourly run: every backlog item is ticked; nothing to do.
 - 17:53 Hourly run: every backlog item is ticked; nothing to do.
+- 18:58 Antigravity still out of quota (refresh 19:13); will send it the continue message after the refresh. Mac kept awake 6 h more.
+- 19:00 User: "你来吧". Claude took over A8 from Antigravity's uncommitted work (out of quota): reviewed, applied all but its main.cpp screenshot hook, ctest 174/174 incl. the new toolbar QML tests; demo check of a stripped side toolbar clean. Committed 88dad52. Antigravity told (antigravity-next.md) to drop its copy and merge.
