@@ -10,7 +10,7 @@ Anything that needs the phone or the user: write it under "For the user" and mov
 
 ## Items
 
-- [ ] **CI green.** Watch `gh run list -R wyb-070110/GameScrcpy-macos -L 3` for 2d72ad4 and later pushes; if a job
+- [x] **CI green.** (done 2026-11-25: run 45536621675 green after the macOS 15 voice fixes) Watch `gh run list -R wyb-070110/GameScrcpy-macos -L 3` for 2d72ad4 and later pushes; if a job
       fails, read `gh run view <id> --log-failed`, fix, push. Stop when the latest run is green.
 - [ ] **Merge Antigravity's A2/A5** when `~/GameScrcpy-macos-antigravity/docs/handoff/antigravity.md` says 可合并 for
       them: review the diff (behaviour changes explained, no edits outside its tasks), merge, build, ctest, commit.
@@ -29,8 +29,9 @@ Anything that needs the phone or the user: write it under "For the user" and mov
 
 ## For the user
 
-- **Beta 2 is ready** (build/package/GameScrcpy-2.2.1-beta2-macos-universal.dmg: universal, macOS 14+, LGPL
-  FFmpeg). Waiting on the user: does anmacgammer get the source too or only the release, and what happens to
-  beta 1 (GPL FFmpeg) on GameScrcpy-macos.
+- **Beta 2 is published** as a pre-release on anmacgammer (private), with the source on its main branch; beta 1's
+  release on GameScrcpy-macos was deleted (tag kept). anmacgammer is private: its Actions runs cost the user's
+  minutes (macOS at 10×), so cancel runs there and let GameScrcpy-macos (public) do CI — or ask the user to turn
+  Actions off for anmacgammer.
 
 - Trackpad swipe feel (needs the phone): the four modes are in Settings → Touch → "Trackpad swipe mode".

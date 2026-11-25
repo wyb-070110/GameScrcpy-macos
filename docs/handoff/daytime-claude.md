@@ -18,3 +18,5 @@
   slices ship); runs natively and under Rosetta. CI failure on 2d72ad4 was only the speech tests on GitHub's macOS 15
   VM: unknown voice ids were accepted there, and recognition never answers (d98831a). Pushed to 45535607104 for CI.
   A2/A5 not marked 可合并 yet (Antigravity's work uncommitted), not merged.
+- 11:05 CI 45535607104 still failed one speech check: macOS 15 swaps in an installed voice for an unknown id. Fixed by comparing the id; pushed, CI 45536621675 running.
+- 11:10 CI green (45536621675). User chose: anmacgammer gets source + release; beta 1 release deleted. Pushed source to anmacgammer main (b5edc4a, merged over its README commit) and published v2.2.1-beta2 pre-release there (dmg sha256 275478c8…). Cancelled anmacgammer's Actions runs (private repo, would spend the user's minutes).
