@@ -122,6 +122,7 @@
     <string name="ime_waiting">The computer is not connected. Tap to go back to the phone\'s keyboard.</string>
     <string name="scan_title">Scan the code in GameScrcpy\'s control window.</string>
     <string name="scan_not_ours">This is not a GameScrcpy code.</string>
+    <string name="scan_adb_pairing">This is a wireless debugging pairing code. Scan it in the phone\'s Settings &gt; Developer options &gt; Wireless debugging &gt; Pair device with QR code.</string>
     <string name="scan_camera_needed">Scanning needs the camera. Allow it in this app\'s settings.</string>
     <string name="scan_open_settings">Open settings</string>
     <string name="capture_title">Screenshot for GameScrcpy</string>

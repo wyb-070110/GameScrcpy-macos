@@ -192,7 +192,9 @@ class ScanActivity : Activity(), LifecycleOwner {
             return
         }
         if (QrLinks.parse(text) == null) {
-            status.setText(R.string.scan_not_ours)
+            // Android's wireless debugging pairing code (WIFI:T:ADB;S:…;P:…;;) is scanned by the phone's own
+            // Developer options, not by the companion: say where.
+            status.setText(if (text.startsWith("WIFI:T:ADB;")) R.string.scan_adb_pairing else R.string.scan_not_ours)
             return
         }
         finished = true

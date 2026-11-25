@@ -115,6 +115,7 @@
     <string name="ime_waiting">电脑没有连接，点这里换回手机键盘。</string>
     <string name="scan_title">扫 GameScrcpy 控制窗口里的二维码。</string>
     <string name="scan_not_ours">这不是 GameScrcpy 的二维码。</string>
+    <string name="scan_adb_pairing">这是无线调试的配对码：请在手机的 设置 &gt; 开发者选项 &gt; 无线调试 &gt; 使用二维码配对设备 里扫它。</string>
     <string name="scan_camera_needed">扫码需要相机权限，请在这个应用的设置里允许。</string>
     <string name="scan_open_settings">打开设置</string>
     <string name="capture_title">为 GameScrcpy 截图</string>
