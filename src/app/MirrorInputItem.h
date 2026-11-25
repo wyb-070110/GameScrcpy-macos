@@ -144,6 +144,9 @@ private:
     qint64 m_lastSwipeMs = 1;
     // The finger's recent positions (ms since the swipe began, point), for its speed when the fingers leave.
     QElapsedTimer m_moveClock;
+    // Since the finger last lifted: macOS's first momentum event can come as the start of a new scroll, with
+    // movement, a few ms after the fingers left; it must not put a new finger down (that stops the phone's fling).
+    QElapsedTimer m_liftClock;
     std::vector<std::pair<qint64, QPointF>> m_recentMoves;
     // The page-turn flick under way: steps left, each step, and the clock between them.
     int m_flickSteps = 0;
