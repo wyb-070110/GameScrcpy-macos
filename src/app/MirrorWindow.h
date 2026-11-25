@@ -167,6 +167,7 @@ private:
     void restOnTitle(bool resting);
     void titleRested();
     void fitToPicture();
+    void lockAspect();
     [[nodiscard]] QRect miniGeometry() const;
     void layoutContent();
     [[nodiscard]] int reservedTop() const noexcept;
