@@ -109,7 +109,12 @@ media::VideoFrame FrameSlot::take(std::int64_t* takenUs)
             // Each frame is due a steady time after the phone took it: its fastest recent transit plus the hold.
             // The newest frame due by the middle of the coming refresh is shown, older ones are skipped, and a
             // frame not yet due waits for a later refresh (the render node asks again while frames are pending).
-            const std::int64_t horizonUs = nowUs + m_displayIntervalUs / 2;
+            // The frame taken now reaches the screen at the coming refresh, predicted from the last one shown.
+            std::int64_t horizonUs = nowUs + m_displayIntervalUs / 2;
+            if (m_lastScreenUs > 0 && m_lastScreenUs <= nowUs + m_displayIntervalUs) {
+                const std::int64_t since = std::max<std::int64_t>(nowUs - m_lastScreenUs, 0);
+                horizonUs = m_lastScreenUs + (since / m_displayIntervalUs + 1) * m_displayIntervalUs;
+            }
             std::ptrdiff_t due = -1;
             for (std::size_t i = 0; i < m_frames.size(); ++i) {
                 if (m_frames[i].ptsUs() + m_fastestTransitUs + m_holdUs <= horizonUs) {
@@ -266,6 +271,7 @@ void FrameSlot::recordScreen(std::int64_t ptsUs, std::int64_t receivedUs, std::i
     {
         const std::scoped_lock lock(m_mutex);
         addScreenLocked({ptsUs, receivedUs, takenUs, screenUs});
+        m_lastScreenUs = std::max(m_lastScreenUs, screenUs);
         listener = m_screen;
         if (Trace& trace = Trace::instance(); trace.on()) {
             trace.screenLine(nowUs, ptsUs, receivedUs, takenUs, screenUs);

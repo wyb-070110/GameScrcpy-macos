@@ -9,7 +9,7 @@ import sys,collections
 P=[];D=[]
 for l in open(sys.argv[1]):
     f=l.split()
-    if f[0]=='p': P.append((int(f[1]),int(f[2]),int(f[3])))
+    if f[0]=='p' and len(f)==5: P.append((int(f[1]),int(f[2]),int(f[3])))
     if f[0]=='d' and len(f)==6: D.append(tuple(map(int,f[1:])))
 def q(a,x): a=sorted(a); return round(a[int(x*(len(a)-1))],1)
 put={p:n for n,p,r in P}

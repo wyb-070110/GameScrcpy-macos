@@ -113,6 +113,8 @@ private:
     std::size_t m_transitNext = 0;
     std::int64_t m_fastestTransitUs = 0;
     std::int64_t m_holdUs = 0;
+    // When the last frame reached the screen: with the refresh interval it predicts the coming refresh.
+    std::int64_t m_lastScreenUs = 0;
     std::array<ScreenSample, kMostScreenSamples> m_screenSamples{};
     std::size_t m_screenCount = 0;
     std::size_t m_screenNext = 0;
