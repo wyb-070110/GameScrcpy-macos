@@ -43,6 +43,7 @@ constexpr std::string_view kLog = "companion";
 constexpr std::chrono::milliseconds kHandshakeTimeout = 5s;
 constexpr std::chrono::milliseconds kDownloadTimeout = 30s;
 constexpr std::chrono::milliseconds kDrainTimeout = 2s;
+constexpr std::chrono::milliseconds kMirrorWriteTimeout = 10s;
 constexpr std::size_t kMostConnections = 8;
 constexpr std::size_t kMostOlderPhones = 16;
 constexpr std::string_view kApkName = "gs-companion.apk";
@@ -236,6 +237,93 @@ private:
     LanSealer m_sealer;
     LanOpener m_opener;
 };
+
+class LanMirrorPipe final : public session::MirrorPipe
+{
+public:
+    LanMirrorPipe(std::shared_ptr<LanSocket> socket, const LanKey& session) noexcept
+        : m_socket(std::move(socket)), m_sealer(session, LanDirection::ToCompanion),
+          m_opener(session, LanDirection::ToComputer, 0, true)
+    {
+    }
+
+    ~LanMirrorPipe() override { close(); }
+    LanMirrorPipe(const LanMirrorPipe&) = delete;
+    LanMirrorPipe& operator=(const LanMirrorPipe&) = delete;
+
+    bool send(std::span<const std::uint8_t> record) override
+    {
+        const std::lock_guard lock(m_writing);
+        return m_socket->writeAll(m_sealer.seal(record));
+    }
+
+    bool receive(std::vector<std::uint8_t>& record) override
+    {
+        LanPrefix prefix{};
+        if (!m_socket->readExact(prefix)) {
+            return end(m_socket->timedOut() ? "the companion's mirror connection went silent"
+                                            : "the companion closed its mirror connection");
+        }
+        const auto length = LanOpener::mirrorRecordLength(prefix);
+        if (!length) {
+            return end("the companion sent a mirror record of a wrong length");
+        }
+        m_body.resize(*length);
+        if (!m_socket->readExact(m_body)) {
+            return end("the companion closed its mirror connection");
+        }
+        auto opened = m_opener.open(prefix, m_body);
+        if (!opened) {
+            return end(std::format("the companion sent a mirror record that does not open ({})",
+                                   lanErrorName(opened.error())));
+        }
+        record = std::move(*opened);
+        return true;
+    }
+
+    std::string endedReason() const override
+    {
+        const std::lock_guard lock(m_mutex);
+        return m_reason;
+    }
+
+    void close() noexcept override { m_socket->interrupt(); }
+
+private:
+    bool end(std::string reason)
+    {
+        const std::lock_guard lock(m_mutex);
+        if (m_reason.empty()) {
+            m_reason = std::move(reason);
+        }
+        return false;
+    }
+
+    std::shared_ptr<LanSocket> m_socket;
+    std::mutex m_writing;
+    LanSealer m_sealer;
+    LanOpener m_opener;
+    std::vector<std::uint8_t> m_body;
+    mutable std::mutex m_mutex;
+    std::string m_reason;
+};
+
+std::unique_ptr<session::MirrorPipe> acceptMirror(const std::shared_ptr<LanSocket>& socket,
+                                                  const std::vector<std::uint8_t>& hello, const LanPairing& pairing,
+                                                  session::Token& token)
+{
+    LanNonce nonce{};
+    platform::randomBytes(nonce);
+    const std::vector<std::uint8_t> reply =
+        encodeLanReply({.status = LanStatus::Accepted, .pc = pairing.pc, .nonce = nonce}, true);
+    if (!socket->writeAll(reply)) {
+        return nullptr;
+    }
+    const LanKey session = mirrorSessionKey(pairing.key, hello, reply);
+    token = mirrorToken(session);
+    socket->setTimeouts(std::chrono::milliseconds::zero(), kMirrorWriteTimeout);
+    return std::make_unique<LanMirrorPipe>(socket, session);
+}
 
 std::optional<std::string> readHttpHead(LanSocket& socket, std::string text)
 {
@@ -638,7 +726,8 @@ void CompanionLan::serve(Slot& slot)
     if (!socket->readExact(std::span(top).first<4>())) {
         return;
     }
-    if (!std::equal(kLanMagic.begin(), kLanMagic.end(), top.begin())) {
+    const bool mirror = isMirrorHello(top);
+    if (!mirror && !std::equal(kLanMagic.begin(), kLanMagic.end(), top.begin())) {
         const auto head = readHttpHead(*socket, std::string(top.begin(), top.begin() + 4));
         const std::optional<HttpRequest> request = head ? parseHttpRequest(*head) : std::nullopt;
         if (!request) {
@@ -669,7 +758,7 @@ void CompanionLan::serve(Slot& slot)
     const auto size = lanHelloSize(top);
     if (!size) {
         if (size.error() == LanError::VersionMismatch) {
-            static_cast<void>(socket->writeAll(encodeLanReply({.status = LanStatus::VersionMismatch})));
+            static_cast<void>(socket->writeAll(encodeLanReply({.status = LanStatus::VersionMismatch}, mirror)));
             socket->finish();
         }
         log::info(kLog, "refused a companion on the local network: {}", lanErrorName(size.error()));
@@ -682,6 +771,40 @@ void CompanionLan::serve(Slot& slot)
     }
     const auto decoded = decodeLanHello(hello);
     if (!decoded) {
+        return;
+    }
+    if (mirror) {
+        std::optional<LanPairing> pairing;
+        MirrorArrival arrival;
+        MirrorArrived arrived;
+        {
+            const std::lock_guard lock(m_mutex);
+            for (const LanExpectation& expectation : m_expected) {
+                if (decoded->token.empty() && expectation.paired && expectation.paired->phone == decoded->phone) {
+                    pairing = expectation.paired;
+                    arrival.serial = expectation.serial;
+                    break;
+                }
+            }
+            arrived = m_mirrorArrived;
+        }
+        if (!pairing || !arrived) {
+            static_cast<void>(socket->writeAll(encodeLanReply({.status = LanStatus::Unknown}, true)));
+            socket->finish();
+            log::info(kLog, "refused a companion's mirror connection: {}",
+                      !decoded->token.empty() ? "it carried a pairing code" : "this phone is not paired here");
+            return;
+        }
+        arrival.pipe = acceptMirror(socket, hello, *pairing, arrival.token);
+        if (arrival.pipe == nullptr) {
+            return;
+        }
+        {
+            const std::lock_guard lock(slot.mutex);
+            slot.socket.reset();
+        }
+        log::info(kLog, "[{}] the companion opened its mirror connection", arrival.serial);
+        arrived(std::move(arrival));
         return;
     }
     std::optional<LanArrival> arrival;
@@ -764,6 +887,16 @@ void CompanionLan::serve(Slot& slot)
     if (m_arrived) {
         m_arrived(std::move(*arrival));
     }
+}
+
+}
+
+namespace gs::app {
+
+void CompanionLan::setMirrorArrived(MirrorArrived arrived)
+{
+    const std::lock_guard lock(m_mutex);
+    m_mirrorArrived = std::move(arrived);
 }
 
 }

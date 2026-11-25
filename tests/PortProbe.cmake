@@ -136,6 +136,7 @@ gs_add_unit_test(gs_session_tests
         unit/adb/FakeAdbServer.h
         unit/session/AcceptanceSessionTests.cpp
         unit/session/AdbServerHostTests.cpp
+        unit/session/CompanionMirrorTests.cpp
         unit/session/DatagramVectors.h
         unit/session/DirectHandshakeTests.cpp
         unit/session/DirectTransportTests.cpp
@@ -158,6 +159,19 @@ target_include_directories(gs_session_tests BEFORE PRIVATE
 target_compile_definitions(gs_session_tests PRIVATE
     GS_PROTOCOL_VECTOR_DIR="${PROJECT_SOURCE_DIR}/protocol/vectors"
     GS_SERVER_PACKAGE_FILE="${PROJECT_SOURCE_DIR}/android/server/build/outputs/apk/release/server-release-unsigned.apk"
+)
+
+gs_add_unit_test(gs_companion_cipher_tests
+    SOURCES
+        unit/app/CompanionMirrorCipherTests.cpp
+        "${PROJECT_SOURCE_DIR}/src/app/CompanionCipher.cpp"
+    LIBRARIES
+        gs::session
+        gs::nlohmann_json
+)
+target_include_directories(gs_companion_cipher_tests BEFORE PRIVATE "${PROJECT_SOURCE_DIR}/src/app")
+target_compile_definitions(gs_companion_cipher_tests PRIVATE
+    GS_PROTOCOL_VECTOR_DIR="${PROJECT_SOURCE_DIR}/protocol/vectors"
 )
 
 # Device tests: they run against a real phone and report "skipped" (77) without GS_ADB_TEST_SERIAL.
