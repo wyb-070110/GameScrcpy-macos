@@ -594,8 +594,8 @@ if(EXISTS "${gs_qt_translation}")
 endif()
 
 qt_add_translations(anmacgamer
-    TS_FILES i18n/gamescrcpy_zh_CN.ts
-    PLURALS_TS_FILE i18n/gamescrcpy_en.ts
+    TS_FILES i18n/anmacgamer_zh_CN.ts
+    PLURALS_TS_FILE i18n/anmacgamer_en.ts
     SOURCES "${PROJECT_SOURCE_DIR}/sdk/i18n/api-texts.js"
     RESOURCE_PREFIX /i18n
     LUPDATE_OPTIONS -no-obsolete -locations none -tr-function-alias QT_TRANSLATE_NOOP+=GS_TRANSLATE_NOOP
