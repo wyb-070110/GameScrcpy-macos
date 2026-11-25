@@ -11159,10 +11159,6 @@
         <translation>在工具栏上显示</translation>
     </message>
     <message>
-        <source>Show all</source>
-        <translation>全部显示</translation>
-    </message>
-    <message>
         <source>Toolbar buttons…</source>
         <translation>工具栏按钮…</translation>
     </message>
@@ -11307,6 +11303,14 @@
     <message>
         <source>Key mapping</source>
         <translation>键位映射</translation>
+    </message>
+    <message>
+        <source>Add to the toolbar</source>
+        <translation>添加到工具栏</translation>
+    </message>
+    <message>
+        <source>Restore defaults</source>
+        <translation>恢复默认</translation>
     </message>
     <message>
         <source>With key mapping on, the keyboard and mouse tap the screen the way the profile says, which is how you play games. Turn it off to type into the phone. Try it: click it twice.</source>

@@ -207,7 +207,7 @@ enum class EditingClose : std::uint8_t { Ask, ExitEditing, CloseWindow };
 inline constexpr std::array<std::string_view, 3> kEditingCloseNames{"ask", "exitEditing", "closeWindow"};
 
 struct Display {
-    static constexpr std::size_t kMaxToolbarHiddenLength = 256;
+    static constexpr std::size_t kMaxToolbarHiddenLength = 512;
 
     bool lowLatency = false;
     std::int32_t sharpness = 0;

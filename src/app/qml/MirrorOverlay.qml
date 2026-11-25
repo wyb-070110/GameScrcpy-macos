@@ -33,7 +33,11 @@ Item {
     property int reservedTop: 0
     readonly property string toolbarMode: AppSettings.values["display.toolbar"] ?? "pinned"
     readonly property string toolbarSide: AppSettings.values["display.toolbarSide"] ?? "top"
-    // The toolbar buttons the user took off (they stay in the More menu), and the ones that can be taken off.
+    // display.toolbarHidden: the toolbar buttons the user took off (they stay in the More menu), and, starting
+    // with "+", the commands the user added to it. toolbarChoices can be taken off, toolbarExtras added.
+    readonly property var toolbarExtras: ["device.notifications", "device.quickSettings", "device.collapsePanels",
+                                          "device.files", "device.measureLatency", "device.mini",
+                                          "device.editKeymap", "device.settings", "device.disconnect"]
     readonly property var toolbarHidden: String(AppSettings.values["display.toolbarHidden"] ?? "").split(",")
                                          .filter(id => id !== "")
     readonly property var toolbarChoices: [
@@ -51,6 +55,14 @@ Item {
 
     function toolbarShows(id) {
         return toolbarHidden.indexOf(id) < 0
+    }
+
+    function toolbarAdds(command) {
+        return toolbarHidden.indexOf("+" + command) >= 0
+    }
+
+    function setToolbarAdded(command, added) {
+        setToolbarShown("+" + command, !added)
     }
 
     function setToolbarShown(id, shown) {
@@ -1528,6 +1540,20 @@ Item {
             }
         }
 
+        Repeater {
+            model: toolbar.tight ? [] : overlay.toolbarExtras.filter(command => overlay.toolbarAdds(command))
+
+            delegate: CommandButton {
+                id: extraButton
+
+                required property string modelData
+
+                objectName: "toolbarExtra:" + modelData
+                commandState: DeviceCommand { command: extraButton.modelData }
+                fallbackIcon: "circle"
+            }
+        }
+
         ToolbarSeparator {}
 
         CommandButton {
@@ -1580,8 +1606,25 @@ Item {
                     }
                 }
                 MenuSeparator {}
+                MenuLabel { text: qsTr("Add to the toolbar") }
+                Repeater {
+                    model: overlay.toolbarExtras
+
+                    delegate: MenuItem {
+                        id: extraChoice
+
+                        required property string modelData
+                        readonly property CommandState extra: DeviceCommand { command: extraChoice.modelData }
+
+                        checkable: true
+                        checked: overlay.toolbarAdds(modelData)
+                        text: extra.title
+                        onTriggered: overlay.setToolbarAdded(modelData, checked)
+                    }
+                }
+                MenuSeparator {}
                 MenuItem {
-                    text: qsTr("Show all")
+                    text: qsTr("Restore defaults")
                     enabled: overlay.toolbarHidden.length > 0
                     onTriggered: AppSettings.setValue("display.toolbarHidden", "")
                 }

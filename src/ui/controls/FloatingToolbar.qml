@@ -137,7 +137,8 @@ Item {
 
             objectName: "toolbarButtons"
             anchors.centerIn: parent
-            // -1: as many as the visible buttons need.
+            // -1: as many as the visible buttons need. (Switching sides passes through a one-cell grid for a
+            // moment, which Qt reports once; the layout settles right after.)
             columns: toolbar.vertical ? 1 : -1
             rows: toolbar.vertical ? -1 : 1
             rowSpacing: Theme.space.xxs
