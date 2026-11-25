@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
+// Copyright (C) 2026 Yubo Wu and the anmacgamer contributors
 // Restricted native extensions off Windows: what stands in for the AppContainer of Container.cpp.
 //
 // macOS: gs-exthost puts itself in a sandbox (sandbox_init with a profile written out here) before it reads the

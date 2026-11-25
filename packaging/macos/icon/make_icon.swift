@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
+// Copyright (C) 2026 Yubo Wu and the anmacgamer contributors
 // Draws the layers of GameScrcpy's Icon Composer icon (packaging/macos/icon/GameScrcpy.icon), direction B of
 // docs/handoff/gemini/icon.md: a navy portrait phone behind a larger blue landscape glass screen with a white
 // chevron. Each layer is alone on a 1024 canvas that is the whole icon, edge to edge; every part stays inside

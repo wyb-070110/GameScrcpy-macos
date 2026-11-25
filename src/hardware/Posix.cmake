@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
+# Copyright (C) 2026 Yubo Wu and the anmacgamer contributors
 # gs_hardware off Windows: on macOS, IOKit enumerates and watches /dev/cu.* serial ports and termios opens
 # them; on other POSIX systems, the fallback backend lists no devices.
 add_library(gs_hardware STATIC

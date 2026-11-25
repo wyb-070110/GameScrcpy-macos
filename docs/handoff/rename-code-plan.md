@@ -13,7 +13,7 @@ for both; this splits the work by what each part can break, so the risky parts g
 | Translation files | `gamescrcpy_zh_CN.ts`, `gamescrcpy_en.ts` | `anmacgamer_*.ts` | CMake + loader |
 | Resource file names | `GameScrcpy.icns`, `GameScrcpy.icon`, `GameScrcpy-1024.png` | `anmacgamer.*` | packaging, CMake, Info.plist |
 | Java/Kotlin packages (namespace only) | `com.gamescrcpy.*` | `com.anmacgamer.*` | ~200 files, folders move |
-| Copyright lines of our own files | "Yubo Wu and the GameScrcpy for macOS contributors" | "… the anmacgamer contributors" | GPL-3.0 files only; Apache files keep upstream lines |
+| Copyright lines of our own files | "Yubo Wu and the GameScrcpy for macOS contributors" | "… the anmacgamer contributors" (done) | GPL-3.0 files only; Apache files keep upstream lines |
 | Windows-only files | `GameScrcpy.rc.in`, `GameScrcpy.manifest`, `GameScrcpy.iss`, `.ico` | removed or renamed | the macOS build does not use them |
 
 Checks: `cmake --preset mac-app`, full build, `ctest --preset mac-app`, `qmllint` 0 warnings, gradle

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
+// Copyright (C) 2026 Yubo Wu and the anmacgamer contributors
 // Keyboard, mouse and gamepads for the key map, on macOS. A thread of its own runs a CFRunLoop: tasks posted to
 // the capture run there, gamepads are polled there with SDL (as on Windows), and the handler is woken when it asks
 // (nextWakeup).

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
+// Copyright (C) 2026 Yubo Wu and the anmacgamer contributors
 // Sound off Windows through SDL3: the default playback device pulls from the regulator in SDL's callback,
 // with the gain ramped as on Windows. SDL's default device follows the system's choice by itself. Without
 // SDL3 (the Linux test bed) the output stays silent.

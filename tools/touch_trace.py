@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
+# Copyright (C) 2026 Yubo Wu and the anmacgamer contributors
 """Summarises a GS_TOUCH_TRACE file (the touch frames GameScrcpy sends), one line per gesture: how evenly the
 moves are spaced, the speed over the last 100 ms before the lift, and the gap between the last move and the lift.
 Android treats a lift more than 40 ms after the last move as a stopped finger (no fling; docs/handoff/swipe-design.md).

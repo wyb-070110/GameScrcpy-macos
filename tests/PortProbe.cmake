@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
+# Copyright (C) 2026 Yubo Wu and the anmacgamer contributors
 # Port probe: unit tests of the Windows-free modules.
 function(gs_add_unit_test name)
     cmake_parse_arguments(PARSE_ARGV 1 arg "" "" "SOURCES;LIBRARIES;ARGUMENTS")

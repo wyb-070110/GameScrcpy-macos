@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
+# Copyright (C) 2026 Yubo Wu and the anmacgamer contributors
 # Rebuilds the app icon from packaging/macos/icon/GameScrcpy.icon: draws the layers, compiles Assets.car (the
 # Liquid Glass icon of macOS 26 and later) and GameScrcpy.icns (macOS 14 and 15) into src/app/resources, and
 # exports the 1024 px preview. Needs Xcode 26 or later; the build itself only copies the results.

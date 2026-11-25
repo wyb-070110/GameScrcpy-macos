@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
+// Copyright (C) 2026 Yubo Wu and the anmacgamer contributors
 // The text an input method is still composing (pinyin before a Chinese word is picked), drawn on the phone's
 // picture where the user last pressed (usually the phone's text box), since the phone only sees finished text.
 #pragma once

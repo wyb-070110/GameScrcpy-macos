@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
+// Copyright (C) 2026 Yubo Wu and the anmacgamer contributors
 // The POSIX platform backend: atomic files, the running marker and word spacing for read text.
 #include "gs/platform/AtomicFile.h"
 #include "gs/platform/RunningMarker.h"

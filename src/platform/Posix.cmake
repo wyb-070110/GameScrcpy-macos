@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
+# Copyright (C) 2026 Yubo Wu and the anmacgamer contributors
 # gs_platform off Windows (macOS port): the POSIX backend under src/posix. Only what the core modules
 # below the interface need so far; the rest of the headers stay unimplemented until a module uses them.
 if(APPLE AND NOT OPENSSL_ROOT_DIR AND NOT DEFINED ENV{OPENSSL_ROOT_DIR})
