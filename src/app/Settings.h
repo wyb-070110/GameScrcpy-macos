@@ -459,7 +459,7 @@ struct Touch {
     std::string extension;
     std::string device;
     std::int32_t rateHz = 0;
-    TrackpadMode trackpadMode = TrackpadMode::PageTurn;
+    TrackpadMode trackpadMode = TrackpadMode::Direct;
     std::int32_t trackpadSpeed = 100;
     bool trackpadInertia = true;
     std::int32_t trackpadInertiaStrength = 100;
