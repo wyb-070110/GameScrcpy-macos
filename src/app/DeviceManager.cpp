@@ -196,6 +196,11 @@ QString aoaLinkName(bool streaming)
     return streaming ? DeviceManager::tr("No picture · USB · AOA") : DeviceManager::tr("USB · AOA");
 }
 
+QString companionLinkName()
+{
+    return DeviceManager::tr("Wireless · companion picture + USB · AOA touch");
+}
+
 QString aoaTouchLinkName(const QString& serial)
 {
     return isWireless(serial) ? DeviceManager::tr("Wireless · picture + USB · AOA touch")
@@ -762,7 +767,9 @@ QVariant DeviceManager::data(const QModelIndex& index, int role) const
                                                                                   : QString();
             meta = tr("%1 / %2").arg(linkName(row), format.isEmpty() ? row.serial : format);
         } else if (row.aoaOnly) {
-            meta = tr("%1 / %2").arg(aoaLinkName(streaming(row) && noPictureOf(row)),
+            meta = tr("%1 / %2").arg(companionPictured(row) && streaming(row)
+                                         ? companionLinkName()
+                                         : aoaLinkName(streaming(row) && noPictureOf(row)),
                                      row.usb ? QString::fromStdString(row.usb->serial) : row.serial);
         } else if (row.provided) {
             meta = tr("%1 / %2").arg(row.provided->extensionName, QString::fromStdString(row.provided->id));
@@ -1818,7 +1825,11 @@ void DeviceManager::connectDevice(const QString& serial)
         startCapture(row);
         return;
     }
-    if (row.aoaOnly) {
+    if (row.aoaOnly && !companionMirrorReady(row)) {
+        if (row.controller != nullptr && !row.controller->active()) {
+            row.controller->deleteLater();
+            row.controller = nullptr;
+        }
         connectAoa(row);
         return;
     }
@@ -2014,8 +2025,22 @@ void DeviceManager::connectDevice(const QString& serial)
     row.link.reset();
     qInfo("connecting to %s (%s)", qUtf8Printable(row.name()), qUtf8Printable(serial));
     row.controller->setUsbPhone(row.usb);
-    row.controller->setHostFactory(row.transported ? transportHost(*row.transported) : SessionController::HostFactory{});
-    const settings::Settings starting = m_settings.effective(row.deviceId.toStdString());
+    if (row.transported) {
+        row.controller->setHostFactory(transportHost(*row.transported));
+    } else if (row.aoaOnly && row.companionMirror != nullptr) {
+        row.controller->setHostFactory(
+            [mirror = row.companionMirror] { return session::companionMirrorHost(mirror); });
+    } else {
+        row.controller->setHostFactory({});
+    }
+    settings::Settings starting = m_settings.effective(row.deviceId.toStdString());
+    if (row.aoaOnly) {
+        // The companion encodes H.264 only, and touches go over AOA: the mirror link carries none (SPEC 11.10).
+        starting.video.codec = settings::Codec::H264;
+        if (starting.touch.extension.empty()) {
+            starting.touch.method = settings::TouchMethod::Aoa;
+        }
+    }
     row.controller->start(row.transport, starting);
     if (starting.display.screenOffWhileMirroring && row.demo == nullptr) {
         // Sent once the picture is streaming (SessionController::applyScreen).
@@ -6875,7 +6900,7 @@ void DeviceManager::releaseInput(const QString& serial)
 
 void DeviceManager::syncCompanion(Row& row)
 {
-    if (row.controller == nullptr && (noPictureOf(row) || row.aoaOnly)) {
+    if (row.aoaOnly || (row.controller == nullptr && noPictureOf(row))) {
         syncCompanionLan(row);
         pushCompanionSettings(row);
         return;
@@ -6953,9 +6978,10 @@ void DeviceManager::stopCompanion(Row& row)
 
 void DeviceManager::syncCompanionLan(Row& row)
 {
-    const bool wanted = row.mirror != nullptr && noPictureOf(row) &&
-                        (row.aoa != nullptr || row.touchBox != nullptr) && !row.deviceId.isEmpty() &&
-                        row.session.phase == session::SessionPhase::Streaming;
+    const bool wanted = (row.mirror != nullptr && noPictureOf(row) &&
+                         (row.aoa != nullptr || row.touchBox != nullptr) && !row.deviceId.isEmpty() &&
+                         row.session.phase == session::SessionPhase::Streaming) ||
+                        (companionPictured(row) && !row.deviceId.isEmpty() && active(row.session.phase));
     if (!wanted) {
         stopCompanion(row);
         row.lanToken.clear();
@@ -6974,8 +7000,13 @@ void DeviceManager::syncLanService()
 {
     std::vector<LanExpectation> expected;
     for (const Row& row : m_rows) {
-        if (!noPictureOf(row) || row.mirror == nullptr || (row.aoa == nullptr && row.touchBox == nullptr) ||
-            row.deviceId.isEmpty() || row.session.phase != session::SessionPhase::Streaming) {
+        const bool pictured = companionPictured(row) && active(row.session.phase);
+        if ((!noPictureOf(row) || row.mirror == nullptr || (row.aoa == nullptr && row.touchBox == nullptr) ||
+             row.session.phase != session::SessionPhase::Streaming) &&
+            !pictured) {
+            continue;
+        }
+        if (row.deviceId.isEmpty()) {
             continue;
         }
         const bool connected = row.companion != nullptr;
@@ -7020,6 +7051,11 @@ void DeviceManager::syncLanService()
                 auto shared = std::make_shared<LanArrival>(std::move(arrival));
                 QMetaObject::invokeMethod(this, [this, shared] { lanArrived(std::move(*shared)); }, Qt::QueuedConnection);
             });
+            m_companionLan->setMirrorArrived([this](MirrorArrival arrival) {
+                auto shared = std::make_shared<MirrorArrival>(std::move(arrival));
+                QMetaObject::invokeMethod(
+                    this, [this, shared] { mirrorArrived(std::move(*shared)); }, Qt::QueuedConnection);
+            });
         }
         m_companionLan->expect(std::move(expected));
     }
@@ -7054,7 +7090,7 @@ void DeviceManager::lanArrived(LanArrival arrival)
         return;
     }
     Row& row = m_rows[static_cast<std::size_t>(index)];
-    if (!noPictureOf(row) || row.mirror == nullptr) {
+    if ((!noPictureOf(row) || row.mirror == nullptr) && !companionPictured(row)) {
         return;
     }
     stopCompanion(row);
@@ -7067,6 +7103,47 @@ void DeviceManager::lanArrived(LanArrival arrival)
     qInfo("companion on %s: %s over the local network", qUtf8Printable(row.name()),
           arrival.paired ? "paired" : "connected again");
     syncLanService();
+}
+
+void DeviceManager::mirrorArrived(MirrorArrival arrival)
+{
+    const int index = indexOf(QString::fromStdString(arrival.serial));
+    if (index < 0 || arrival.pipe == nullptr) {
+        return;
+    }
+    Row& row = m_rows[static_cast<std::size_t>(index)];
+    if (!row.aoaOnly) {
+        return;
+    }
+    if (row.companionMirror == nullptr) {
+        row.companionMirror = std::make_shared<session::CompanionMirror>();
+    }
+    row.companionMirror->attach(std::move(arrival.pipe), arrival.token);
+    qInfo("companion on %s: its mirror link is open", qUtf8Printable(row.name()));
+    if (row.aoa != nullptr && row.controller == nullptr && row.pictureCard.isEmpty() && active(row.session.phase)) {
+        switchToCompanionPicture(row);
+    }
+}
+
+// The no-picture control window gives way to a real mirroring session through the companion: the AOA session
+// leaves the USB to the session's AOA touch, and the companion's LAN link stays, since its mirror link lives on it.
+void DeviceManager::switchToCompanionPicture(Row& row)
+{
+    const QString serial = row.serial;
+    qInfo("%s: the picture comes from the companion now; touch stays on AOA", qUtf8Printable(row.name()));
+    disconnect(row.aoa, nullptr, this, nullptr);
+    row.aoa->stop();
+    row.aoa->deleteLater();
+    row.aoa = nullptr;
+    if (row.mirror != nullptr) {
+        releaseInput(serial);
+        row.mirror->deleteLater();
+        row.mirror = nullptr;
+        emit mirrorsChanged();
+    }
+    row.picture.reset();
+    row.session = {session::SessionPhase::Stopped, std::nullopt};
+    connectDevice(serial);
 }
 
 void DeviceManager::companionInputBox(Row& row, const protocol::InputBoxChanged& box)
@@ -7533,7 +7610,8 @@ QString DeviceManager::linkName(const Row& row)
         return tr("Capture card");
     }
     if (row.aoaOnly) {
-        return aoaLinkName(streaming(row) && noPictureOf(row));
+        return companionPictured(row) && streaming(row) ? companionLinkName()
+                                                        : aoaLinkName(streaming(row) && noPictureOf(row));
     }
     if (row.provided) {
         return row.provided->extensionName;
@@ -9546,7 +9624,7 @@ settings::PictureSource DeviceManager::usePicture(Row& phone)
     returnCapture(phone);
     const settings::Settings effective = m_settings.effective(phone.deviceId.toStdString());
     const bool wantsCapture = effective.picture.source == settings::PictureSource::Capture;
-    const bool adb = phone.demo != nullptr || !phone.aoaOnly;
+    const bool adb = phone.demo != nullptr || !phone.aoaOnly || companionMirrorReady(phone);
     PhoneLinks links = phoneLinksOf(phone.deviceId, effective.touch);
     links.adb = links.adb || adb;
     PictureInUse chosen = effectivePicture(effective.picture.source, links);
@@ -10128,6 +10206,16 @@ void DeviceManager::matcherSuggested(int matcherTicket, const QString& captureSe
 bool DeviceManager::isBoxRow(const Row& row) noexcept
 {
     return row.provided.has_value();
+}
+
+bool DeviceManager::companionPictured(const Row& row) noexcept
+{
+    return row.aoaOnly && row.controller != nullptr && row.companionMirror != nullptr;
+}
+
+bool DeviceManager::companionMirrorReady(const Row& row) noexcept
+{
+    return row.aoaOnly && row.companionMirror != nullptr && row.companionMirror->attached();
 }
 
 bool DeviceManager::noPictureOf(const Row& row) noexcept

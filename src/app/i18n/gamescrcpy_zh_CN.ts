@@ -21991,6 +21991,10 @@
         <translation>USB · 画面 + AOA 触控</translation>
     </message>
     <message>
+        <source>Wireless · companion picture + USB · AOA touch</source>
+        <translation>无线 · 伴侣画面 + USB · AOA 触控</translation>
+    </message>
+    <message>
         <source>The phone refused the screen recording</source>
         <translation>手机拒绝了录屏</translation>
     </message>
