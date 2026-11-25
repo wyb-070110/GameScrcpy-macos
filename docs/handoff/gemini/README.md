@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-11-25（G8 补充定案：方向 B 双端方案）
+
+### 做了什么
+根据用户选定（**方向 B「双屏跃迁与极速帧流」**用于双端，手机端采用 **配色方案 1「极光翠绿」**），更新 [`icon.md`](icon.md) 第 5 节并补充双端矢量分层素材（只写文档与 SVG，未改代码）：
+1. **macOS 端（系统蓝）**：在 [`icon/layers-b-macos/`](icon/layers-b-macos/) 产出 4 组 `1024×1024` Icon Composer 分层 SVG（`01-phone-back.svg`、`02-glass-screen.svg`、`03-glass-sheen.svg`、`04-chevron.svg`）与合层预览 [`icon/preview-b-macos.svg`](icon/preview-b-macos.svg)。
+2. **Android 手机端（极光翠绿）**：按 Android Adaptive Icon（`108×108 dp` 画布、`66×66 dp` 安全圆）在 [`icon/layers-b-android/`](icon/layers-b-android/) 产出背景层 `ic_launcher_background.svg`、前景层 `ic_launcher_foreground.svg`、Material You 单色层 `ic_launcher_monochrome.svg` 与 `512×512` 预览 [`icon/preview-b-android.svg`](icon/preview-b-android.svg)。
+3. 在 [`icon.md`](icon.md) 第 5 节补充双端色值对照表、Icon Composer 参数、Android `adaptive-icon` XML 参考与坐标安全区说明。
+
+### 验证了什么
+- 联网核实了 Google 官方 [Adaptive icons — Android Developers](https://developer.android.com/develop/ui/compose/system/icon_design_adaptive) 规范（`108×108 dp`、`66×66 dp` 安全区、`monochrome` 主题图标层）。
+- 验算了 Android 前景层几何坐标：竖屏外角距圆心约 `31.7 dp`、横屏外角距圆心 `29.15 dp`，均严格位于半径 `33 dp` 安全圆内。
+
+### 没做完 / 需要用户或 Claude 做的事
+- **需要 Claude**：
+  - Mac 端：将 `docs/handoff/gemini/icon/layers-b-macos/01-*.svg` 至 `04-*.svg` 拖入 Xcode Icon Composer 生成 `.icon`（背景设为 `#F0F6FF → #CFE4FF`）。
+  - Android 端：将 `docs/handoff/gemini/icon/layers-b-android/` 下的 3 个 SVG 转为 Vector Drawable XML 接入 Companion 工程（`mipmap-anydpi-v26/ic_launcher.xml`）。
+
+---
+
 ## 2026-11-24（第三批：G8）
 
 ### 做了什么

@@ -1,7 +1,7 @@
 # GameScrcpy for macOS App 图标设计方案（G8）
 
-- **日期**：2026-11-24
-- **结论**：提出 **4 个风格鲜明、原生适配 macOS 26 Liquid Glass 的图标方向**，最终推荐 **方向 A「棱镜投屏准星（Precision Cast）」**。该方案承接了现有临时标志（`docs/images/logo.png`）的“横屏 + 准星”核心记忆点，但彻底重塑为 macOS 26 立体分层液态玻璃结构，呼应软件的 `#0A84FF` 系统蓝强调色，并在 16 px 缩略图与六种系统外观下均保持高辨识度。文末附完整的 **Apple Icon Composer 图层拆解参数**，并已在 [`icon/layers/`](icon/layers/) 下提供可直接导入的 4 层 `1024×1024` SVG 矢量素材。
+- **日期**：2026-11-24（2026-11-25 补充定案：方向 B 双端方案）
+- **结论**：初版提出 4 个原生适配 macOS 26 Liquid Glass 的图标方向并推荐方向 A；**2026-11-25 用户已拍板采用方向 B「双屏跃迁与极速帧流」作为双端统一构图**——Mac 端采用 `#0A84FF` 系统蓝配色，手机端（Android / Companion）采用 **配色方案 1「极光翠绿（Emerald Signal）」**（`#10B981` → `#34D399`）。本文第 5 节已补充完整的 **方向 B macOS Icon Composer 4 层 SVG**（[`icon/layers-b-macos/`](icon/layers-b-macos/)）以及 **Android Adaptive Icon 分层规范、色值与 SVG 素材**（[`icon/layers-b-android/`](icon/layers-b-android/)），原方向 A 方案与素材保留在第 4 节供归档参考。
 
 ---
 
@@ -155,3 +155,67 @@
    - `Tinted Light` / `Tinted Dark`：确认准星与中心圆点仍能形成清晰明暗层次。
    - **16 px 实测**：在 Finder 列表视图 / Spotlight / Dock 最小尺寸下检查，确认“深底 + 横屏玻璃块 + 中心亮焦点”清晰可辨、无粘连。
 6. 导出 `.icon` 文件接入工程（并按需为旧版 macOS 生成兼容 `.icns` 兜底）。
+
+---
+
+## 5. 定案补充（2026-11-25）：方向 B 双端统一方案（Mac 蓝 + 手机端极光翠绿）
+
+用户确认选用 **方向 B「双屏跃迁与极速帧流」** 统一双端图形语言，仅通过配色区分桌面接收端与手机发送端：
+- **Mac 端（GameScrcpy for macOS）**：浅冰蓝底 + 深海军蓝竖屏 + `#0A84FF` 系统蓝液态玻璃横屏 + 纯白折角（合层预览：[`icon/preview-b-macos.svg`](icon/preview-b-macos.svg)）。
+- **手机端（Android / Companion）**：选用 **配色方案 1「极光翠绿（Emerald Signal）」**——浅薄荷白底 + 深松石墨绿竖屏 + `#10B981 → #34D399` 翡翠薄荷绿液态玻璃横屏 + 纯白折角（合层预览：[`icon/preview-b-android.svg`](icon/preview-b-android.svg)）。
+
+### 5.1 方向 B · macOS Icon Composer 4 层拆解
+
+依据 Apple [Creating your app icon using Icon Composer](https://developer.apple.com/documentation/xcode/creating-your-app-icon-using-icon-composer)，画布为 `1024×1024` 全出血正方形，现成 4 层 SVG 位于 [`icon/layers-b-macos/`](icon/layers-b-macos/)：
+
+#### 背景填充（Background Inspector）
+- **Default**：纵向线性渐变 `#F0F6FF`（顶）→ `#CFE4FF`（底）。
+- **Dark**：可由系统自动适配，或手动指定深蓝渐变 `#0F1B2E` → `#172B47` 以增强暗色桌面下浅色前景的纵深。
+- **Clear / Tinted**：交由系统自动着色。
+
+#### 前景 4 组图层清单（由底至顶 Z 轴顺序）
+
+| 组序 | 素材文件 | 内容说明 | 坐标与尺寸（1024 画布） | 基础色值 | Icon Composer 材质参数建议 |
+|---|---|---|---|---|---|
+| **Group 1** | [`01-phone-back.svg`](icon/layers-b-macos/01-phone-back.svg) | **后层竖屏手机**：偏左实心圆角竖屏，作为前方液态玻璃折射的深色底衬 | `x=186, y=196`<br>`w=304, h=632`<br>`rx=52` | 纵向线性渐变 `#1D3557` → `#0F2038` | Mode: `Combined`<br>Liquid Glass: `Off`（或低透明 `10%` 保持实心对比）<br>Shadow: `Subtle` |
+| **Group 2** | [`02-glass-screen.svg`](icon/layers-b-macos/02-glass-screen.svg) | **前层系统蓝液态玻璃横屏**：居中偏右叠压手机右半区（重叠宽 `176 px`），产生强烈折射景深 | `x=314, y=304`<br>`w=556, h=416`<br>`rx=46` | 线性渐变 `#38BDF8`（88%）→ `#0A84FF`（92%）→ `#0066E6`（95%），内描边 `#FFFFFF`（38%，`5 px`） | Mode: `Combined`<br>Liquid Glass: `On`<br>Translucency: `65%`<br>Blur: `25%`<br>Specular: `Automatic`<br>Shadow: `Default` |
+| **Group 3** | [`03-glass-sheen.svg`](icon/layers-b-macos/03-glass-sheen.svg) | **玻璃斜切高光折面（可选增强层）**：右上斜切半透明冷白光带，强化玻璃质感 | 裁切于前屏内：`points="738,304 870,304 870,720 622,720"` | 线性渐变 `#FFFFFF`（28%）→ `#FFFFFF`（4%） | Mode: `Combined`<br>Liquid Glass: `Off`<br>说明：若系统自带 Specular 已足够亮，可直接隐藏此层 |
+| **Group 4** | [`04-chevron.svg`](icon/layers-b-macos/04-chevron.svg) | **中心纯白流光折角（`>`）**：位于前屏正中 `(592, 512)`，象征低延迟高速画面流 | `M 548 416 L 644 512 L 548 608`<br>线宽 `46 px`，圆角端点/转角 | 纯白 `#FFFFFF`（100%） | Mode: `Combined`<br>Liquid Glass: `On`<br>Translucency: `10%`<br>Specular: `Automatic`<br>Shadow: `Subtle` |
+
+### 5.2 方向 B 手机端（极光翠绿）· Android Adaptive Icon 分层规范与色值
+
+依据 Google 官方 [Adaptive icons — Android Developers](https://developer.android.com/develop/ui/compose/system/icon_design_adaptive) 规范：
+- **画布尺寸**：全部图层统一为 **`108 × 108 dp`**（四周各预留 `18 dp` 用于 OEM 遮罩裁切与视差动效，不在图层内画圆角遮罩或外投影）。
+- **安全区**：核心图形严格收束在中心 **`66 × 66 dp` 安全圆内（半径 `33 dp`，圆心 `(54, 54)`）**——经坐标验算，竖屏外角距圆心约 `31.7 dp`、前屏外角距圆心 `29.15 dp`，在圆形、圆角矩形、泪滴形等任意 Android 桌面遮罩下均不会裁边。
+- **主题单色图标（Material You）**：同步提供 `monochrome` 单色图层，支持 Android 13+ 壁纸取色主题图标。
+
+#### 极光翠绿（Emerald Signal）双端色值对照
+
+| 元素 | Mac 端（方向 B · 系统蓝） | 手机端（方向 B · 极光翠绿） |
+|---|---|---|
+| **背景渐变** | `#F0F6FF` → `#CFE4FF` | `#ECFDF5` → `#C6F6E2` |
+| **后层竖屏手机** | `#1D3557` → `#0F2038` | `#0F2E2A` → `#081C19` |
+| **前层玻璃横屏** | `#38BDF8` → `#0A84FF` → `#0066E6` | `#34D399` → `#10B981` → `#059669` |
+| **玻璃斜切光带** | `#FFFFFF`（28% → 4%） | `#FFFFFF`（26% → 4%） |
+| **中心折角（`>`）** | `#FFFFFF`（100%） | `#FFFFFF`（100%） |
+
+#### Android 分层素材清单（[`icon/layers-b-android/`](icon/layers-b-android/)）
+
+| 图层类型 | 素材文件 | 内容与坐标（`108×108` viewBox） | 接入方式 |
+|---|---|---|---|
+| **Background** | [`ic_launcher_background.svg`](icon/layers-b-android/ic_launcher_background.svg) | 全出血 `108×108` 纵向线性渐变 `#ECFDF5` → `#C6F6E2` | 通过 Android Studio Vector Asset 转为 `res/drawable/ic_launcher_background.xml` |
+| **Foreground** | [`ic_launcher_foreground.svg`](icon/layers-b-android/ic_launcher_foreground.svg) | 透明底；竖屏 `x=29, y=32, w=19, h=44, rx=3.8`；翡翠玻璃横屏 `x=38, y=39, w=41, h=30, rx=3.5`；纯白折角 `M 55 47 L 62 54 L 55 61`（线宽 `3.2`） | 转为 `res/drawable/ic_launcher_foreground.xml` |
+| **Monochrome** | [`ic_launcher_monochrome.svg`](icon/layers-b-android/ic_launcher_monochrome.svg) | 纯单色镂空剪影：用 `1.8 dp` 负空间描边隔离竖屏与横屏，并将中心 `>` 折角镂空，确保单色主题下仍清晰可辨 | 转为 `res/drawable/ic_launcher_monochrome.xml` |
+
+#### `res/mipmap-anydpi-v26/ic_launcher.xml` 配置参考
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+    <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
+</adaptive-icon>
+```
+
+> 注：旧版 Android（API < 26）传统图标及分发展示图标可直接由 [`icon/preview-b-android.svg`](icon/preview-b-android.svg) 导出 `512×512` 无透明通道 PNG。
