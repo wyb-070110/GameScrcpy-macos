@@ -107,7 +107,7 @@ inline constexpr std::array<std::string_view, 3> kSystemToggleNames{"system", "o
 struct Appearance {
     static constexpr std::size_t kMaxPaletteLength = 64 + 1 + 4 * 64;
 
-    ThemeMode theme = ThemeMode::Dark;
+    ThemeMode theme = ThemeMode::System;
     Accent accent = Accent::Azure;
     SystemToggle reducedMotion = SystemToggle::System;
     SystemToggle reducedTransparency = SystemToggle::System;

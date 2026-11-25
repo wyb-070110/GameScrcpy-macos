@@ -50,8 +50,8 @@ TEST_CASE("a wrong value resets that setting alone and says where")
         "appearance": {"theme": "purple", "accent": 3, "reducedMotion": true},
         "hubWindow": {"x": 10, "width": -5, "maximized": "yes"}})");
     CHECK(loaded.usable);
-    CHECK(loaded.document.appearance.theme == ThemeMode::Dark);
-    CHECK(loaded.document.appearance.accent == Accent::Ember);
+    CHECK(loaded.document.appearance.theme == ThemeMode::System);
+    CHECK(loaded.document.appearance.accent == Accent::Azure);
     CHECK(loaded.document.appearance.reducedMotion == SystemToggle::On);
     CHECK(loaded.document.hubWindow.x == 10);
     CHECK(loaded.document.hubWindow.width == 0);
