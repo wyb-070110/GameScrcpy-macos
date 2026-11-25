@@ -29,3 +29,6 @@
 - 14:28 Swipe: user confirms left/right and up/down (Douyin) perfect after 325b527 (stray momentum start dropped, up/down plain lift).
 - 14:54 Hourly run: every backlog item is ticked; nothing to do.
 - 14:56 Sent A8 (test the mirror toolbar changes ba65956/4a4473c in a demo copy; port tst_floating_toolbar.qml to the mac build) to Antigravity at the user's request; queued behind its universal release + DMG packaging with the new icon.
+- 15:11 Antigravity working on A8 (merged mainline f270376 after packaging e9f513d; now porting the QML toolbar tests and reviewing MirrorOverlay — it flags More-menu visibility for hidden panels/extensions). No prompt waiting; not merged.
+- 15:48 Antigravity still on A8: visual pass done (toolbar-*.png captures), now fixing separator visibility when groups are hidden (doubled/leading separators); uncommitted (main.cpp, FloatingToolbar.qml, tests). Running, no prompt waiting.
+- 15:48 Hourly run: every backlog item is ticked; nothing to do.
