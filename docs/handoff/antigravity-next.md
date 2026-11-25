@@ -21,7 +21,9 @@ Replace the empty stub with libusb (already a dependency: Homebrew `libusb`, fou
   (serial `RFGL71YMDHD`) log what `listUsbPhones()` returns. Do not switch the phone into accessory mode yourself:
   write in the log what to try and Claude will run it with the user.
 
-## A3 — a Mac app that installs like any other (`packaging/macos/`)
+## A3 — TAKEN BY CLAUDE (2026-11-25 09:10): skip it, go from A2 straight to A5
+
+(kept for reference) A Mac app that installs like any other (`packaging/macos/`)
 
 A script `packaging/macos/package.sh` that, from `build/mac-app/bin/GameScrcpy.app`:
 
