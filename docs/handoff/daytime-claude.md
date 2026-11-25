@@ -32,3 +32,5 @@
 - 15:11 Antigravity working on A8 (merged mainline f270376 after packaging e9f513d; now porting the QML toolbar tests and reviewing MirrorOverlay — it flags More-menu visibility for hidden panels/extensions). No prompt waiting; not merged.
 - 15:48 Antigravity still on A8: visual pass done (toolbar-*.png captures), now fixing separator visibility when groups are hidden (doubled/leading separators); uncommitted (main.cpp, FloatingToolbar.qml, tests). Running, no prompt waiting.
 - 15:48 Hourly run: every backlog item is ticked; nothing to do.
+- 16:48 Antigravity stopped on its quota mid-A8 (2/4 steps; fixes uncommitted in MirrorOverlay.qml, FloatingToolbar.qml, ToolbarButton.qml, main.cpp, tests). Refresh 19:13; overages left off.
+- 16:48 Hourly run: every backlog item is ticked; nothing to do.
