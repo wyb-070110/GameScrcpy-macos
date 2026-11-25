@@ -10304,6 +10304,41 @@
     </message>
 </context>
 <context>
+    <name>MacMenuBar</name>
+    <message>
+        <source>GameScrcpy</source>
+        <translation>GameScrcpy</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>文件</translation>
+    </message>
+    <message>
+        <source>View</source>
+        <translation>显示</translation>
+    </message>
+    <message>
+        <source>Device</source>
+        <translation>设备</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>窗口</translation>
+    </message>
+    <message>
+        <source>Minimize</source>
+        <translation>最小化</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>缩放</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>帮助</translation>
+    </message>
+</context>
+<context>
     <name>Main</name>
     <message>
         <source>GameScrcpy</source>

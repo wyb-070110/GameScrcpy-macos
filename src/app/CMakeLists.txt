@@ -88,6 +88,7 @@ qt_add_qml_module(GameScrcpy
         qml/LogicImportDialog.qml
         qml/LogicView.qml
         qml/LogicWindow.qml
+        qml/MacMenuBar.qml
         qml/Main.qml
         qml/MaterialsList.qml
         qml/McpPrompts.qml
@@ -575,6 +576,13 @@ target_compile_definitions(GameScrcpy PRIVATE GS_BUILD_CONFIG="$<CONFIG>")
 set_source_files_properties(WindowChromeMac.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
 target_link_libraries(GameScrcpy PRIVATE "-framework AppKit")
 gs_apply_compiler_policy(GameScrcpy)
+
+# Qt's own texts in Chinese (the macOS application menu's Hide, Quit, Services…), built in like the app's.
+set(gs_qt_translation "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_TRANSLATIONS}/qtbase_zh_CN.qm")
+if(EXISTS "${gs_qt_translation}")
+    qt_add_resources(GameScrcpy gs_qt_translations PREFIX "/i18n/qt" BASE "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_TRANSLATIONS}"
+                     FILES "${gs_qt_translation}")
+endif()
 
 qt_add_translations(GameScrcpy
     TS_FILES i18n/gamescrcpy_zh_CN.ts
