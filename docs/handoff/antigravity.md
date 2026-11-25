@@ -237,3 +237,15 @@
     - `.github/ISSUE_TEMPLATE/bug_report.yml`、`.github/ISSUE_TEMPLATE/config.yml`：替换所有 `NuoRan/GameScrcpy` 链接为 `wyb-070110/anmacgammer`，版本号字段改为 `anmacgamer 版本 / Version`，安装方式改为 `.dmg 安装镜像`，系统环境由 `Windows 版本` 改为 `macOS 版本与芯片型号`。
     - `AGENTS.md`、`docs/README.md`、`docs/architecture.md`、`docs/macos-port.md`、`docs/extensions/logic.{md,en.md}`、`src/app/help/{zh_CN,en}/touch-box.md`、`CHANGELOG.md`、`packaging/macos/RELEASE-NOTES-beta{1,2}.md`：项目名称统一为 `anmacgamer`，移除残余 `NuoRan` 链接、`WinUSB` 标题与 Windows 专属架构/命令描述。
 - **状态**：**可合并**
+
+
+---
+
+### 4. 重新打包通用发布版 `.dmg`（含新应用图标与卷图标）
+
+- **改动文件**：
+  - `packaging/macos/package.sh`：构建 `.dmg` 时同步写入 `.VolumeIcon.icns` 并通过 `SetFile -a C` 启用自定义磁盘卷图标，使挂载后的 DMG 卷与 `GameScrcpy.app` 一并展示新图标。
+- **构建与打包产物**：
+  - 预设：`mac-release`（`arm64` + `x86_64` 通用二进制，`LSMinimumSystemVersion = 14.0`，零外部 Homebrew/Qt 路径依赖，内置 `gs-server.apk`、`gs-companion.apk`、`adb`、`Assets.car` 与全尺寸 `GameScrcpy.icns`）。
+  - 产物路径：`/Users/york/GameScrcpy-macos-antigravity/build/package/GameScrcpy-2.2.1-beta2-macos-universal.dmg`（及同目录 `GameScrcpy.app`，大小 `148M`，SHA-256：`f74398e1f87899a43d51fe10b8ce2c0d355d411380fdad66a22dc10a48a9eef1`）。
+- **状态**：**可合并**
