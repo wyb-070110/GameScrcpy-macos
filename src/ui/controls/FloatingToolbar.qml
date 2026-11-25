@@ -41,6 +41,8 @@ Item {
 
     onPinnedChanged: internal.schedule()
     onHideDelayChanged: internal.schedule()
+    onVerticalChanged: internal.syncGrid()
+    Component.onCompleted: internal.syncGrid()
     onHoveredChanged: {
         if (hovered && visible && !blocked)
             internal.revealed = true
@@ -67,6 +69,16 @@ Item {
                 idle.restart()
             else
                 idle.stop()
+        }
+
+        function syncGrid() {
+            if (toolbar.vertical) {
+                row.rows = -1
+                row.columns = 1
+            } else {
+                row.columns = -1
+                row.rows = 1
+            }
         }
     }
 
@@ -137,10 +149,10 @@ Item {
 
             objectName: "toolbarButtons"
             anchors.centerIn: parent
-            // -1: as many as the visible buttons need. (Switching sides passes through a one-cell grid for a
-            // moment, which Qt reports once; the layout settles right after.)
-            columns: toolbar.vertical ? 1 : -1
-            rows: toolbar.vertical ? -1 : 1
+            // -1: as many as the visible buttons need. syncGrid() opens the unbounded axis before closing the
+            // other so switching sides never passes through a 1x1 grid warning.
+            columns: -1
+            rows: 1
             rowSpacing: Theme.space.xxs
             columnSpacing: Theme.space.xxs
             horizontalItemAlignment: Grid.AlignHCenter

@@ -27,8 +27,10 @@ T.AbstractButton {
         return hovered ? Theme.colors.textPrimary : Theme.colors.textSecondary
     }
 
-    implicitWidth: compact ? Theme.size.toolbarChevron : Theme.size.toolbarButton
-    implicitHeight: Theme.size.toolbarButton
+    readonly property bool across: parent instanceof Grid ? parent.columns === 1 : parent instanceof Column
+
+    implicitWidth: compact && !across ? Theme.size.toolbarChevron : Theme.size.toolbarButton
+    implicitHeight: compact && across ? Theme.size.toolbarChevron : Theme.size.toolbarButton
     padding: 0
     hoverEnabled: true
     focusPolicy: Qt.TabFocus

@@ -350,6 +350,10 @@ Item {
         if (toolbarPinned)
             toolbar.reveal()
     }
+    onToolbarHiddenChanged: {
+        internal.fullToolbarWidth = 0
+        internal.compactToolbarWidth = 0
+    }
 
     onEditingChanged: {
         overlay.closeChosen = false
@@ -991,6 +995,17 @@ Item {
         readonly property real length: vertical ? implicitHeight : implicitWidth
         readonly property bool compact: room < internal.fullToolbarWidth + 2 * Theme.space.sm
         readonly property bool tight: compact && room < internal.compactToolbarWidth + 2 * Theme.space.sm
+        readonly property bool hasNav: overlay.toolbarShows("back") || overlay.toolbarShows("home")
+                                       || overlay.toolbarShows("recents")
+        readonly property bool hasTools: !tight && (overlay.toolbarShows("rotate")
+                                                    || (!compact && overlay.toolbarShows("screen"))
+                                                    || overlay.toolbarShows("volume")
+                                                    || overlay.toolbarShows("tasks")
+                                                    || overlay.toolbarShows("record")
+                                                    || extensionPanelsButton.visible
+                                                    || (overlay.toolbarShows("extensions")
+                                                        && overlay.toolbarButtons.length > 0)
+                                                    || extraButtons.count > 0)
 
         visible: !overlay.mini && !overlay.editing && opacity > 0
         vertical: overlay.verticalToolbar
@@ -1113,7 +1128,7 @@ Item {
             fallbackIcon: "keyboard"
         }
 
-        Item { width: Theme.space.xxs; visible: overlay.toolbarShows("keymap") }
+        Item { width: Theme.space.xxs; visible: overlay.toolbarShows("keymap") && !toolbar.vertical }
 
         ToolbarButton {
             id: keymapMenuButton
@@ -1279,7 +1294,7 @@ Item {
             fallbackIcon: "square"
         }
 
-        ToolbarSeparator { visible: !toolbar.tight }
+        ToolbarSeparator { visible: toolbar.hasNav }
 
         ToolbarButton {
             id: rotateButton
@@ -1541,6 +1556,8 @@ Item {
         }
 
         Repeater {
+            id: extraButtons
+
             model: toolbar.tight ? [] : overlay.toolbarExtras.filter(command => overlay.toolbarAdds(command))
 
             delegate: CommandButton {
@@ -1554,7 +1571,7 @@ Item {
             }
         }
 
-        ToolbarSeparator {}
+        ToolbarSeparator { visible: toolbar.hasTools }
 
         CommandButton {
             id: diagnosticsButton
@@ -1764,7 +1781,7 @@ Item {
                     id: panelsInMore
 
                     objectName: "extensionPanelsInMore"
-                    visible: toolbar.tight && overlay.sidePanels.length > 0
+                    visible: (toolbar.tight || !overlay.toolbarShows("panels")) && overlay.sidePanels.length > 0
                     height: visible ? implicitHeight : 0
                     iconName: "puzzle"
                     text: extensionSide.shown ? qsTr("Close the extension panel") : qsTr("Extension panel")
@@ -1776,7 +1793,7 @@ Item {
                     }
                 }
                 Instantiator {
-                    model: toolbar.tight ? overlay.toolbarButtons.length : 0
+                    model: toolbar.tight || !overlay.toolbarShows("extensions") ? overlay.toolbarButtons.length : 0
 
                     delegate: MenuItem {
                         id: toolbarItem

@@ -436,6 +436,103 @@ Item {
             tryVerify(() => !toast.visible)
         }
 
+        function test_verticalToolbarDrawsAButtonShownLater() {
+            const bar = createTemporaryQmlObject(
+                "import GameScrcpy.Controls\n"
+                + "FloatingToolbar {\n"
+                + "    vertical: true; pinned: true\n"
+                + "    ToolbarButton { objectName: 'first'; iconName: 'arrow-left'; text: 'Back' }\n"
+                + "    ToolbarButton { objectName: 'late'; visible: false; iconName: 'activity'; text: 'Diagnostics' }\n"
+                + "    ToolbarButton { objectName: 'last'; iconName: 'ellipsis'; text: 'More' }\n"
+                + "}", root)
+            bar.reveal()
+            tryCompare(bar, "opacity", 1)
+            const first = findChild(bar, "first")
+            const late = findChild(bar, "late")
+            const last = findChild(bar, "last")
+            const heightWithoutLate = bar.implicitHeight
+            late.visible = true
+            tryVerify(() => bar.implicitHeight > heightWithoutLate)
+            verify(late.width > 0)
+            verify(late.height > 0)
+            verify(late.y > first.y)
+            verify(late.y + late.height <= last.y)
+            const inBar = late.mapToItem(bar, 0, 0)
+            verify(inBar.x >= 0 && inBar.x + late.width <= bar.width)
+            verify(inBar.y >= 0 && inBar.y + late.height <= bar.height)
+        }
+
+        function test_switchingVerticalBackAndForthKeepsButtonOrder() {
+            const bar = createTemporaryQmlObject(
+                "import GameScrcpy.Controls\n"
+                + "FloatingToolbar {\n"
+                + "    pinned: true\n"
+                + "    ToolbarButton { objectName: 'b0'; iconName: 'arrow-left'; text: 'Back' }\n"
+                + "    ToolbarButton { objectName: 'b1'; iconName: 'house'; text: 'Home' }\n"
+                + "    ToolbarSeparator { objectName: 'sep' }\n"
+                + "    ToolbarButton { objectName: 'b2'; iconName: 'square'; text: 'Recents' }\n"
+                + "    ToolbarButton { objectName: 'b3'; iconName: 'ellipsis'; text: 'More' }\n"
+                + "}", root)
+            bar.reveal()
+            tryCompare(bar, "opacity", 1)
+            const items = ["b0", "b1", "sep", "b2", "b3"].map(name => findChild(bar, name))
+            for (let i = 1; i < items.length; ++i)
+                verify(items[i].x > items[i - 1].x)
+            bar.vertical = true
+            tryVerify(() => items[items.length - 1].y > items[0].y)
+            for (let i = 1; i < items.length; ++i)
+                verify(items[i].y > items[i - 1].y)
+            bar.vertical = false
+            tryVerify(() => items[items.length - 1].x > items[0].x)
+            for (let i = 1; i < items.length; ++i)
+                verify(items[i].x > items[i - 1].x)
+            bar.vertical = true
+            tryVerify(() => items[items.length - 1].y > items[0].y)
+            for (let i = 1; i < items.length; ++i)
+                verify(items[i].y > items[i - 1].y)
+        }
+
+        function test_separatorLiesAcrossVerticalToolbarAndStandsUpInHorizontal() {
+            const bar = createTemporaryQmlObject(
+                "import GameScrcpy.Controls\n"
+                + "FloatingToolbar {\n"
+                + "    pinned: true\n"
+                + "    ToolbarButton { iconName: 'arrow-left'; text: 'Back' }\n"
+                + "    ToolbarSeparator { objectName: 'sep' }\n"
+                + "    ToolbarButton { iconName: 'house'; text: 'Home' }\n"
+                + "}", root)
+            bar.reveal()
+            tryCompare(bar, "opacity", 1)
+            const sep = findChild(bar, "sep")
+            verify(!sep.across)
+            verify(sep.height > sep.width)
+            compare(sep.implicitHeight, Theme.size.toolbarButton)
+            bar.vertical = true
+            tryVerify(() => sep.across)
+            verify(sep.width > sep.height)
+            compare(sep.implicitWidth, Theme.size.toolbarButton)
+            bar.vertical = false
+            tryVerify(() => !sep.across)
+            verify(sep.height > sep.width)
+        }
+
+        function test_compactChevronTurnsAcrossInVerticalToolbar() {
+            const bar = createTemporaryQmlObject(
+                "import GameScrcpy.Controls\n"
+                + "FloatingToolbar {\n"
+                + "    pinned: true\n"
+                + "    ToolbarButton { objectName: 'chevron'; compact: true; iconName: 'chevron-down'; text: 'Options' }\n"
+                + "}", root)
+            bar.reveal()
+            tryCompare(bar, "opacity", 1)
+            const chevron = findChild(bar, "chevron")
+            compare(chevron.implicitWidth, Theme.size.toolbarChevron)
+            compare(chevron.implicitHeight, Theme.size.toolbarButton)
+            bar.vertical = true
+            tryCompare(chevron, "implicitWidth", Theme.size.toolbarButton)
+            compare(chevron.implicitHeight, Theme.size.toolbarChevron)
+        }
+
         function test_buildsInEitherTheme_data() {
             return [
                 { tag: "FloatingToolbar", qml: 'FloatingToolbar { ToolbarButton { iconName: "house"; text: "Home" } ToolbarSeparator {} ToolbarButton { iconName: "maximize-2"; text: "Full screen"; checkable: true; checked: true } }' },

@@ -433,3 +433,27 @@ if(TARGET gs::render)
             gs::render
     )
 endif()
+
+# Qt Quick controls on macOS (FloatingToolbar, ToolbarSeparator, ToolbarRevealArea and the rest of ui/controls).
+if(TARGET gs_ui_controlsplugin)
+    find_package(Qt6 6.10 REQUIRED COMPONENTS QuickTest)
+    add_executable(gs_controls_tests ui/controls/ControlsTests.cpp ui/controls/tst_controls.qml)
+    target_link_libraries(gs_controls_tests PRIVATE
+        Qt6::QuickTest
+        gs_ui_themeplugin
+        gs_ui_iconsplugin
+        gs_ui_controlsplugin
+    )
+    target_compile_definitions(gs_controls_tests PRIVATE
+        QUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/ui/controls"
+    )
+    gs_apply_compiler_policy(gs_controls_tests)
+    foreach(suite IN ITEMS floating_toolbar toolbar_reveal)
+        add_test(NAME gs_${suite}_tests
+            COMMAND gs_controls_tests -platform offscreen
+                -import "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_QML}"
+                -input "${CMAKE_CURRENT_SOURCE_DIR}/ui/controls/tst_${suite}.qml")
+        set_tests_properties(gs_${suite}_tests PROPERTIES ENVIRONMENT_MODIFICATION
+            "QT_PLUGIN_PATH=set:${QT6_INSTALL_PREFIX}/${QT6_INSTALL_PLUGINS};QT_FORCE_STDERR_LOGGING=set:1")
+    endforeach()
+endif()
