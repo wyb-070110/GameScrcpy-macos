@@ -30,8 +30,7 @@ Anything that needs the phone or the user: write it under "For the user" and mov
 ## For the user
 
 - **Beta 2 is published** as a pre-release on anmacgammer (private), with the source on its main branch; beta 1's
-  release on GameScrcpy-macos was deleted (tag kept). anmacgammer is private: its Actions runs cost the user's
-  minutes (macOS at 10×), so cancel runs there and let GameScrcpy-macos (public) do CI — or ask the user to turn
-  Actions off for anmacgammer.
+  release on GameScrcpy-macos was deleted (tag kept). GitHub Actions is turned off for anmacgammer (the user
+  agreed): CI runs on GameScrcpy-macos (public).
 
 - Trackpad swipe feel (needs the phone): the four modes are in Settings → Touch → "Trackpad swipe mode".
