@@ -11127,18 +11127,6 @@
         <translation>扩展面板</translation>
     </message>
     <message>
-        <source>Back</source>
-        <translation>返回</translation>
-    </message>
-    <message>
-        <source>Home</source>
-        <translation>主屏幕</translation>
-    </message>
-    <message>
-        <source>Recent apps</source>
-        <translation>最近任务</translation>
-    </message>
-    <message>
         <source>Turn the screen off</source>
         <translation>息屏</translation>
     </message>
@@ -11157,10 +11145,6 @@
     <message>
         <source>More</source>
         <translation>更多</translation>
-    </message>
-    <message>
-        <source>Show on the toolbar</source>
-        <translation>在工具栏上显示</translation>
     </message>
     <message>
         <source>Toolbar buttons…</source>
@@ -11313,10 +11297,6 @@
         <translation>键位映射</translation>
     </message>
     <message>
-        <source>Add to the toolbar</source>
-        <translation>添加到工具栏</translation>
-    </message>
-    <message>
         <source>Restore defaults</source>
         <translation>恢复默认</translation>
     </message>
@@ -11411,6 +11391,14 @@
     <message>
         <source>%1 — Edit key mapping</source>
         <translation>%1 — 编辑键位</translation>
+    </message>
+    <message>
+        <source>Toolbar buttons: %1 of %2</source>
+        <translation>工具栏按钮：已选 %1 个，最多 %2 个</translation>
+    </message>
+    <message>
+        <source>Device commands</source>
+        <translation>设备命令</translation>
     </message>
     <message>
         <source>Edit logic</source>
@@ -18480,6 +18468,10 @@
         <translation>熄屏 息屏 休眠 锁屏 AOD 息屏显示 断开 停止投屏 省电</translation>
     </message>
     <message>
+        <source>Up to five buttons the mirror toolbar shows besides Back, Home and Recents; choose them from the toolbar&apos;s More menu.</source>
+        <translation>除返回、主页、最近任务外，投屏工具栏最多再放五个按钮；在工具栏的“更多”菜单里选择。</translation>
+    </message>
+    <message>
         <source>Sound</source>
         <translation>声音</translation>
     </message>
@@ -18546,10 +18538,6 @@
     <message>
         <source>Toolbar buttons</source>
         <translation>工具栏按钮</translation>
-    </message>
-    <message>
-        <source>Which buttons the mirror toolbar shows; choose them from the toolbar&apos;s More menu.</source>
-        <translation>投屏工具栏上显示哪些按钮；在工具栏的“更多”菜单里选择。</translation>
     </message>
     <message>
         <source>toolbar buttons customize customise hide show</source>

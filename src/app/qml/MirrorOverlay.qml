@@ -34,17 +34,18 @@ Item {
     property int reservedTop: 0
     readonly property string toolbarMode: AppSettings.values["display.toolbar"] ?? "pinned"
     readonly property string toolbarSide: AppSettings.values["display.toolbarSide"] ?? "top"
-    // display.toolbarHidden: the toolbar buttons the user took off (they stay in the More menu), and, starting
-    // with "+", the commands the user added to it. toolbarChoices can be taken off, toolbarExtras added.
+    // Back, Home and Recents are always on the toolbar; display.toolbarButtons names up to toolbarSlots more
+    // (toolbarChoices by id, toolbarExtras as "+" and the command). Everything else is in the More menu.
+    readonly property int toolbarSlots: 5
+    readonly property var toolbarFixed: ["back", "home", "recents"]
     readonly property var toolbarExtras: ["device.notifications", "device.quickSettings", "device.collapsePanels",
                                           "device.files", "device.measureLatency", "device.mini",
                                           "device.editKeymap", "device.settings", "device.disconnect"]
-    readonly property var toolbarHidden: String(AppSettings.values["display.toolbarHidden"] ?? "").split(",")
-                                         .filter(id => id !== "")
+    readonly property var toolbarChosen: String(AppSettings.values["display.toolbarButtons"] ?? "").split(",")
+                                         .filter(id => id !== "").slice(0, toolbarSlots)
+    readonly property bool toolbarFull: toolbarChosen.length >= toolbarSlots
     readonly property var toolbarChoices: [
-        { id: "keymap", text: qsTr("Key mapping") }, { id: "back", text: qsTr("Back") },
-        { id: "home", text: qsTr("Home") }, { id: "recents", text: qsTr("Recent apps") },
-        { id: "rotate", text: qsTr("Orientation") }, { id: "screen", text: qsTr("Turn the screen off") },
+        { id: "keymap", text: qsTr("Key mapping") }, { id: "rotate", text: qsTr("Orientation") }, { id: "screen", text: qsTr("Turn the screen off") },
         { id: "volume", text: qsTr("Volume") }, { id: "tasks", text: qsTr("Tasks") },
         { id: "record", text: qsTr("Record") }, { id: "panels", text: qsTr("Extension panels") },
         { id: "extensions", text: qsTr("Extension buttons") }, { id: "diagnostics", text: qsTr("Diagnostics") },
@@ -56,22 +57,22 @@ Item {
     readonly property bool rotateInMore: toolbar.tight || !toolbarShows("rotate")
 
     function toolbarShows(id) {
-        return toolbarHidden.indexOf(id) < 0
+        return toolbarFixed.indexOf(id) >= 0 || toolbarChosen.indexOf(id) >= 0
     }
 
     function toolbarAdds(command) {
-        return toolbarHidden.indexOf("+" + command) >= 0
+        return toolbarChosen.indexOf("+" + command) >= 0
     }
 
     function setToolbarAdded(command, added) {
-        setToolbarShown("+" + command, !added)
+        setToolbarShown("+" + command, added)
     }
 
     function setToolbarShown(id, shown) {
-        const hidden = toolbarHidden.filter(other => other !== id)
-        if (!shown)
-            hidden.push(id)
-        AppSettings.setValue("display.toolbarHidden", hidden.join(","))
+        const chosen = toolbarChosen.filter(other => other !== id)
+        if (shown && chosen.length < toolbarSlots)
+            chosen.push(id)
+        AppSettings.setValue("display.toolbarButtons", chosen.join(","))
     }
     // The pinned toolbar on another side than the top: the title gets a row of its own above the picture, and the
     // toolbar a strip on its side (pinnedLeft, pinnedRight or pinnedBottom), which the window keeps free.
@@ -352,7 +353,7 @@ Item {
         if (toolbarPinned)
             toolbar.reveal()
     }
-    onToolbarHiddenChanged: {
+    onToolbarChosenChanged: {
         internal.fullToolbarWidth = 0
         internal.compactToolbarWidth = 0
     }
@@ -1611,21 +1612,26 @@ Item {
                 x: overlay.popupX(moreButton, width, moreButton.width - width)
                 y: overlay.popupY(moreButton, height)
 
-                MenuLabel { text: qsTr("Show on the toolbar") }
+                MenuLabel {
+                    text: qsTr("Toolbar buttons: %1 of %2").arg(overlay.toolbarChosen.length).arg(overlay.toolbarSlots)
+                }
                 Repeater {
                     model: overlay.toolbarChoices
 
                     delegate: MenuItem {
                         required property var modelData
 
-                        checkable: true
-                        checked: overlay.toolbarShows(modelData.id)
+                        readonly property bool shown: overlay.toolbarShows(modelData.id)
+
+                        choice: true
+                        chosen: shown
+                        enabled: shown || !overlay.toolbarFull
                         text: modelData.text
-                        onTriggered: overlay.setToolbarShown(modelData.id, checked)
+                        onTriggered: overlay.setToolbarShown(modelData.id, !shown)
                     }
                 }
                 MenuSeparator {}
-                MenuLabel { text: qsTr("Add to the toolbar") }
+                MenuLabel { text: qsTr("Device commands") }
                 Repeater {
                     model: overlay.toolbarExtras
 
@@ -1635,17 +1641,19 @@ Item {
                         required property string modelData
                         readonly property CommandState extra: DeviceCommand { command: extraChoice.modelData }
 
-                        checkable: true
-                        checked: overlay.toolbarAdds(modelData)
+                        readonly property bool added: overlay.toolbarAdds(modelData)
+
+                        choice: true
+                        chosen: added
+                        enabled: added || !overlay.toolbarFull
                         text: extra.title
-                        onTriggered: overlay.setToolbarAdded(modelData, checked)
+                        onTriggered: overlay.setToolbarAdded(modelData, !added)
                     }
                 }
                 MenuSeparator {}
                 MenuItem {
                     text: qsTr("Restore defaults")
-                    enabled: overlay.toolbarHidden.length > 0
-                    onTriggered: AppSettings.setValue("display.toolbarHidden", "")
+                    onTriggered: AppSettings.resetValue("display.toolbarButtons")
                 }
             }
 

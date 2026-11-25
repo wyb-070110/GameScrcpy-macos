@@ -207,7 +207,7 @@ enum class EditingClose : std::uint8_t { Ask, ExitEditing, CloseWindow };
 inline constexpr std::array<std::string_view, 3> kEditingCloseNames{"ask", "exitEditing", "closeWindow"};
 
 struct Display {
-    static constexpr std::size_t kMaxToolbarHiddenLength = 512;
+    static constexpr std::size_t kMaxToolbarButtonsLength = 512;
 
     bool lowLatency = false;
     std::int32_t sharpness = 0;
@@ -221,8 +221,9 @@ struct Display {
     ScreenOffAction phoneScreenOff = ScreenOffAction::Ask;
     bool screenOffWhileMirroring = false;
     bool mirrorOnTop = false;
-    // The mirror toolbar's buttons the user took off it, comma-separated ids (they stay in its "More" menu).
-    std::string toolbarHidden;
+    // Besides Back, Home and Recents, the mirror toolbar's buttons (at most five), comma-separated ids; a command added
+    // from the More menu starts with "+". The rest stay in the More menu.
+    std::string toolbarButtons = "keymap,volume,rotate,fullScreen,onTop";
 
     template <typename V, typename Self>
     static void visit(V& v, Self& m)
@@ -322,10 +323,11 @@ struct Display {
                                                                 "when you work in another app or switch desktops."),
                    .keywords = GS_TRANSLATE_NOOP("Settings", "on top float pin always front window"),
                    .live = true});
-        v.text("toolbarHidden", m.toolbarHidden, kMaxToolbarHiddenLength,
+        v.text("toolbarButtons", m.toolbarButtons, kMaxToolbarButtonsLength,
                {.title = GS_TRANSLATE_NOOP("Settings", "Toolbar buttons"),
-                .description = GS_TRANSLATE_NOOP("Settings", "Which buttons the mirror toolbar shows; choose them "
-                                                             "from the toolbar's More menu."),
+                .description = GS_TRANSLATE_NOOP("Settings", "Up to five buttons the mirror toolbar shows besides "
+                                                             "Back, Home and Recents; choose them from the "
+                                                             "toolbar's More menu."),
                 .keywords = GS_TRANSLATE_NOOP("Settings", "toolbar buttons customize customise hide show"),
                 .live = true});
     }

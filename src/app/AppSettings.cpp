@@ -256,6 +256,21 @@ QVariantMap AppSettings::values() const
     return values;
 }
 
+bool AppSettings::resetValue(const QString& path)
+{
+    const settings::Entry* entry = settings::findSetting(path.toStdString());
+    if (entry == nullptr) {
+        return false;
+    }
+    const auto fallback = settings::valueOf(settings::Settings{}, entry->path);
+    settings::Settings next = m_file.document();
+    if (!fallback || !settings::assign(next, entry->path, *fallback)) {
+        return false;
+    }
+    change(next);
+    return true;
+}
+
 bool AppSettings::setValue(const QString& path, const QVariant& value)
 {
     const settings::Entry* entry = settings::findSetting(path.toStdString());
