@@ -22,3 +22,4 @@
 - 11:10 CI green (45536621675). User chose: anmacgammer gets source + release; beta 1 release deleted. Pushed source to anmacgammer main (b5edc4a, merged over its README commit) and published v2.2.1-beta2 pre-release there (dmg sha256 275478c8…). Cancelled anmacgammer's Actions runs (private repo, would spend the user's minutes).
 - 11:09 Antigravity working on A5 (serial; pty signal test), A2 committed as bee74fe; quota 5 h 91%, weekly 48%. Closed its open Settings panel (overages left off). Not merged.
 - 11:10 Turned off GitHub Actions for anmacgammer (user agreed); all its runs had ended (cancelled or done).
+- 11:59 Backlog: reviewed Antigravity's A2 (USB/libusb) + A5 (serial/IOKit) (可合并); trial merge 44ecfca (header conflicts only, SPDX added to 3 new files) builds, ctest 172/172. Kept as branch merge/antigravity-a2-a5, not merged into ccr — waiting for the user's OK (check prompt says Claude reviews with the user).
