@@ -4,7 +4,7 @@
 // shape, at any size.
 //
 //   swift packaging/macos/icon/make_icon.swift <variant> <size> <out.png>
-//   variant: ember (the original orange), azure (the app's blue on graphite), light (graphite on light)
+//   variant: azure (the app icon: the app's blue on graphite), ember (the original orange), light
 import AppKit
 import CoreGraphics
 
@@ -41,14 +41,61 @@ func squircle(_ rect: CGRect) -> CGPath {
     return path
 }
 
+// The mark's two parts, on the 1024 canvas of a finished icon (the body is 824 wide there).
+func drawPhone(_ ctx: CGContext, _ color: CGColor) {
+    let phone = CGRect(x: 512 - 300, y: 512 - 180, width: 600, height: 360)
+    ctx.addPath(CGPath(roundedRect: phone, cornerWidth: 100, cornerHeight: 100, transform: nil))
+    ctx.setStrokeColor(color)
+    ctx.setLineWidth(46)
+    ctx.strokePath()
+    ctx.setFillColor(color)
+    ctx.fillEllipse(in: CGRect(x: phone.minX + 62 - 15, y: 512 - 15, width: 30, height: 30))
+}
+
+func drawCrosshair(_ ctx: CGContext, _ color: CGColor) {
+    ctx.setStrokeColor(color)
+    ctx.setLineWidth(36)
+    ctx.setLineCap(.round)
+    ctx.strokeEllipse(in: CGRect(x: 512 - 56, y: 512 - 56, width: 112, height: 112))
+    for (dx, dy) in [(1.0, 0.0), (-1.0, 0.0), (0.0, 1.0), (0.0, -1.0)] {
+        ctx.move(to: CGPoint(x: 512 + 90 * dx, y: 512 + 90 * dy))
+        ctx.addLine(to: CGPoint(x: 512 + 124 * dx, y: 512 + 124 * dy))
+    }
+    ctx.strokePath()
+}
+
+func write(_ ctx: CGContext, _ path: String) {
+    let rep = NSBitmapImageRep(cgImage: ctx.makeImage()!)
+    try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: path))
+}
+
 let args = CommandLine.arguments
+let space = CGColorSpace(name: CGColorSpace.sRGB)!
+func canvas(_ size: Int) -> CGContext {
+    CGContext(data: nil, width: size, height: size, bitsPerComponent: 8, bytesPerRow: 0, space: space,
+              bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+}
+
+// The layers of the Icon Composer icon (packaging/macos/icon/GameScrcpy.icon): each part alone on a 1024 canvas
+// that is the whole icon, edge to edge (macOS draws the shape, the margin and the glass itself).
+if args.count == 3 && args[1] == "layers" {
+    for (name, draw) in [("phone", { drawPhone($0, rgb(244, 245, 247)) }),
+                         ("crosshair", { drawCrosshair($0, rgb(10, 132, 255)) })] as [(String, (CGContext) -> Void)] {
+        let ctx = canvas(1024)
+        ctx.translateBy(x: 512, y: 512)
+        ctx.scaleBy(x: 1024.0 / 824.0, y: 1024.0 / 824.0)
+        ctx.translateBy(x: -512, y: -512)
+        draw(ctx)
+        write(ctx, args[2] + "/" + name + ".png")
+    }
+    exit(0)
+}
+
 guard args.count == 4, let palette = palettes[args[1]], let size = Int(args[2]) else {
-    FileHandle.standardError.write("usage: make_icon.swift ember|azure|light <size> <out.png>\n".data(using: .utf8)!)
+    FileHandle.standardError.write("usage: make_icon.swift azure|ember|light <size> <out.png> | layers <dir>\n".data(using: .utf8)!)
     exit(1)
 }
-let space = CGColorSpace(name: CGColorSpace.sRGB)!
-let ctx = CGContext(data: nil, width: size, height: size, bitsPerComponent: 8, bytesPerRow: 0, space: space,
-                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+let ctx = canvas(size)
 let k = CGFloat(size) / 1024
 ctx.scaleBy(x: k, y: k)
 
@@ -79,26 +126,6 @@ ctx.setStrokeColor(palette.edge)
 ctx.setLineWidth(3)
 ctx.strokePath()
 
-// The phone on its side.
-let phone = CGRect(x: 512 - 300, y: 512 - 180, width: 600, height: 360)
-ctx.addPath(CGPath(roundedRect: phone, cornerWidth: 100, cornerHeight: 100, transform: nil))
-ctx.setStrokeColor(palette.phone)
-ctx.setLineWidth(46)
-ctx.strokePath()
-ctx.setFillColor(palette.phone)
-ctx.fillEllipse(in: CGRect(x: phone.minX + 62 - 15, y: 512 - 15, width: 30, height: 30))
-
-// The crosshair: a ring and four ticks.
-ctx.setStrokeColor(palette.mark)
-ctx.setLineWidth(36)
-ctx.setLineCap(.round)
-ctx.strokeEllipse(in: CGRect(x: 512 - 56, y: 512 - 56, width: 112, height: 112))
-for (dx, dy) in [(1.0, 0.0), (-1.0, 0.0), (0.0, 1.0), (0.0, -1.0)] {
-    ctx.move(to: CGPoint(x: 512 + 90 * dx, y: 512 + 90 * dy))
-    ctx.addLine(to: CGPoint(x: 512 + 124 * dx, y: 512 + 124 * dy))
-}
-ctx.strokePath()
-
-let image = ctx.makeImage()!
-let rep = NSBitmapImageRep(cgImage: image)
-try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: args[3]))
+drawPhone(ctx, palette.phone)
+drawCrosshair(ctx, palette.mark)
+write(ctx, args[3])

@@ -23,3 +23,4 @@
 - 11:09 Antigravity working on A5 (serial; pty signal test), A2 committed as bee74fe; quota 5 h 91%, weekly 48%. Closed its open Settings panel (overages left off). Not merged.
 - 11:10 Turned off GitHub Actions for anmacgammer (user agreed); all its runs had ended (cancelled or done).
 - 11:59 Backlog: reviewed Antigravity's A2 (USB/libusb) + A5 (serial/IOKit) (可合并); trial merge 44ecfca (header conflicts only, SPDX added to 3 new files) builds, ctest 172/172. Kept as branch merge/antigravity-a2-a5, not merged into ccr — waiting for the user's OK (check prompt says Claude reviews with the user).
+- 12:08 Antigravity idle: finished A2 + A5 (bee74fe, 0c6b4f9), clean tree; antigravity-next.md has no items left, so no nudge sent. Needs a new batch from Claude/user.

@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-11-24（第三批：G8）
+
+### 做了什么
+按 `TEAM.md` 第 4 节第三批任务完成 **G8（GameScrcpy for macOS App 图标方案）**（只写文档与矢量素材，未改任何代码）：
+1. 新增 [`icon.md`](icon.md)：结合软件定位（低延迟原画质高刷手游投屏、键鼠/触控板/手柄操控、键位映射、自动化脚本、录屏）、macOS 26 Liquid Glass 风格与 `#0A84FF` 强调色，提出 4 个独立设计方向（**A 棱镜投屏准星**、**B 双屏跃迁**、**C 玻璃操控视窗**、**D 零延迟电光菱镜**），每项含寓意、构图、具体色值与适配理由及横向对比表。
+2. 最终推荐 **方向 A（棱镜投屏准星 / Precision Cast）**，并按 Apple Icon Composer 规范完成 1 背景填充 + 4 组前景图层的精确坐标、色值与材质参数拆解。
+3. 在 [`icon/`](icon/) 下产出推荐方案的合层结构矢量预览 [`icon/preview-a-precision-cast.svg`](icon/preview-a-precision-cast.svg) 以及 4 组可直接拖入 Icon Composer 的 `1024×1024` SVG 分层素材（[`icon/layers/01-source-screen.svg`](icon/layers/01-source-screen.svg) 至 [`04-core-dot.svg`](icon/layers/04-core-dot.svg)）。4 个方向的高精度 Liquid Glass 渲染概念图已在 Gemini 对话中直接输出。
+
+### 验证了什么
+- 核对了 `TEAM.md` G8 要求与现有临时标志 `docs/images/logo.png`。
+- 联网核实了 Apple 官方 [Human Interface Guidelines — App icons](https://developer.apple.com/design/human-interface-guidelines/app-icons) 与 [Creating your app icon using Icon Composer](https://developer.apple.com/documentation/xcode/creating-your-app-icon-using-icon-composer) 规范（1024×1024 全出血画布、4 组前景图层、材质参数与六种系统外观）。
+- 校验了 4 层 SVG 坐标、安全边距（≥ 164 px）与 16 px 缩放比例。
+
+### 没做完 / 需要用户或 Claude 做的事
+- **需要用户**：在 4 个方向中确认是否采纳推荐的 **方向 A**（或偏好其他方向）；若需将对话中生成的 4 张高精度 Liquid Glass 概念图归档入库，可直接从对话另存至 `docs/handoff/gemini/icon/`。
+- **需要 Claude**：用户拍板后，按 `icon.md` 第 4 节参数将 `docs/handoff/gemini/icon/layers/01-*.svg` 至 `04-*.svg` 拖入 Xcode Icon Composer 制作 `.icon` 文件，并在 Default / Dark / Clear / Tinted 与 16 px 尺寸下微调最终玻璃折射效果。
+
+---
+
 ## 2026-11-24（第二批：G4–G7）
 
 ### 做了什么

@@ -1,7 +1,11 @@
 qt_add_executable(GameScrcpy MACOSX_BUNDLE
     main.cpp
+    resources/GameScrcpy.icns
 )
+# The Dock, Finder and Launchpad icon (drawn by packaging/macos/icon/make_icon.swift).
+set_source_files_properties(resources/GameScrcpy.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 set_target_properties(GameScrcpy PROPERTIES
+    MACOSX_BUNDLE_ICON_FILE "GameScrcpy"
     MACOSX_BUNDLE_BUNDLE_NAME "GameScrcpy"
     MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.nuoran.gamescrcpy"
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
