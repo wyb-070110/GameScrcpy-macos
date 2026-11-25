@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 // gs-exthost off Windows: the arguments as wide strings, as wmain gets them on Windows. A restricted gs-exthost
 // enters its sandbox here, before it reads the channel or loads the library (posix/Sandbox.h).
 #include <gs/exthost/Server.h>

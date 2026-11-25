@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 // Speech synthesis, PCM rendering and voice command recognition on macOS with AVSpeechSynthesizer, AVAudioEngine
 // and SFSpeechRecognizer (preferring on-device recognition).
 #include "gs/platform/Speech.h"

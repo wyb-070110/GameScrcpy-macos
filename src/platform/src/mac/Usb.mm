@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 // Phones over USB without adb, on macOS: not done yet. adb reaches phones over USB itself on macOS (no driver to
 // install, unlike Windows), so the list here stays empty and opening a phone says it was not found.
 #include "gs/platform/Usb.h"

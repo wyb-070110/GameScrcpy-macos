@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 # Makes a GameScrcpy .dmg for macOS from the built app (cmake --build --preset mac-app):
 #   - copies build/mac-app/bin/GameScrcpy.app to build/package/,
 #   - puts adb inside (Contents/Resources/adb), so a Mac without the Android tools can connect phones,

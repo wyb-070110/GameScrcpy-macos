@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 # gs_hardware off Windows (the macOS port): device ids, names and the fake backend as on Windows; the system
 # backend lists no devices yet (IOKit for serial and HID, Core Bluetooth for BLE would on macOS).
 add_library(gs_hardware STATIC

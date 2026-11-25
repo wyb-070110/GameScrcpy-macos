@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 #pragma once
 
 // macOS virtual key codes (kVK_*, as in Carbon's Events.h) and the PC set-1 scan codes the program names keys by

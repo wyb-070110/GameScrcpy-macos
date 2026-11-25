@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 // The window frame on macOS: the system's title bar, made transparent with the content drawn under it, so the
 // window keeps the traffic lights and macOS moves it by its top strip and zooms it on a double click there (the
 // System Settings choice). QWindowKit's frameless window is not used on macOS: it makes the window unmovable and

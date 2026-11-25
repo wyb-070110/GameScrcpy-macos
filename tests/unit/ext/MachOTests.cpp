@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 // Mach-O libraries for macOS native extensions: reading them, sorting their imports, and the package checks.
 #include "gs/ext/Archive.h"
 #include "gs/ext/Manifest.h"

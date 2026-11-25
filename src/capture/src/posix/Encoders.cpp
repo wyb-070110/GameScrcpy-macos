@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 // Capture-card encoding off Windows is not ported yet (Media Foundation there; VideoToolbox and AudioToolbox
 // would serve on macOS). The encoders say so; the bitstream helpers are the same as on Windows.
 #include "gs/capture/Encoders.h"
