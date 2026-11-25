@@ -18,9 +18,10 @@ T.Pane {
         id: face
 
         radius: Theme.radius.xl
-        color: Theme.colors.bgOverlay
+        color: Theme.glass ? Theme.colors.fillGroup : Theme.colors.bgOverlay
         border.width: Theme.size.stroke
-        border.color: control.active ? Theme.colors.accentLine : Theme.colors.strokeSubtle
+        // Liquid Glass keeps the accent off box borders: the card's own status shows its state.
+        border.color: control.active && !Theme.glass ? Theme.colors.accentLine : Theme.colors.strokeSubtle
 
         Behavior on border.color {
             ColorAnimation {
@@ -33,7 +34,7 @@ T.Pane {
         Rectangle {
             anchors.fill: parent
             radius: face.radius
-            opacity: control.active ? 1 : 0
+            opacity: control.active && !Theme.glass ? 1 : 0
             gradient: Gradient {
                 orientation: Gradient.Horizontal
 
@@ -61,7 +62,7 @@ T.Pane {
             y: Theme.size.stroke
             width: face.width - 2 * face.radius
             height: Theme.size.stroke
-            color: Theme.glass ? Theme.colors.glassEdge : Theme.colors.highlight
+            color: Theme.colors.highlight
         }
     }
 }

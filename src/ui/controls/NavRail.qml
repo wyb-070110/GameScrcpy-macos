@@ -65,7 +65,7 @@ T.Control {
             readonly property Item target: pages.generation >= 0 && pages.count > 0 ? pages.itemAt(control.currentIndex)
                                                                                     : null
 
-            visible: target !== null
+            visible: target !== null && !Theme.glass
             x: -control.leftPadding
             y: target ? top.y + target.y + (target.height - height) / 2 : 0
             width: Theme.size.navIndicatorWidth

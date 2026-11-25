@@ -71,7 +71,7 @@ void setMacWindowGlass(QWindow* window, bool on)
         glass.identifier = kGlassId;
         glass.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
         glass.blendingMode = NSVisualEffectBlendingModeBehindWindow;
-        glass.material = NSVisualEffectMaterialUnderWindowBackground;
+        glass.material = NSVisualEffectMaterialSidebar;
         glass.state = NSVisualEffectStateFollowsWindowActiveState;
         [frame addSubview:glass positioned:NSWindowBelow relativeTo:host.contentView];
     }

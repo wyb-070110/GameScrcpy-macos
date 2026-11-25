@@ -9,7 +9,7 @@ QtObject {
     // than paint, and floating ones are thicker glass.
     property bool glass: false
 
-    final readonly property color bgBase: overrides.bgBase ?? (glass ? (dark ? "#590B0C0F" : "#66F2F3F6")
+    final readonly property color bgBase: overrides.bgBase ?? (glass ? "transparent"
                                                                      : (dark ? "#0B0C0F" : "#E8EBEF"))
     final readonly property color bgRaised: overrides.bgRaised ?? (glass ? (dark ? "#14FFFFFF" : "#8CFFFFFF")
                                                                          : (dark ? "#111317" : "#F4F5F8"))
@@ -17,10 +17,14 @@ QtObject {
                                                                            : (dark ? "#171A1F" : "#FFFFFF"))
     final readonly property color bgElevated: overrides.bgElevated ?? (glass ? (dark ? "#EB22262E" : "#F2FFFFFF")
                                                                              : (dark ? "#1D2127" : "#FFFFFF"))
-    final readonly property color bgSunken: overrides.bgSunken ?? (glass ? (dark ? "#33000000" : "#0F000000")
+    final readonly property color bgSunken: overrides.bgSunken ?? (glass ? (dark ? "#14FFFFFF" : "#0D000000")
                                                                          : (dark ? "#08090B" : "#E7EAEF"))
     final readonly property color bgFrosted: overrides.bgFrosted ?? Qt.rgba(bgElevated.r, bgElevated.g, bgElevated.b,
                                                                             glass ? 0.72 : 0.86)
+    // Liquid Glass, as macOS 26 lays out a window: only the sidebar is glass; the content area is a near-solid
+    // neutral grey and the boxes on it a faint step lighter (System Settings' grouped boxes).
+    final readonly property color bgContent: overrides.bgContent ?? (dark ? "#F51E1E20" : "#F7F5F5F7")
+    final readonly property color fillGroup: overrides.fillGroup ?? (dark ? "#0FFFFFFF" : "#CCFFFFFF")
     // The light along the top edge of a glass surface.
     final readonly property color glassEdge: overrides.glassEdge ?? (dark ? "#2EFFFFFF" : "#B3FFFFFF")
     final readonly property color bgCode: overrides.bgCode ?? (dark ? bgSunken : bgOverlay)
