@@ -43,6 +43,36 @@ layers for direction A (`docs/handoff/gemini/icon/layers/`): do not use those.
 100 ms before the lift, and the gap between the last move and the lift (Android treats > 40 ms as a stopped finger;
 see `docs/handoff/swipe-design.md`). Test it on a trace from a demo copy; do not touch the user's phone.
 
+## NOW (2026-11-25 evening): clean up, then A9
+
+1. **Clean up first.** Throw away your uncommitted A8 copy (`git checkout -- src tests`, delete the untracked
+   `docs/handoff/glass/toolbar-*.png`). Then `git fetch ~/GameScrcpy-macos ccr-e32722c2-75w11u` and
+   `git merge FETCH_HEAD`: the mainline now has your rename, icon B, DMG icon and touch_trace.py merged (af89b52),
+   plus two doc fixes by Claude (the ESP32 download link and the QtScrcpy credit stay). Check
+   `ctest --preset mac-app` is green and log it.
+
+## A9 — The app must quit cleanly on SIGTERM (and SIGINT, SIGHUP)
+
+`kill -TERM <pid>` (what `killall`, launchd and logout send) does not make GameScrcpy quit. It has to: a clean quit
+is what switches the phone back to its own keyboard, stops the phone-side server and the companion, and writes
+settings.
+
+1. Reproduce on a **demo copy only** (never the user's running GameScrcpy at
+   `~/GameScrcpy-macos/build/mac-app/bin/GameScrcpy.app`, pid from `pgrep -f`; do not signal it): run the built app
+   with its own `GS_DATA_DIR` and `--demo-device tests/data/video/emulator_h264.media`, send it SIGTERM, see whether
+   it leaves and what the log (`$GS_DATA_DIR/logs/gamescrcpy.log`) says.
+2. Find why: look in `src/app/main.cpp` and `src/platform` for any signal handling (POSIX `sigaction`, a blocked
+   signal mask in a worker thread, `SIG_IGN`), and at how Windows asks the app to quit (`WM_CLOSE` /
+   console-control handler) so macOS does the same thing.
+3. Fix with the usual safe pattern: a self-pipe or `socketpair` written from an async-signal-safe handler (or
+   `dispatch_source_create(DISPATCH_SOURCE_TYPE_SIGNAL, …)` with the signal ignored by default), read on the Qt
+   main thread with a `QSocketNotifier`, which then calls the same path as Quit in the menu
+   (`QCoreApplication::quit` or the app's own quit function, whatever ⌘Q uses). A second signal while quitting may
+   exit at once. Keep it in the macOS/POSIX platform code; do not change Windows behaviour.
+4. Test: a unit or integration test if one is practical (e.g. start a small helper, send SIGTERM, check the exit
+   code), and by hand on the demo copy: SIGTERM → the log shows a normal exit with code 0 within a couple of seconds.
+5. One commit, log in `docs/handoff/antigravity.md`, mark 可合并, then stop.
+
 ## A8 — DONE BY CLAUDE (2026-11-25 19:05, commit 88dad52): your quota ran out mid-task
 
 Claude reviewed your uncommitted A8 work and took it into the mainline (separators, More-menu entries, grid axes,
