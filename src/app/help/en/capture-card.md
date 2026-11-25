@@ -1,8 +1,8 @@
-A capture card turns the picture a phone sends over HDMI into a picture on this computer. GameScrcpy shows it like a phone's picture, with key mapping, vision and recording, even when USB debugging is off. Touches go to the phone over AOA, through a touch box from an extension, or not at all.
+A capture card turns the picture a phone sends over HDMI into a picture on this computer. anmacgamer shows it like a phone's picture, with key mapping, vision and recording, even when USB debugging is off. Touches go to the phone over AOA, through a touch box from an extension, or not at all.
 
 ## What to buy
 
-- :usb: **A USB 3.0 capture card**: gives the raw picture, 1080p at 60 frames per second with almost no delay. Look for "1080p60" and "USB 3.0" on the box; GameScrcpy picks the best format by itself.
+- :usb: **A USB 3.0 capture card**: gives the raw picture, 1080p at 60 frames per second with almost no delay. Look for "1080p60" and "USB 3.0" on the box; anmacgamer picks the best format by itself.
 - :plug: **A cheap USB 2.0 card**: sends the picture as MJPEG. Most still reach 1080p at 60 frames per second; the graphics card unpacks it, and the picture is a little softer.
 - :smartphone: **A USB-C to HDMI adapter**: the phone must send video over its USB-C port (DisplayPort Alt Mode). Many flagship phones do, most budget phones do not.
 
@@ -25,13 +25,13 @@ Select **Settings** on the capture card's card and choose in the **Touch** group
 - :usb: **AOA over USB**: plug the phone into this computer with a USB cable as well and choose it under **Phone on USB**; macOS needs no driver (see [AOA touch over USB](help:aoa-driver)).
 - :plug: A box from an extension, such as the ESP32 touch box, gives the touches to the phone; the list shows it under its own name while its extension is on and the box is connected. When it is not there, touch stays off and the mirror window says so. [Touch boxes](help:touch-box) tells how to get one.
 
-**Profile** in the **Key mapping** group of the settings window chooses the profile: without adb GameScrcpy cannot tell which game is in front.
+**Profile** in the **Key mapping** group of the settings window chooses the profile: without adb anmacgamer cannot tell which game is in front.
 
 ## Black bars and the picture area
 
-Phones send a picture in the shape of their screen, and the capture card fills the rest of its wide frame with black. GameScrcpy finds the phone's screen in the frame by itself and shows only that part; key hints, vision, screenshots and recordings also see only the phone's screen. Dark scenes do not make the area smaller, and after the phone turns, the new area takes over within about a second.
+Phones send a picture in the shape of their screen, and the capture card fills the rest of its wide frame with black. anmacgamer finds the phone's screen in the frame by itself and shows only that part; key hints, vision, screenshots and recordings also see only the phone's screen. Dark scenes do not make the area smaller, and after the phone turns, the new area takes over within about a second.
 
-If the area is wrong, choose **More > Adjust the picture area…** in the mirror window, drag the box onto the phone's screen and select **Apply**. **Back to automatic** lets GameScrcpy find it again.
+If the area is wrong, choose **More > Adjust the picture area…** in the mirror window, drag the box onto the phone's screen and select **Apply**. **Back to automatic** lets anmacgamer find it again.
 
 ## Turned left or right
 
@@ -39,4 +39,4 @@ Without adb nothing tells which way a landscape phone is turned, so touches coul
 
 ## Sound
 
-When the capture card has a sound device of its own, GameScrcpy finds it, plays it and records it with the picture. The volume and mute buttons work as they do for a phone. Turn **Sound** off in the **Picture and sound** group of the settings window to leave the sound alone.
+When the capture card has a sound device of its own, anmacgamer finds it, plays it and records it with the picture. The volume and mute buttons work as they do for a phone. Turn **Sound** off in the **Picture and sound** group of the settings window to leave the sound alone.

@@ -218,7 +218,7 @@ QString shotFailureText(ShotFailure failure)
     case ShotFailure::Refused:
         return DeviceManager::tr("The phone refused the screen recording");
     case ShotFailure::Unsupported:
-        return DeviceManager::tr("This phone cannot take screenshots for GameScrcpy");
+        return DeviceManager::tr("This phone cannot take screenshots for anmacgamer");
     case ShotFailure::Busy:
         return DeviceManager::tr("The phone is still taking the last screenshot");
     case ShotFailure::TimedOut:
@@ -1975,7 +1975,7 @@ void DeviceManager::connectDevice(const QString& serial)
             if (MirrorWindow* mirror = mirrorOf(serial)) {
                 mirror->showToast(unsupported ? tr("This phone's Android version cannot open or close the "
                                                    "notification shade from the computer")
-                                              : tr("The phone did not let GameScrcpy open or close the notification "
+                                              : tr("The phone did not let anmacgamer open or close the notification "
                                                    "shade"),
                                   QStringLiteral("triangle-alert"));
             }
@@ -4799,7 +4799,7 @@ void DeviceManager::setTrayMenu()
     if (m_tray == nullptr) {
         return;
     }
-    std::vector<platform::TrayMenuItem> items{{tr("Open GameScrcpy").toStdWString(), [this] { emit mainWindowWanted(); }}};
+    std::vector<platform::TrayMenuItem> items{{tr("Open anmacgamer").toStdWString(), [this] { emit mainWindowWanted(); }}};
     bool extensions = false;
     for (const QVariant& each : ExtensionPanels::instance() != nullptr ? ExtensionPanels::instance()->menus()
                                                                        : QVariantList()) {
@@ -4849,8 +4849,8 @@ bool DeviceManager::hideToTrayOnClose()
         return false;
     }
     if (!std::exchange(m_trayNoticeShown, true)) {
-        showNotice(QStringLiteral("GameScrcpy"),
-                   tr("GameScrcpy is still running in the menu bar; scheduled tasks run as usual"), NoticeTarget{});
+        showNotice(QStringLiteral("anmacgamer"),
+                   tr("anmacgamer is still running in the menu bar; scheduled tasks run as usual"), NoticeTarget{});
     }
     qInfo("main window hidden to the tray: a task has a schedule");
     return true;
@@ -7309,10 +7309,10 @@ void DeviceManager::companionNotice(const QString& serial, quint64 ticket, const
                     stopCompanion(m_rows[static_cast<std::size_t>(at)]);
                 }
             };
-            mirror->showToast(companion.ime ? tr("Install GameScrcpy Companion on the phone to type there with this "
+            mirror->showToast(companion.ime ? tr("Install anmacgamer Companion on the phone to type there with this "
                                                  "computer's keyboard")
-                              : companion.cursor ? tr("Install GameScrcpy Companion on the phone to show the cursor there")
-                                                 : tr("Install GameScrcpy Companion on the phone to show the key hints "
+                              : companion.cursor ? tr("Install anmacgamer Companion on the phone to show the cursor there")
+                                                 : tr("Install anmacgamer Companion on the phone to show the key hints "
                                                       "there"),
                               QStringLiteral("smartphone"), tr("Install"), tr("Not now"));
         }
@@ -7344,21 +7344,21 @@ void DeviceManager::companionNotice(const QString& serial, quint64 ticket, const
                 }
             };
             row.toastSecondAction = {};
-            mirror->showToast(tr("On the phone, turn on GameScrcpy Companion in the list of keyboards, then choose "
+            mirror->showToast(tr("On the phone, turn on anmacgamer Companion in the list of keyboards, then choose "
                                  "Try again"),
                               QStringLiteral("keyboard"), tr("Try again"));
         }
         return;
     case CompanionEvent::Installing:
         if (mirror != nullptr) {
-            mirror->showToast(tr("Installing GameScrcpy Companion on the phone; allow it there if the phone asks"),
+            mirror->showToast(tr("Installing anmacgamer Companion on the phone; allow it there if the phone asks"),
                               QStringLiteral("smartphone"));
         }
         return;
     case CompanionEvent::PermissionNeeded:
         row.companionOverlay = false;
         if (mirror != nullptr) {
-            mirror->showToast(tr("On the phone, allow GameScrcpy Companion to display over other apps"),
+            mirror->showToast(tr("On the phone, allow anmacgamer Companion to display over other apps"),
                               QStringLiteral("smartphone"));
         }
         return;
@@ -7391,7 +7391,7 @@ void DeviceManager::companionNotice(const QString& serial, quint64 ticket, const
                     Qt::QueuedConnection);
             }
             if (mirror != nullptr) {
-                mirror->showToast(tr("GameScrcpy Companion is connected over Wi-Fi"), QStringLiteral("wifi"));
+                mirror->showToast(tr("anmacgamer Companion is connected over Wi-Fi"), QStringLiteral("wifi"));
             }
             syncLanService();
         }
@@ -7416,7 +7416,7 @@ void DeviceManager::companionNotice(const QString& serial, quint64 ticket, const
     if (noPictureOf(row)) {
         row.lanPairing.reset();
         if (mirror != nullptr && notice.event != CompanionEvent::Ended) {
-            mirror->showToast(tr("GameScrcpy Companion disconnected; it connects again by itself on the same Wi-Fi"),
+            mirror->showToast(tr("anmacgamer Companion disconnected; it connects again by itself on the same Wi-Fi"),
                               QStringLiteral("wifi"));
         }
         syncCompanionLan(row);
@@ -7434,8 +7434,8 @@ void DeviceManager::companionNotice(const QString& serial, quint64 ticket, const
         row.companionHeld = true;
         if (mirror != nullptr) {
             mirror->showToast(m_companionApk == nullptr
-                                  ? tr("GameScrcpy Companion is missing from this installation; reinstall GameScrcpy")
-                                  : tr("GameScrcpy Companion could not be installed on the phone: %1")
+                                  ? tr("anmacgamer Companion is missing from this installation; reinstall anmacgamer")
+                                  : tr("anmacgamer Companion could not be installed on the phone: %1")
                                         .arg(QString::fromStdString(notice.detail)),
                               QStringLiteral("triangle-alert"));
         }
@@ -7443,14 +7443,14 @@ void DeviceManager::companionNotice(const QString& serial, quint64 ticket, const
     case CompanionEvent::Failed:
         row.companionHeld = true;
         if (mirror != nullptr) {
-            mirror->showToast(tr("GameScrcpy Companion could not be started on the phone"),
+            mirror->showToast(tr("anmacgamer Companion could not be started on the phone"),
                               QStringLiteral("triangle-alert"));
         }
         break;
     case CompanionEvent::StoppedOnPhone:
         row.companionHeld = true;
         if (mirror != nullptr) {
-            mirror->showToast(tr("GameScrcpy Companion was stopped from the phone"), QStringLiteral("smartphone"));
+            mirror->showToast(tr("anmacgamer Companion was stopped from the phone"), QStringLiteral("smartphone"));
         }
         break;
     default:
@@ -10700,7 +10700,7 @@ std::optional<Advice> DeviceManager::transportedAdviceOf(const Row& row)
     const QString reason = QString::fromStdString(row.session.failure->detail);
     if (row.session.phase == session::SessionPhase::Reconnecting) {
         return Advice{tr("Reconnecting: %1").arg(reason),
-                      tr("GameScrcpy connects again by itself as soon as %1 reaches the phone again")
+                      tr("anmacgamer connects again by itself as soon as %1 reaches the phone again")
                           .arg(phone.transportTitle)};
     }
     if (row.session.phase != session::SessionPhase::Failed) {
@@ -10776,7 +10776,7 @@ bool DeviceManager::shootBackground(const QString& serial)
     Row& row = m_rows[static_cast<std::size_t>(index)];
     if (row.companion == nullptr || row.shotTicket != row.companionTicket) {
         if (row.mirror != nullptr) {
-            row.mirror->showToast(tr("Connect GameScrcpy Companion first: scan the code in this window with the phone"),
+            row.mirror->showToast(tr("Connect anmacgamer Companion first: scan the code in this window with the phone"),
                                   QStringLiteral("smartphone"));
         }
         return false;

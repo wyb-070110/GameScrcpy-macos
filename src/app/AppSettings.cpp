@@ -8,6 +8,7 @@
 #include <gs/platform/Accessibility.h>
 
 #include <QGuiApplication>
+#include <QDir>
 #include <QFileInfo>
 #include <QJSEngine>
 #include <QJsonObject>
@@ -107,7 +108,14 @@ std::filesystem::path dataDirectory()
     if (QFileInfo::exists(programDirectory + QStringLiteral("/portable.flag"))) {
         return (programDirectory + QStringLiteral("/data")).toStdWString();
     }
-    return (qEnvironmentVariable("HOME") + QStringLiteral("/Library/Application Support/GameScrcpy")).toStdWString();
+    // The app was called GameScrcpy before it became anmacgamer: its folder moves over once.
+    const QString support = qEnvironmentVariable("HOME") + QStringLiteral("/Library/Application Support/");
+    const QString folder = support + QStringLiteral("anmacgamer");
+    const QString older = support + QStringLiteral("GameScrcpy");
+    if (!QFileInfo::exists(folder) && QFileInfo(older).isDir() && !QDir().rename(older, folder)) {
+        return older.toStdWString();
+    }
+    return folder.toStdWString();
 }
 
 AppSettings::AppSettings(const std::filesystem::path& directory, QObject* parent)

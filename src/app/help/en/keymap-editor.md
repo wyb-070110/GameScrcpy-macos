@@ -128,7 +128,7 @@ Select **Try** (the flask) on the top bar to play with the keys on the live game
 - **Discard**: **More > Discard changes and exit** closes the editor without saving.
 - **Profiles from extensions**: your changes are kept separately, and **More > Restore original…** removes them.
 
-If you close the mirror window with changes that are not saved (to the profile or the code), GameScrcpy asks whether to save them.
+If you close the mirror window with changes that are not saved (to the profile or the code), anmacgamer asks whether to save them.
 
 ## An AI's draft
 

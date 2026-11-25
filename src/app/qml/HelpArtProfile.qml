@@ -399,7 +399,7 @@ Item {
         Caption {
             anchors.horizontalCenter: friend.horizontalCenter
             y: folder.y + folder.height + Theme.space.sm
-            text: qsTr("A friend’s GameScrcpy")
+            text: qsTr("A friend’s anmacgamer")
         }
     }
 }

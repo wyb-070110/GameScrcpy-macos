@@ -1651,7 +1651,7 @@ Item {
                                                                       : qsTr("Screenshot from the phone")
                         description: keymapEditor.backdrop.canShoot === true
                                      ? qsTr("The phone asks once to allow screen recording")
-                                     : qsTr("Connect GameScrcpy Companion first: scan the code in this window")
+                                     : qsTr("Connect anmacgamer Companion first: scan the code in this window")
                         onTriggered: DeviceManager.shootBackground(keymapEditor.serial)
                     }
 

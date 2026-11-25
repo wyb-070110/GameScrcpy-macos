@@ -1057,7 +1057,7 @@ Rectangle {
             width: parent.width
             textFormat: Text.PlainText
             wrapMode: Text.Wrap
-            text: qsTr("GameScrcpy is asking you to confirm in its main window.")
+            text: qsTr("anmacgamer is asking you to confirm in its main window.")
             color: Theme.colors.warningText
             font.pixelSize: Theme.type.caption.size
         }
@@ -1131,7 +1131,7 @@ Rectangle {
                         width: parent.width
                         visible: prompt.length === 0 && prompt.preeditText === ""
                         textFormat: Text.PlainText
-                        text: qsTr("Ask about anything in GameScrcpy")
+                        text: qsTr("Ask about anything in anmacgamer")
                         elide: Text.ElideRight
                         color: Theme.colors.textTertiary
                         font.pixelSize: Theme.type.label.size

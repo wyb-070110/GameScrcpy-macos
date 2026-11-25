@@ -23,7 +23,7 @@
 
 ### “设备”页提示 adb 不可用 {#adb-missing}
 
-GameScrcpy 通过 adb 和手机通信。请安装 Android SDK Platform-Tools（例如通过 Homebrew 安装：`brew install --cask android-platform-tools`），或确认没有其他程序占用 adb，然后在“设备”页点“重试”。
+anmacgamer 通过 adb 和手机通信。请安装 Android SDK Platform-Tools（例如通过 Homebrew 安装：`brew install --cask android-platform-tools`），或确认没有其他程序占用 adb，然后在“设备”页点“重试”。
 
 ### 三星手机的“USB 调试”是灰色的 {#samsung-grey}
 
@@ -39,7 +39,7 @@ GameScrcpy 通过 adb 和手机通信。请安装 Android SDK Platform-Tools（�
 
 ### WiFi 直连连不上 {#wifi-direct}
 
-Mac 和手机要连在同一个网络，并在 **系统设置 > 隐私与安全性 > 本地网络** 中允许 GameScrcpy。有些路由器会把连在它上面的设备互相隔离（AP 隔离），防火墙也可能拦截 UDP。仍然不行时，在“设备”页的手机卡片上改选“adb 隧道”。
+Mac 和手机要连在同一个网络，并在 **系统设置 > 隐私与安全性 > 本地网络** 中允许 anmacgamer。有些路由器会把连在它上面的设备互相隔离（AP 隔离），防火墙也可能拦截 UDP。仍然不行时，在“设备”页的手机卡片上改选“adb 隧道”。
 
 ### 画面卡顿或延迟高 {#lag}
 
@@ -49,7 +49,7 @@ Mac 和手机要连在同一个网络，并在 **系统设置 > 隐私与安全�
 - 状态胶囊和诊断浮层会显示帧率和延迟。
 - 如果“设备”页提示 Metal 硬件加速不可用，请在支持 Metal 的 Mac 上直接运行。在部分虚拟机里，画面由处理器绘制，可能会卡顿。
 
-网络变慢时，GameScrcpy 会自动降低分辨率或帧率；网络恢复后会自动恢复。
+网络变慢时，anmacgamer 会自动降低分辨率或帧率；网络恢复后会自动恢复。
 
 ### 中文等字符输入不到手机上 {#typing}
 
@@ -83,19 +83,19 @@ Mac 和手机要连在同一个网络，并在 **系统设置 > 隐私与安全�
 
 ## 其他 {icon=settings-2} {tone=gray}
 
-### GameScrcpy 意外关闭了 {#crashed}
+### anmacgamer 意外关闭了 {#crashed}
 
-下次启动时，GameScrcpy 会提示你导出诊断包；也可以随时在“设置 > 关于 > 导出诊断包…”里导出。这个 zip 文件里有日志、设置、设备列表和最近一次崩溃报告，序列号、地址、用户名、Wi‑Fi 名称和剪贴板内容会被去掉。反馈问题时把它附上。
+下次启动时，anmacgamer 会提示你导出诊断包；也可以随时在“设置 > 关于 > 导出诊断包…”里导出。这个 zip 文件里有日志、设置、设备列表和最近一次崩溃报告，序列号、地址、用户名、Wi‑Fi 名称和剪贴板内容会被去掉。反馈问题时把它附上。
 
 ### 某个扩展出了问题 {#extension-trouble}
 
-在“扩展”页点“查找出问题的扩展”。它会分几轮加载你的扩展，每轮问你问题还在不在，直到找出是哪个扩展。想临时不加载任何扩展启动一次，可以在终端运行 `open -a GameScrcpy --args --safe-mode`。
+在“扩展”页点“查找出问题的扩展”。它会分几轮加载你的扩展，每轮问你问题还在不在，直到找出是哪个扩展。想临时不加载任何扩展启动一次，可以在终端运行 `open -a anmacgamer --args --safe-mode`。
 
-扩展一分钟内停了三次，GameScrcpy 会自己把它关掉，卡片上写明原因；卡片上还写着最近 7 天停了几次，“详情”里列着每一次和它的崩溃报告。更多见[扩展 · 出了问题](help:extensions#trouble)。
+扩展一分钟内停了三次，anmacgamer 会自己把它关掉，卡片上写明原因；卡片上还写着最近 7 天停了几次，“详情”里列着每一次和它的崩溃报告。更多见[扩展 · 出了问题](help:extensions#trouble)。
 
 ### 设置和方案存在哪里 {#data-folder}
 
-在 `~/Library/Application Support/GameScrcpy` 里：方案在 `profiles` 文件夹，日志在 `logs` 文件夹。
+在 `~/Library/Application Support/anmacgamer` 里：方案在 `profiles` 文件夹，日志在 `logs` 文件夹。
 
 想改用单独的数据文件夹，可以在启动前设置环境变量 `GS_DATA_DIR`。
 

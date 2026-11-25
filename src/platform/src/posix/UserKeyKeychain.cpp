@@ -114,7 +114,7 @@ bool inAppBundle() noexcept
     return bundle != nullptr && CFBundleGetIdentifier(bundle) != nullptr;
 }
 
-// ~/Library/Application Support/GameScrcpy/Unbundled/<program>-<hash of its full path>.key, so a debug and
+// ~/Library/Application Support/anmacgamer/Unbundled/<program>-<hash of its full path>.key, so a debug and
 // a release build of the same program never share a key.
 std::filesystem::path unbundledKeyFile()
 {
@@ -137,7 +137,7 @@ std::filesystem::path unbundledKeyFile()
     for (const char c : program.string()) {
         hash = (hash ^ static_cast<unsigned char>(c)) * 0x100000001b3ULL;
     }
-    return std::filesystem::path(home) / "Library" / "Application Support" / "GameScrcpy" / "Unbundled" /
+    return std::filesystem::path(home) / "Library" / "Application Support" / "anmacgamer" / "Unbundled" /
            std::format("{}-{:016x}.key", program.filename().string(), hash);
 }
 

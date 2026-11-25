@@ -68,7 +68,7 @@ Item {
         case "task":
             return qsTr("tasks")
         case "panel":
-            return qsTr("panels in GameScrcpy windows")
+            return qsTr("panels in anmacgamer windows")
         case "help":
             return qsTr("help articles")
         case "tour":
@@ -149,13 +149,13 @@ Item {
             lines.push(qsTr("Recognition engines: %1").arg(dll.visionEngines.join(qsTr(", ", "list separator"))))
         if (dll.restricted === true)
             lines.push(qsTr("Its DLL runs restricted, in a process of its own without rights of its own: it reaches "
-                            + "devices only through GameScrcpy, as far as you allow. When that process stops three "
+                            + "devices only through anmacgamer, as far as you allow. When that process stops three "
                             + "times within a minute, the extension is turned off."))
         else
             lines.push(dll.ownProcess
                        ? qsTr("Its DLL runs in a process of its own; when that stops three times within a minute, the "
                               + "extension is turned off.")
-                       : qsTr("Its DLL runs inside GameScrcpy."))
+                       : qsTr("Its DLL runs inside anmacgamer."))
         if ((dll.architectures ?? []).length > 0)
             lines.push(qsTr("Built for: %1").arg(dll.architectures.join(qsTr(", ", "list separator"))))
         return lines.join("\n")
@@ -201,13 +201,13 @@ Item {
         case "host-api-missing":
         case "host-api-version":
             return writtenFor !== ""
-                   ? qsTr("Made for GameScrcpy %1; needs a newer GameScrcpy").arg(writtenFor)
-                   : qsTr("Needs a newer GameScrcpy")
+                   ? qsTr("Made for anmacgamer %1; needs a newer anmacgamer").arg(writtenFor)
+                   : qsTr("Needs a newer anmacgamer")
         case "host-api-outdated":
             return writtenFor !== ""
-                   ? qsTr("Made for GameScrcpy %1; does not work with %2").arg(writtenFor)
+                   ? qsTr("Made for anmacgamer %1; does not work with %2").arg(writtenFor)
                          .arg(ExtensionHost.hostVersion)
-                   : qsTr("Made for an older GameScrcpy")
+                   : qsTr("Made for an older anmacgamer")
         case "dependency-missing":
             return qsTr("Needs an extension that is not installed")
         case "dependency-version":
@@ -301,7 +301,7 @@ Item {
     function byline(entry: var): string {
         const parts = []
         if ((entry.writtenFor ?? "") !== "")
-            parts.push(qsTr("Made for GameScrcpy %1").arg(entry.writtenFor))
+            parts.push(qsTr("Made for anmacgamer %1").arg(entry.writtenFor))
         if (entry.authors.length > 0)
             parts.push(qsTr("By %1").arg(entry.authors.join(qsTr(", ", "list separator"))))
         if (entry.license)
@@ -482,7 +482,7 @@ Item {
             tone: "warn"
             title: qsTr("No extension is loaded this time")
             detail: ExtensionHost.mode === "safeRequested"
-                    ? qsTr("Started with --safe-mode. Start GameScrcpy without it to load extensions again.")
+                    ? qsTr("Started with --safe-mode. Start anmacgamer without it to load extensions again.")
                     : qsTr("The last run ended while extensions were loaded. They load again at the next start; "
                            + "if it happens again, turn off the extension you installed last.")
             actionText: ExtensionHost.mode === "safeAfterCrash" && page.enabledCount > 0 ? qsTr("Find the extension") : ""
@@ -1664,7 +1664,7 @@ Item {
         id: installDialog
 
         title: qsTr("Install extension")
-        nameFilters: [qsTr("GameScrcpy extensions and bundles (*.gsext *.gsbundle)")]
+        nameFilters: [qsTr("anmacgamer extensions and bundles (*.gsext *.gsbundle)")]
         onAccepted: page.packageChosen(installDialog.selectedFile.toString())
     }
 
@@ -1674,7 +1674,7 @@ Item {
         title: qsTr("Export bundle")
         fileMode: FileDialog.SaveFile
         defaultSuffix: "gsbundle"
-        nameFilters: [qsTr("GameScrcpy bundle (*.gsbundle)")]
+        nameFilters: [qsTr("anmacgamer bundle (*.gsbundle)")]
         onAccepted: {
             page.failure = ""
             const url = bundleExport.selectedFile.toString()
@@ -1695,7 +1695,7 @@ Item {
         title: qsTr("Export %1").arg(exportDialog.extensionName)
         fileMode: FileDialog.SaveFile
         defaultSuffix: "gsext"
-        nameFilters: [qsTr("GameScrcpy extension (*.gsext)")]
+        nameFilters: [qsTr("anmacgamer extension (*.gsext)")]
         onAccepted: {
             if (!ExtensionHost.exportTo(exportDialog.extensionId, exportDialog.extensionVersion,
                                         exportDialog.selectedFile.toString()))
@@ -1748,7 +1748,7 @@ Item {
             {
                 centered: true,
                 title: qsTr("Extensions"),
-                text: qsTr("Extensions add to GameScrcpy: new components, picture filters, themes, hardware such as "
+                text: qsTr("Extensions add to anmacgamer: new components, picture filters, themes, hardware such as "
                            + "a touch box, side panels, and new blocks for profiles and logic.")
             },
             {

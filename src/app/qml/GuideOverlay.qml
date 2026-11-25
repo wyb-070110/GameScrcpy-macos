@@ -534,7 +534,7 @@ T.Popup {
                     Text {
                         width: parent.width
                         textFormat: Text.PlainText
-                        text: qsTr("Welcome to GameScrcpy")
+                        text: qsTr("Welcome to anmacgamer")
                         color: Theme.colors.textPrimary
                         font.pixelSize: Theme.type.display.size
                         font.weight: Theme.type.display.weight

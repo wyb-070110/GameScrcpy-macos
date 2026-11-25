@@ -591,7 +591,7 @@ Item {
 
                 SettingCard {
                     objectName: "phoneCursorCard"
-                    title: qsTr("GameScrcpy Companion on the phone")
+                    title: qsTr("anmacgamer Companion on the phone")
                     iconName: "monitor-smartphone"
                     tone: "lime"
 
@@ -938,7 +938,7 @@ Item {
                         note: ExtensionLinks.registration === "this"
                               ? qsTr("Links on web pages that install or show extensions open in this copy.")
                               : ExtensionLinks.registration === "other"
-                                ? qsTr("Another copy of GameScrcpy opens these links now.")
+                                ? qsTr("Another copy of anmacgamer opens these links now.")
                                 : qsTr("Web pages can offer extensions through gamescrcpy:// links. This portable copy "
                                        + "opens them once you register it.")
 
@@ -1167,7 +1167,7 @@ Item {
                          + "blueprint of the profile you edit. Only when you send a message, it sends what you wrote, "
                          + "the profile with its logic and, when it needs one, a picture of the phone's screen, to "
                          + "the model service you choose here. Its changes wait in a draft until you apply them."),
-                    qsTr("AI clients on this computer can use GameScrcpy through MCP: look up the script API, try "
+                    qsTr("AI clients on this computer can use anmacgamer through MCP: look up the script API, try "
                          + "logic on recordings, see a phone's picture, read the log, change profiles and run "
                          + "scripts. They connect through a local Unix socket that only your macOS user account can open; no "
                          + "network port is opened.")

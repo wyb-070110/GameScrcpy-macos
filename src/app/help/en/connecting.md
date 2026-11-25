@@ -1,4 +1,4 @@
-GameScrcpy shows your Android phone on this computer, and you control it with the keyboard and mouse. Connect it once with a USB cable; after that you can also connect over Wi‑Fi.
+anmacgamer shows your Android phone on this computer, and you control it with the keyboard and mouse. Connect it once with a USB cable; after that you can also connect over Wi‑Fi.
 
 ## Prepare the phone {Only once}
 
@@ -30,14 +30,14 @@ The phone and this computer must be on the same network. On the **Devices** page
 ### With a pairing code {icon=type}
 
 1. **Open the pairing dialog on the phone**: go to **Developer options > Wireless debugging > Pair device with pairing code**.
-2. **Wait for GameScrcpy to find the phone**: it looks for a phone that shows its pairing dialog. If it finds none, select **Type the address** and enter the IP address and port shown in the dialog.
+2. **Wait for anmacgamer to find the phone**: it looks for a phone that shows its pairing dialog. If it finds none, select **Type the address** and enter the IP address and port shown in the dialog.
 3. **Type the six-digit code**: the digits the phone shows. Pairing starts as soon as all six are in.
 
 ![Pair with a pairing code](figure:phone-pairing,,!)
 
 ### With a QR code {icon=qr-code}
 
-1. **Select Use a QR code in GameScrcpy**: the **Wireless debugging** section shows a QR code.
+1. **Select Use a QR code in anmacgamer**: the **Wireless debugging** section shows a QR code.
 2. **Scan it with the phone**: go to **Developer options > Wireless debugging > Pair device with QR code** and scan the code on the screen. Pairing starts by itself.
 
 ![Pair with a QR code](figure:pair-qr,phone-scan!)
@@ -55,7 +55,7 @@ A phone on a network cable without Wi‑Fi cannot use wireless debugging; networ
 
 1. **Plug the phone into this computer with a USB cable**.
 2. **On the phone's card, open More (…) and select Connect over the network**: the **Wireless debugging** section at the bottom of the page says what to do next.
-3. **Unplug the cable and connect the phone to the same network as this computer**, by network cable or Wi‑Fi. GameScrcpy finds the phone on this computer's network and connects; it then stays under **Recent connections**.
+3. **Unplug the cable and connect the phone to the same network as this computer**, by network cable or Wi‑Fi. anmacgamer finds the phone on this computer's network and connects; it then stays under **Recent connections**.
 
 Network debugging ends when the phone restarts; do it over USB again then.
 

@@ -960,16 +960,16 @@
         <translation>配置 AI 助手后即可继续对话</translation>
     </message>
     <message>
-        <source>GameScrcpy is asking you to confirm in its main window.</source>
-        <translation>GameScrcpy 正在主窗口里等你确认。</translation>
+        <source>anmacgamer is asking you to confirm in its main window.</source>
+        <translation>anmacgamer 正在主窗口里等你确认。</translation>
     </message>
     <message>
         <source>Message to the AI assistant</source>
         <translation>发给 AI 助手的消息</translation>
     </message>
     <message>
-        <source>Ask about anything in GameScrcpy</source>
-        <translation>GameScrcpy 里的任何问题都可以问</translation>
+        <source>Ask about anything in anmacgamer</source>
+        <translation>anmacgamer 里的任何问题都可以问</translation>
     </message>
     <message>
         <source>Enter sends, Shift+Enter starts a new line</source>
@@ -1094,8 +1094,8 @@
         <translation>连接 %1 失败：%2</translation>
     </message>
     <message>
-        <source>The service sent an answer that GameScrcpy cannot read.</source>
-        <translation>模型服务返回的内容 GameScrcpy 无法读取。</translation>
+        <source>The service sent an answer that anmacgamer cannot read.</source>
+        <translation>模型服务返回的内容 anmacgamer 无法读取。</translation>
     </message>
     <message>
         <source>The answer stopped before it was complete. Try again.</source>
@@ -1110,8 +1110,8 @@
         <translation>模型服务出错，回答中止：%1</translation>
     </message>
     <message>
-        <source>The answer is too long, so GameScrcpy stopped reading it.</source>
-        <translation>回答太长，GameScrcpy 停止了读取。</translation>
+        <source>The answer is too long, so anmacgamer stopped reading it.</source>
+        <translation>回答太长，anmacgamer 停止了读取。</translation>
     </message>
 </context>
 <context>
@@ -1368,8 +1368,8 @@
         <translation>正在看：%1</translation>
     </message>
     <message>
-        <source>AI assistant — GameScrcpy</source>
-        <translation>AI 小助手 — GameScrcpy</translation>
+        <source>AI assistant — anmacgamer</source>
+        <translation>AI 小助手 — anmacgamer</translation>
     </message>
     <message>
         <source>New conversation</source>
@@ -5271,8 +5271,8 @@
         <translation>无线调试 配对码 二维码 qr</translation>
     </message>
     <message>
-        <source>About GameScrcpy</source>
-        <translation>关于 GameScrcpy</translation>
+        <source>About anmacgamer</source>
+        <translation>关于 anmacgamer</translation>
     </message>
     <message>
         <source>help version license</source>
@@ -5422,12 +5422,12 @@
 <context>
     <name>CompanionQrBlock</name>
     <message>
-        <source>Connect this computer to the phone&apos;s Wi-Fi to connect GameScrcpy Companion</source>
-        <translation>把这台电脑连到手机所在的 Wi-Fi，才能连接 GameScrcpy 伴侣</translation>
+        <source>Connect this computer to the phone&apos;s Wi-Fi to connect anmacgamer Companion</source>
+        <translation>把这台电脑连到手机所在的 Wi-Fi，才能连接 anmacgamer 伴侣</translation>
     </message>
     <message>
-        <source>Scan with GameScrcpy Companion to connect</source>
-        <translation>用 GameScrcpy 伴侣扫码连接</translation>
+        <source>Scan with anmacgamer Companion to connect</source>
+        <translation>用 anmacgamer 伴侣扫码连接</translation>
     </message>
     <message>
         <source>Not installed yet? Scan with the phone&apos;s camera to download it from this computer.</source>
@@ -5602,8 +5602,8 @@
         <translation>复制</translation>
     </message>
     <message>
-        <source>After copying, its code runs in GameScrcpy and can do what your own logic can do.</source>
-        <translation>复制后，它的代码在 GameScrcpy 里运行，能做你自己的逻辑能做的事。</translation>
+        <source>After copying, its code runs in anmacgamer and can do what your own logic can do.</source>
+        <translation>复制后，它的代码在 anmacgamer 里运行，能做你自己的逻辑能做的事。</translation>
     </message>
 </context>
 <context>
@@ -6118,8 +6118,8 @@
         <translation>把 %1 导出成扩展包</translation>
     </message>
     <message>
-        <source>GameScrcpy extension (*.gsext)</source>
-        <translation>GameScrcpy 扩展包 (*.gsext)</translation>
+        <source>anmacgamer extension (*.gsext)</source>
+        <translation>anmacgamer 扩展包 (*.gsext)</translation>
     </message>
     <message>
         <source>Exported %1 as an extension package</source>
@@ -6133,24 +6133,24 @@
 <context>
     <name>ExtensionCompatibilityDialog</name>
     <message>
-        <source>Made for GameScrcpy %1; does not work with %2</source>
-        <translation>为 GameScrcpy %1 编写，与 %2 不兼容</translation>
+        <source>Made for anmacgamer %1; does not work with %2</source>
+        <translation>为 anmacgamer %1 编写，与 %2 不兼容</translation>
     </message>
     <message>
-        <source>Made for an older GameScrcpy</source>
-        <translation>为旧版 GameScrcpy 制作</translation>
+        <source>Made for an older anmacgamer</source>
+        <translation>为旧版 anmacgamer 制作</translation>
     </message>
     <message>
-        <source>Made for GameScrcpy %1; needs a newer GameScrcpy</source>
-        <translation>为 GameScrcpy %1 编写，需要更新版的 GameScrcpy</translation>
+        <source>Made for anmacgamer %1; needs a newer anmacgamer</source>
+        <translation>为 anmacgamer %1 编写，需要更新版的 anmacgamer</translation>
     </message>
     <message>
-        <source>Needs a newer GameScrcpy</source>
-        <translation>需要更新版的 GameScrcpy</translation>
+        <source>Needs a newer anmacgamer</source>
+        <translation>需要更新版的 anmacgamer</translation>
     </message>
     <message>
-        <source>Some extensions do not work with GameScrcpy %1</source>
-        <translation>有些扩展在 GameScrcpy %1 上用不了</translation>
+        <source>Some extensions do not work with anmacgamer %1</source>
+        <translation>有些扩展在 anmacgamer %1 上用不了</translation>
     </message>
     <message>
         <source>Check for updates</source>
@@ -6165,8 +6165,8 @@
         <translation>关闭</translation>
     </message>
     <message>
-        <source>Newer versions of these extensions may fit this GameScrcpy, from their authors or through Check for updates.</source>
-        <translation>这些扩展的新版本也许适合这个 GameScrcpy：可以向作者要，也可以点“检查更新”。</translation>
+        <source>Newer versions of these extensions may fit this anmacgamer, from their authors or through Check for updates.</source>
+        <translation>这些扩展的新版本也许适合这个 anmacgamer：可以向作者要，也可以点“检查更新”。</translation>
     </message>
 </context>
 <context>
@@ -6255,8 +6255,8 @@
         <translation>任务</translation>
     </message>
     <message>
-        <source>panels in GameScrcpy windows</source>
-        <translation>GameScrcpy 窗口里的面板</translation>
+        <source>panels in anmacgamer windows</source>
+        <translation>anmacgamer 窗口里的面板</translation>
     </message>
     <message>
         <source>help articles</source>
@@ -6375,16 +6375,16 @@
         <translation>识别引擎：%1</translation>
     </message>
     <message>
-        <source>Its DLL runs restricted, in a process of its own without rights of its own: it reaches devices only through GameScrcpy, as far as you allow. When that process stops three times within a minute, the extension is turned off.</source>
-        <translation>它的 DLL 以受限方式在单独的进程里运行，自身没有任何权限：只能经由 GameScrcpy、在你允许的范围内使用设备。这个进程一分钟内停止三次，扩展就会被关闭。</translation>
+        <source>Its DLL runs restricted, in a process of its own without rights of its own: it reaches devices only through anmacgamer, as far as you allow. When that process stops three times within a minute, the extension is turned off.</source>
+        <translation>它的 DLL 以受限方式在单独的进程里运行，自身没有任何权限：只能经由 anmacgamer、在你允许的范围内使用设备。这个进程一分钟内停止三次，扩展就会被关闭。</translation>
     </message>
     <message>
         <source>Its DLL runs in a process of its own; when that stops three times within a minute, the extension is turned off.</source>
         <translation>它的 DLL 在单独的进程里运行；这个进程一分钟内停止三次，扩展就会被关闭。</translation>
     </message>
     <message>
-        <source>Its DLL runs inside GameScrcpy.</source>
-        <translation>它的 DLL 在 GameScrcpy 进程里运行。</translation>
+        <source>Its DLL runs inside anmacgamer.</source>
+        <translation>它的 DLL 在 anmacgamer 进程里运行。</translation>
     </message>
     <message>
         <source>Built for: %1</source>
@@ -6415,16 +6415,16 @@
         <translation>语言</translation>
     </message>
     <message>
-        <source>Made for GameScrcpy %1; needs a newer GameScrcpy</source>
-        <translation>为 GameScrcpy %1 编写，需要更新版的 GameScrcpy</translation>
+        <source>Made for anmacgamer %1; needs a newer anmacgamer</source>
+        <translation>为 anmacgamer %1 编写，需要更新版的 anmacgamer</translation>
     </message>
     <message>
-        <source>Made for GameScrcpy %1; does not work with %2</source>
-        <translation>为 GameScrcpy %1 编写，与 %2 不兼容</translation>
+        <source>Made for anmacgamer %1; does not work with %2</source>
+        <translation>为 anmacgamer %1 编写，与 %2 不兼容</translation>
     </message>
     <message>
-        <source>Made for an older GameScrcpy</source>
-        <translation>为旧版 GameScrcpy 制作</translation>
+        <source>Made for an older anmacgamer</source>
+        <translation>为旧版 anmacgamer 制作</translation>
     </message>
     <message>
         <source>This extension has no version for this computer</source>
@@ -6521,8 +6521,8 @@
         <translation>本次启动没有加载扩展</translation>
     </message>
     <message>
-        <source>Started with --safe-mode. Start GameScrcpy without it to load extensions again.</source>
-        <translation>本次以 --safe-mode 启动。不带这个参数启动 GameScrcpy，扩展就会重新加载。</translation>
+        <source>Started with --safe-mode. Start anmacgamer without it to load extensions again.</source>
+        <translation>本次以 --safe-mode 启动。不带这个参数启动 anmacgamer，扩展就会重新加载。</translation>
     </message>
     <message>
         <source>Find the extension</source>
@@ -6533,8 +6533,8 @@
         <translation>关闭</translation>
     </message>
     <message>
-        <source>Made for GameScrcpy %1</source>
-        <translation>为 GameScrcpy %1 编写</translation>
+        <source>Made for anmacgamer %1</source>
+        <translation>为 anmacgamer %1 编写</translation>
     </message>
     <message>
         <source>The card tells what the extension adds and what it may do.</source>
@@ -6677,8 +6677,8 @@
         <translation>崩溃报告 %1</translation>
     </message>
     <message>
-        <source>Extensions add to GameScrcpy: new components, picture filters, themes, hardware such as a touch box, side panels, and new blocks for profiles and logic.</source>
-        <translation>扩展给 GameScrcpy 增加功能：新的组件、画面滤镜、主题、触控盒这样的硬件、侧边面板，以及方案和逻辑里用的新方块。</translation>
+        <source>Extensions add to anmacgamer: new components, picture filters, themes, hardware such as a touch box, side panels, and new blocks for profiles and logic.</source>
+        <translation>扩展给 anmacgamer 增加功能：新的组件、画面滤镜、主题、触控盒这样的硬件、侧边面板，以及方案和逻辑里用的新方块。</translation>
     </message>
     <message>
         <source>An extension card</source>
@@ -6745,24 +6745,24 @@
         <translation>安装扩展</translation>
     </message>
     <message>
-        <source>GameScrcpy extensions and bundles (*.gsext *.gsbundle)</source>
-        <translation>GameScrcpy 扩展包与整合包 (*.gsext *.gsbundle)</translation>
+        <source>anmacgamer extensions and bundles (*.gsext *.gsbundle)</source>
+        <translation>anmacgamer 扩展包与整合包 (*.gsext *.gsbundle)</translation>
     </message>
     <message>
         <source>Export bundle</source>
         <translation>导出整合包</translation>
     </message>
     <message>
-        <source>GameScrcpy bundle (*.gsbundle)</source>
-        <translation>GameScrcpy 整合包 (*.gsbundle)</translation>
+        <source>anmacgamer bundle (*.gsbundle)</source>
+        <translation>anmacgamer 整合包 (*.gsbundle)</translation>
     </message>
     <message>
         <source>Could not export the bundle.</source>
         <translation>无法导出整合包。</translation>
     </message>
     <message>
-        <source>GameScrcpy extension (*.gsext)</source>
-        <translation>GameScrcpy 扩展包 (*.gsext)</translation>
+        <source>anmacgamer extension (*.gsext)</source>
+        <translation>anmacgamer 扩展包 (*.gsext)</translation>
     </message>
     <message>
         <source>Export %1</source>
@@ -6865,8 +6865,8 @@
         <translation>上次运行时已加载扩展，但程序没有正常退出。下次启动会重新加载扩展；如果再次发生，请关闭最近安装的扩展。</translation>
     </message>
     <message>
-        <source>Needs a newer GameScrcpy</source>
-        <translation>需要更新版的 GameScrcpy</translation>
+        <source>Needs a newer anmacgamer</source>
+        <translation>需要更新版的 anmacgamer</translation>
     </message>
     <message>
         <source>Needs an extension that is not installed</source>
@@ -6976,16 +6976,16 @@
         <translation>Android 版本过低</translation>
     </message>
     <message>
-        <source>GameScrcpy needs Android 9 or newer.</source>
-        <translation>GameScrcpy 需要 Android 9 或更高版本。</translation>
+        <source>anmacgamer needs Android 9 or newer.</source>
+        <translation>anmacgamer 需要 Android 9 或更高版本。</translation>
     </message>
     <message>
         <source>Could not install the server component</source>
         <translation>无法安装服务组件</translation>
     </message>
     <message>
-        <source>Make sure the phone has free storage. If the problem remains, reinstall GameScrcpy.</source>
-        <translation>请确认手机还有剩余存储空间；问题仍在时，请重新安装 GameScrcpy。</translation>
+        <source>Make sure the phone has free storage. If the problem remains, reinstall anmacgamer.</source>
+        <translation>请确认手机还有剩余存储空间；问题仍在时，请重新安装 anmacgamer。</translation>
     </message>
     <message>
         <source>The server on the phone did not start</source>
@@ -7016,8 +7016,8 @@
         <translation>手机上的服务端版本不一致</translation>
     </message>
     <message>
-        <source>Update GameScrcpy; the matching server is installed automatically.</source>
-        <translation>请更新 GameScrcpy，匹配的服务端会自动安装。</translation>
+        <source>Update anmacgamer; the matching server is installed automatically.</source>
+        <translation>请更新 anmacgamer，匹配的服务端会自动安装。</translation>
     </message>
     <message>
         <source>The phone refused the connection</source>
@@ -7032,8 +7032,8 @@
         <translation>与手机通信出错</translation>
     </message>
     <message>
-        <source>Update GameScrcpy and try again.</source>
-        <translation>请更新 GameScrcpy 后重试。</translation>
+        <source>Update anmacgamer and try again.</source>
+        <translation>请更新 anmacgamer 后重试。</translation>
     </message>
     <message>
         <source>The phone did not respond in time</source>
@@ -7080,11 +7080,11 @@
         <translation>手机没有回应 WiFi 直连</translation>
     </message>
     <message>
-        <source>Make sure the computer and the phone are on the same network, that the router does not isolate its devices (AP isolation), that GameScrcpy is allowed under System Settings &gt; Privacy &amp; Security &gt; Local Network, and that no firewall or security software blocks GameScrcpy&apos;s UDP traffic. Or switch the connection to adb tunnel.</source>
-        <translation>请确认电脑和手机连在同一网络，路由器没有开启 AP 隔离（让设备之间互相隔离），已在“系统设置 &gt; 隐私与安全性 &gt; 本地网络”中允许 GameScrcpy，且防火墙或安全软件没有拦截 GameScrcpy 的 UDP 通信；或者把连接方式改为 adb 隧道。</translation>
+        <source>Make sure the computer and the phone are on the same network, that the router does not isolate its devices (AP isolation), that anmacgamer is allowed under System Settings &gt; Privacy &amp; Security &gt; Local Network, and that no firewall or security software blocks anmacgamer&apos;s UDP traffic. Or switch the connection to adb tunnel.</source>
+        <translation>请确认电脑和手机连在同一网络，路由器没有开启 AP 隔离（让设备之间互相隔离），已在“系统设置 &gt; 隐私与安全性 &gt; 本地网络”中允许 anmacgamer，且防火墙或安全软件没有拦截 anmacgamer 的 UDP 通信；或者把连接方式改为 adb 隧道。</translation>
     </message>
     <message>
-        <source>Check the cable or the network. GameScrcpy reconnects by itself once the device is back.</source>
+        <source>Check the cable or the network. anmacgamer reconnects by itself once the device is back.</source>
         <translation>请检查数据线或网络，设备恢复后会自动重新连接。</translation>
     </message>
     <message>
@@ -7140,12 +7140,12 @@
         <translation>Metal 硬件加速不可用（%1），在部分虚拟机中会出现这种情况。画面改由处理器解码和绘制，可能会卡顿；在支持 Metal 的 Mac 上直接运行会更流畅。</translation>
     </message>
     <message>
-        <source>GameScrcpy is not installed completely</source>
-        <translation>GameScrcpy 安装不完整</translation>
+        <source>anmacgamer is not installed completely</source>
+        <translation>anmacgamer 安装不完整</translation>
     </message>
     <message>
-        <source>The server component (gs-server.apk) is missing. Reinstall GameScrcpy.</source>
-        <translation>缺少服务组件（gs-server.apk），请重新安装 GameScrcpy。</translation>
+        <source>The server component (gs-server.apk) is missing. Reinstall anmacgamer.</source>
+        <translation>缺少服务组件（gs-server.apk），请重新安装 anmacgamer。</translation>
     </message>
     <message>
         <source>adb did not answer</source>
@@ -7661,8 +7661,8 @@
         <translation>跳过</translation>
     </message>
     <message>
-        <source>Welcome to GameScrcpy</source>
-        <translation>欢迎使用 GameScrcpy</translation>
+        <source>Welcome to anmacgamer</source>
+        <translation>欢迎使用 anmacgamer</translation>
     </message>
     <message>
         <source>Mirror your Android phone on this computer and play its games with a keyboard and mouse.</source>
@@ -8025,8 +8025,8 @@
         <translation>导入…</translation>
     </message>
     <message>
-        <source>A friend’s GameScrcpy</source>
-        <translation>朋友的 GameScrcpy</translation>
+        <source>A friend’s anmacgamer</source>
+        <translation>朋友的 anmacgamer</translation>
     </message>
 </context>
 <context>
@@ -8372,20 +8372,20 @@
         <translation>信任并安装</translation>
     </message>
     <message>
-        <source>Made for GameScrcpy %1; needs a newer GameScrcpy</source>
-        <translation>为 GameScrcpy %1 编写，需要更新版的 GameScrcpy</translation>
+        <source>Made for anmacgamer %1; needs a newer anmacgamer</source>
+        <translation>为 anmacgamer %1 编写，需要更新版的 anmacgamer</translation>
     </message>
     <message>
-        <source>Needs a newer GameScrcpy</source>
-        <translation>需要更新版的 GameScrcpy</translation>
+        <source>Needs a newer anmacgamer</source>
+        <translation>需要更新版的 anmacgamer</translation>
     </message>
     <message>
-        <source>Made for GameScrcpy %1; does not work with %2</source>
-        <translation>为 GameScrcpy %1 编写，与 %2 不兼容</translation>
+        <source>Made for anmacgamer %1; does not work with %2</source>
+        <translation>为 anmacgamer %1 编写，与 %2 不兼容</translation>
     </message>
     <message>
-        <source>Made for an older GameScrcpy</source>
-        <translation>为旧版 GameScrcpy 制作</translation>
+        <source>Made for an older anmacgamer</source>
+        <translation>为旧版 anmacgamer 制作</translation>
     </message>
     <message>
         <source>Update</source>
@@ -8405,16 +8405,16 @@
         <translation>、</translation>
     </message>
     <message>
-        <source>Made for GameScrcpy %1</source>
-        <translation>为 GameScrcpy %1 编写</translation>
+        <source>Made for anmacgamer %1</source>
+        <translation>为 anmacgamer %1 编写</translation>
     </message>
     <message>
         <source>Replaces version %1</source>
         <translation>将替换已安装的版本 %1</translation>
     </message>
     <message>
-        <source>GameScrcpy checked this code before installing:</source>
-        <translation>GameScrcpy 在安装前检查了这些代码：</translation>
+        <source>anmacgamer checked this code before installing:</source>
+        <translation>anmacgamer 在安装前检查了这些代码：</translation>
     </message>
     <message>
         <source>Its code cannot open your files, use the network or start other programs.</source>
@@ -8437,8 +8437,8 @@
         <translation>这个扩展包无法安装。</translation>
     </message>
     <message>
-        <source>Ask its author for a version made for this GameScrcpy, or check for updates.</source>
-        <translation>请向作者要适合这个 GameScrcpy 的版本，或者检查更新。</translation>
+        <source>Ask its author for a version made for this anmacgamer, or check for updates.</source>
+        <translation>请向作者要适合这个 anmacgamer 的版本，或者检查更新。</translation>
     </message>
     <message>
         <source>What changes from version %1</source>
@@ -9610,8 +9610,8 @@
         <translation>手机会询问一次是否允许录屏</translation>
     </message>
     <message>
-        <source>Connect GameScrcpy Companion first: scan the code in this window</source>
-        <translation>请先连接 GameScrcpy 伴侣：扫描这个窗口里的二维码</translation>
+        <source>Connect anmacgamer Companion first: scan the code in this window</source>
+        <translation>请先连接 anmacgamer 伴侣：扫描这个窗口里的二维码</translation>
     </message>
     <message>
         <source>Clear the background</source>
@@ -10298,8 +10298,8 @@
 <context>
     <name>MacMenuBar</name>
     <message>
-        <source>GameScrcpy</source>
-        <translation>GameScrcpy</translation>
+        <source>anmacgamer</source>
+        <translation>anmacgamer</translation>
     </message>
     <message>
         <source>File</source>
@@ -10333,8 +10333,8 @@
 <context>
     <name>Main</name>
     <message>
-        <source>GameScrcpy</source>
-        <translation>GameScrcpy</translation>
+        <source>anmacgamer</source>
+        <translation>anmacgamer</translation>
     </message>
     <message>
         <source>Installed %1 %2</source>
@@ -10481,8 +10481,8 @@
         <translation>松开即可导入方案</translation>
     </message>
     <message>
-        <source>About GameScrcpy</source>
-        <translation>关于 GameScrcpy</translation>
+        <source>About anmacgamer</source>
+        <translation>关于 anmacgamer</translation>
     </message>
     <message>
         <source>Close</source>
@@ -10517,8 +10517,8 @@
         <translation>取消</translation>
     </message>
     <message>
-        <source>GameScrcpy closed unexpectedly last time.</source>
-        <translation>GameScrcpy 上次意外关闭。</translation>
+        <source>anmacgamer closed unexpectedly last time.</source>
+        <translation>anmacgamer 上次意外关闭。</translation>
     </message>
     <message>
         <source>Export diagnostics…</source>
@@ -10662,8 +10662,8 @@
 <context>
     <name>McpPrompts</name>
     <message>
-        <source>Let %1 use GameScrcpy?</source>
-        <translation>允许 %1 使用 GameScrcpy 吗？</translation>
+        <source>Let %1 use anmacgamer?</source>
+        <translation>允许 %1 使用 anmacgamer 吗？</translation>
     </message>
     <message>
         <source>Allow</source>
@@ -10686,8 +10686,8 @@
         <translation>取手机当前的画面，并在上面找图</translation>
     </message>
     <message>
-        <source>Read GameScrcpy&apos;s log</source>
-        <translation>读 GameScrcpy 的日志</translation>
+        <source>Read anmacgamer&apos;s log</source>
+        <translation>读 anmacgamer 的日志</translation>
     </message>
     <message>
         <source>Run scripts on a phone; you confirm every run</source>
@@ -10758,9 +10758,9 @@
         <translation>%1 的这些文件会被改动：</translation>
     </message>
     <message numerus="yes">
-        <source>%n file(s) changed in GameScrcpy after the AI made its draft; applying replaces them with the draft.</source>
+        <source>%n file(s) changed in anmacgamer after the AI made its draft; applying replaces them with the draft.</source>
         <translation>
-            <numerusform>有 %n 个文件在 AI 做好草稿之后又在 GameScrcpy 里改过；采用会用草稿里的版本替换它们。</numerusform>
+            <numerusform>有 %n 个文件在 AI 做好草稿之后又在 anmacgamer 里改过；采用会用草稿里的版本替换它们。</numerusform>
         </translation>
     </message>
     <message>
@@ -10818,12 +10818,12 @@
         </translation>
     </message>
     <message>
-        <source>Don&apos;t ask again for this tool until GameScrcpy closes</source>
-        <translation>关掉 GameScrcpy 之前，用这个工具不再询问</translation>
+        <source>Don&apos;t ask again for this tool until anmacgamer closes</source>
+        <translation>关掉 anmacgamer 之前，用这个工具不再询问</translation>
     </message>
     <message>
-        <source>Don&apos;t ask again for this phone until GameScrcpy closes</source>
-        <translation>关掉 GameScrcpy 之前，在这台手机上运行不再询问</translation>
+        <source>Don&apos;t ask again for this phone until anmacgamer closes</source>
+        <translation>关掉 anmacgamer 之前，在这台手机上运行不再询问</translation>
     </message>
 </context>
 <context>
@@ -10846,8 +10846,8 @@
         <translation>已批准的客户端</translation>
     </message>
     <message>
-        <source>The clients you allowed and asked GameScrcpy to remember. They connect without asking again; removing one disconnects it at once.</source>
-        <translation>你允许并让 GameScrcpy 记住的客户端。它们再连接时不再询问；移除后立即断开它的连接。</translation>
+        <source>The clients you allowed and asked anmacgamer to remember. They connect without asking again; removing one disconnects it at once.</source>
+        <translation>你允许并让 anmacgamer 记住的客户端。它们再连接时不再询问；移除后立即断开它的连接。</translation>
     </message>
     <message>
         <source>None yet.</source>
@@ -10862,8 +10862,8 @@
         <translation>已放开、不再询问的</translation>
     </message>
     <message>
-        <source>Until GameScrcpy closes, these clients run scripts or use tools without asking you each time. Take one back to be asked again.</source>
-        <translation>在关掉 GameScrcpy 之前，这些客户端运行脚本或使用工具时不再每次问你。收回后会重新询问。</translation>
+        <source>Until anmacgamer closes, these clients run scripts or use tools without asking you each time. Take one back to be asked again.</source>
+        <translation>在关掉 anmacgamer 之前，这些客户端运行脚本或使用工具时不再每次问你。收回后会重新询问。</translation>
     </message>
     <message>
         <source>%1 · uses %2</source>
@@ -10882,8 +10882,8 @@
         <translation>给 AI 客户端的配置</translation>
     </message>
     <message>
-        <source>Copies what an AI client, such as Claude Desktop or Cursor, needs to start GameScrcpy&apos;s MCP server. Paste it into the client&apos;s MCP settings.</source>
-        <translation>复制 AI 客户端（如 Claude Desktop、Cursor）启动 GameScrcpy 的 MCP 服务所需的配置，粘贴到该客户端的 MCP 设置里。</translation>
+        <source>Copies what an AI client, such as Claude Desktop or Cursor, needs to start anmacgamer&apos;s MCP server. Paste it into the client&apos;s MCP settings.</source>
+        <translation>复制 AI 客户端（如 Claude Desktop、Cursor）启动 anmacgamer 的 MCP 服务所需的配置，粘贴到该客户端的 MCP 设置里。</translation>
     </message>
     <message>
         <source>Copied. Paste it into the AI client&apos;s MCP settings.</source>
@@ -10898,8 +10898,8 @@
         <translation>给 AI 编程工具的技能说明</translation>
     </message>
     <message>
-        <source>Installs a short guide that teaches Cursor and Claude Code how to work with GameScrcpy: what to ask you first, which tools to use and how to check their work.</source>
-        <translation>安装一份简短的说明，教 Cursor 和 Claude Code 怎么用 GameScrcpy：先问你什么、用哪些工具、怎么检查自己做的。</translation>
+        <source>Installs a short guide that teaches Cursor and Claude Code how to work with anmacgamer: what to ask you first, which tools to use and how to check their work.</source>
+        <translation>安装一份简短的说明，教 Cursor 和 Claude Code 怎么用 anmacgamer：先问你什么、用哪些工具、怎么检查自己做的。</translation>
     </message>
     <message>
         <source>Install</source>
@@ -17735,8 +17735,8 @@
 <context>
     <name>ScriptCheck</name>
     <message>
-        <source>the TypeScript compiler is missing next to gs (typescript/tsc); reinstall GameScrcpy</source>
-        <translation>gs 旁边缺少 TypeScript 编译器（typescript/tsc）；请重新安装 GameScrcpy</translation>
+        <source>the TypeScript compiler is missing next to gs (typescript/tsc); reinstall anmacgamer</source>
+        <translation>gs 旁边缺少 TypeScript 编译器（typescript/tsc）；请重新安装 anmacgamer</translation>
     </message>
     <message>
         <source>the TypeScript compiler did not start</source>
@@ -18220,8 +18220,8 @@
         <translation>检查扩展更新</translation>
     </message>
     <message>
-        <source>Once a day at startup, GameScrcpy reads the update lists your extensions name and shows newer versions on the Extensions page. Nothing is installed until you choose Update, and nothing about what you have installed is sent.</source>
-        <translation>每天启动时最多检查一次：GameScrcpy 会读取扩展写明的更新列表，在“扩展”页显示新版本。在你点“更新”之前不会安装任何东西，也不会发送你装了哪些扩展。</translation>
+        <source>Once a day at startup, anmacgamer reads the update lists your extensions name and shows newer versions on the Extensions page. Nothing is installed until you choose Update, and nothing about what you have installed is sent.</source>
+        <translation>每天启动时最多检查一次：anmacgamer 会读取扩展写明的更新列表，在“扩展”页显示新版本。在你点“更新”之前不会安装任何东西，也不会发送你装了哪些扩展。</translation>
     </message>
     <message>
         <source>update upgrade new version check extension index online download</source>
@@ -18268,8 +18268,8 @@
         <translation>有定时任务时留在菜单栏运行</translation>
     </message>
     <message>
-        <source>Closing the main window keeps GameScrcpy running in the menu bar while any task has a schedule, so the tasks still start on time. Quit from its menu bar icon.</source>
-        <translation>只要有设了定时的任务，关闭主窗口后 GameScrcpy 仍会留在菜单栏运行，让任务按时启动。要完全退出，请在菜单栏图标的菜单里选“退出”。</translation>
+        <source>Closing the main window keeps anmacgamer running in the menu bar while any task has a schedule, so the tasks still start on time. Quit from its menu bar icon.</source>
+        <translation>只要有设了定时的任务，关闭主窗口后 anmacgamer 仍会留在菜单栏运行，让任务按时启动。要完全退出，请在菜单栏图标的菜单里选“退出”。</translation>
     </message>
     <message>
         <source>menu bar tray background minimize close schedule timer task quit</source>
@@ -18440,8 +18440,8 @@
         <translation>手机熄屏时</translation>
     </message>
     <message>
-        <source>Stop mirroring when the phone goes to sleep or shows its Always On Display, or keep mirroring. Ask decides the first time it happens. Turning the screen off from GameScrcpy does not count. Needs adb.</source>
-        <translation>手机休眠或进入息屏显示（AOD）时停止投屏，或者继续投屏。选“第一次询问”时，第一次熄屏会问你。用 GameScrcpy 关掉手机屏幕不算。需要 adb 连接。</translation>
+        <source>Stop mirroring when the phone goes to sleep or shows its Always On Display, or keep mirroring. Ask decides the first time it happens. Turning the screen off from anmacgamer does not count. Needs adb.</source>
+        <translation>手机休眠或进入息屏显示（AOD）时停止投屏，或者继续投屏。选“第一次询问”时，第一次熄屏会问你。用 anmacgamer 关掉手机屏幕不算。需要 adb 连接。</translation>
     </message>
     <message>
         <source>Turn the phone&apos;s screen off while mirroring</source>
@@ -18504,8 +18504,8 @@
         <translation>触控 uhid 注入 多点触控 手指 hid aoa usb otg 配件 无 不触控 仅观看</translation>
     </message>
     <message>
-        <source>The folder new recordings go into, each as a folder of its own; exported videos are saved next to it. Empty uses GameScrcpy in your Movies folder.</source>
-        <translation>新录像存放的文件夹，每段录像各自一个子文件夹；导出的视频存在它旁边。留空时使用“影片”文件夹下的 GameScrcpy。</translation>
+        <source>The folder new recordings go into, each as a folder of its own; exported videos are saved next to it. Empty uses anmacgamer in your Movies folder.</source>
+        <translation>新录像存放的文件夹，每段录像各自一个子文件夹；导出的视频存在它旁边。留空时使用“影片”文件夹下的 anmacgamer。</translation>
     </message>
     <message>
         <source>Where the service answers; empty uses the service&apos;s own address. The assistant connects only to this address, through the macOS network proxy when one is set.</source>
@@ -18792,8 +18792,8 @@
         <translation>在手机上显示光标</translation>
     </message>
     <message>
-        <source>While the mouse is over the picture, the phone&apos;s own screen shows where it points, through the GameScrcpy Companion app. The first time, GameScrcpy offers to install the app on the phone.</source>
-        <translation>鼠标在画面上时，手机自己的屏幕上也显示它指着哪里，由 GameScrcpy 伴侣 App 显示。第一次使用时，GameScrcpy 会提示在手机上安装这个 App。</translation>
+        <source>While the mouse is over the picture, the phone&apos;s own screen shows where it points, through the anmacgamer Companion app. The first time, anmacgamer offers to install the app on the phone.</source>
+        <translation>鼠标在画面上时，手机自己的屏幕上也显示它指着哪里，由 anmacgamer 伴侣 App 显示。第一次使用时，anmacgamer 会提示在手机上安装这个 App。</translation>
     </message>
     <message>
         <source>cursor pointer mouse arrow companion overlay phone</source>
@@ -18804,8 +18804,8 @@
         <translation>用电脑键盘打字</translation>
     </message>
     <message>
-        <source>While mirroring, the phone uses the GameScrcpy Companion input method: when an input box opens, the keys pause and what you type, Chinese included, goes straight into the box. The phone&apos;s own keyboard comes back when mirroring ends.</source>
-        <translation>投屏期间，手机使用 GameScrcpy 伴侣输入法：输入框打开时键位暂停，你打的字（包括中文）直接进入输入框。投屏结束后恢复手机自己的输入法。</translation>
+        <source>While mirroring, the phone uses the anmacgamer Companion input method: when an input box opens, the keys pause and what you type, Chinese included, goes straight into the box. The phone&apos;s own keyboard comes back when mirroring ends.</source>
+        <translation>投屏期间，手机使用 anmacgamer 伴侣输入法：输入框打开时键位暂停，你打的字（包括中文）直接进入输入框。投屏结束后恢复手机自己的输入法。</translation>
     </message>
     <message>
         <source>keyboard typing input method ime chat text chinese companion</source>
@@ -18828,8 +18828,8 @@
         <translation>手机上键位提示的不透明度</translation>
     </message>
     <message>
-        <source>How strongly the key hints on the phone&apos;s own screen show once they have faded. GameScrcpy Companion on the phone can change it too.</source>
-        <translation>键位提示淡出后在手机自己的屏幕上显示得多明显。手机上的 GameScrcpy 伴侣也能修改它。</translation>
+        <source>How strongly the key hints on the phone&apos;s own screen show once they have faded. anmacgamer Companion on the phone can change it too.</source>
+        <translation>键位提示淡出后在手机自己的屏幕上显示得多明显。手机上的 anmacgamer 伴侣也能修改它。</translation>
     </message>
     <message>
         <source>key hints opacity transparency fade phone companion</source>
@@ -18840,8 +18840,8 @@
         <translation>经 Wi-Fi 自动重新连接</translation>
     </message>
     <message>
-        <source>GameScrcpy Companion on a phone paired over Wi-Fi looks for this computer by itself and connects again after the connection drops. The phone can change it too.</source>
-        <translation>经 Wi-Fi 配对的手机上的 GameScrcpy 伴侣会自己寻找这台电脑，连接断开后自动重新连接。手机上也能修改它。</translation>
+        <source>anmacgamer Companion on a phone paired over Wi-Fi looks for this computer by itself and connects again after the connection drops. The phone can change it too.</source>
+        <translation>经 Wi-Fi 配对的手机上的 anmacgamer 伴侣会自己寻找这台电脑，连接断开后自动重新连接。手机上也能修改它。</translation>
     </message>
     <message>
         <source>auto connect reconnect wifi lan wireless pair companion phone</source>
@@ -18852,8 +18852,8 @@
         <translation>允许 AI 通过 MCP 连接</translation>
     </message>
     <message>
-        <source>Lets AI clients on this computer, such as Claude Desktop or Cursor, use GameScrcpy through MCP. Each client asks you once; every change to a profile and every script run on a phone asks you again. No network port is opened.</source>
-        <translation>让这台电脑上的 AI 客户端（如 Claude Desktop、Cursor）通过 MCP 使用 GameScrcpy。每个客户端第一次连接时问你一次；每次修改方案、每次在手机上运行脚本都会再问你。不开任何网络端口。</translation>
+        <source>Lets AI clients on this computer, such as Claude Desktop or Cursor, use anmacgamer through MCP. Each client asks you once; every change to a profile and every script run on a phone asks you again. No network port is opened.</source>
+        <translation>让这台电脑上的 AI 客户端（如 Claude Desktop、Cursor）通过 MCP 使用 anmacgamer。每个客户端第一次连接时问你一次；每次修改方案、每次在手机上运行脚本都会再问你。不开任何网络端口。</translation>
     </message>
     <message>
         <source>mcp ai assistant agent claude cursor model llm</source>
@@ -19134,8 +19134,8 @@
         <translation>AI</translation>
     </message>
     <message>
-        <source>GameScrcpy Companion on the phone</source>
-        <translation>手机上的 GameScrcpy 伴侣</translation>
+        <source>anmacgamer Companion on the phone</source>
+        <translation>手机上的 anmacgamer 伴侣</translation>
     </message>
     <message>
         <source>Devices your own logic may use</source>
@@ -19190,8 +19190,8 @@
         <translation>跟随 macOS</translation>
     </message>
     <message>
-        <source>AI clients on this computer can use GameScrcpy through MCP: look up the script API, try logic on recordings, see a phone&apos;s picture, read the log, change profiles and run scripts. They connect through a local Unix socket that only your macOS user account can open; no network port is opened.</source>
-        <translation>这台电脑上的 AI 客户端可以通过 MCP 使用 GameScrcpy：查阅脚本接口、在录像上试跑逻辑、查看手机画面、读取日志、修改方案和运行脚本。它们通过只有你当前 macOS 用户账户才能打开的本地 Unix 套接字连接，不会开启任何网络端口。</translation>
+        <source>AI clients on this computer can use anmacgamer through MCP: look up the script API, try logic on recordings, see a phone&apos;s picture, read the log, change profiles and run scripts. They connect through a local Unix socket that only your macOS user account can open; no network port is opened.</source>
+        <translation>这台电脑上的 AI 客户端可以通过 MCP 使用 anmacgamer：查阅脚本接口、在录像上试跑逻辑、查看手机画面、读取日志、修改方案和运行脚本。它们通过只有你当前 macOS 用户账户才能打开的本地 Unix 套接字连接，不会开启任何网络端口。</translation>
     </message>
     <message>
         <source>AI model</source>
@@ -19519,15 +19519,15 @@
     </message>
     <message>
         <source>Open gamescrcpy:// links with this copy</source>
-        <translation>用这份 GameScrcpy 打开 gamescrcpy:// 链接</translation>
+        <translation>用这份 anmacgamer 打开 gamescrcpy:// 链接</translation>
     </message>
     <message>
         <source>Links on web pages that install or show extensions open in this copy.</source>
-        <translation>网页上安装或显示扩展的链接会在这份 GameScrcpy 里打开。</translation>
+        <translation>网页上安装或显示扩展的链接会在这份 anmacgamer 里打开。</translation>
     </message>
     <message>
-        <source>Another copy of GameScrcpy opens these links now.</source>
-        <translation>现在由另一份 GameScrcpy 打开这些链接。</translation>
+        <source>Another copy of anmacgamer opens these links now.</source>
+        <translation>现在由另一份 anmacgamer 打开这些链接。</translation>
     </message>
     <message>
         <source>Web pages can offer extensions through gamescrcpy:// links. This portable copy opens them once you register it.</source>
@@ -19868,8 +19868,8 @@
         <translation>取消</translation>
     </message>
     <message>
-        <source>No examples were found next to GameScrcpy.</source>
-        <translation>GameScrcpy 旁边没有找到示例。</translation>
+        <source>No examples were found next to anmacgamer.</source>
+        <translation>anmacgamer 旁边没有找到示例。</translation>
     </message>
 </context>
 <context>
@@ -20004,8 +20004,8 @@
         <translation>怎么开始</translation>
     </message>
     <message>
-        <source>At that time GameScrcpy connects the ticked phones, turns their screens on and starts the task, and tells you when it is done or fails.</source>
-        <translation>到点时 GameScrcpy 会连上勾选的手机、点亮屏幕并开始任务，完成或出错时通知你。</translation>
+        <source>At that time anmacgamer connects the ticked phones, turns their screens on and starts the task, and tells you when it is done or fails.</source>
+        <translation>到点时 anmacgamer 会连上勾选的手机、点亮屏幕并开始任务，完成或出错时通知你。</translation>
     </message>
     <message>
         <source>By hand</source>
@@ -20319,8 +20319,8 @@
         <translation>任务页就是这些</translation>
     </message>
     <message>
-        <source>With the setting for it on, closing the window leaves GameScrcpy in the menu bar so that tasks with a schedule still run on time. Help can replay this tour.</source>
-        <translation>打开相应设置后，关闭窗口会让 GameScrcpy 留在菜单栏，好让设了定时的任务按时运行。可以在“帮助”里重看这段引导。</translation>
+        <source>With the setting for it on, closing the window leaves anmacgamer in the menu bar so that tasks with a schedule still run on time. Help can replay this tour.</source>
+        <translation>打开相应设置后，关闭窗口会让 anmacgamer 留在菜单栏，好让设了定时的任务按时运行。可以在“帮助”里重看这段引导。</translation>
     </message>
 </context>
 <context>
@@ -21094,8 +21094,8 @@
         <translation>二维码配对</translation>
     </message>
     <message>
-        <source>%1 takes adb connections on port 5555 until it restarts. Unplug the cable and put the phone on the same network as this computer; GameScrcpy finds it.</source>
-        <translation>%1 已在 5555 端口接受 adb 连接，直到手机重启。拔掉数据线，让手机和这台电脑连上同一个网络，GameScrcpy 会自己找到它。</translation>
+        <source>%1 takes adb connections on port 5555 until it restarts. Unplug the cable and put the phone on the same network as this computer; anmacgamer finds it.</source>
+        <translation>%1 已在 5555 端口接受 adb 连接，直到手机重启。拔掉数据线，让手机和这台电脑连上同一个网络，anmacgamer 会自己找到它。</translation>
     </message>
     <message>
         <source>Connected to %1 at %2.</source>
@@ -21865,8 +21865,8 @@
         <translation>触控从本机发送队列进入手机输入队列：当前 %1 ms，16 秒内最佳 %2 ms（估算）；等待下一帧：%3 ms</translation>
     </message>
     <message>
-        <source>GameScrcpy is still running in the menu bar; scheduled tasks run as usual</source>
-        <translation>GameScrcpy 仍在菜单栏运行，定时任务会照常执行</translation>
+        <source>anmacgamer is still running in the menu bar; scheduled tasks run as usual</source>
+        <translation>anmacgamer 仍在菜单栏运行，定时任务会照常执行</translation>
     </message>
     <message>
         <source>Touches go the normal way over adb instead.</source>
@@ -21999,8 +21999,8 @@
         <translation>手机拒绝了录屏</translation>
     </message>
     <message>
-        <source>This phone cannot take screenshots for GameScrcpy</source>
-        <translation>这台手机不能为 GameScrcpy 截图</translation>
+        <source>This phone cannot take screenshots for anmacgamer</source>
+        <translation>这台手机不能为 anmacgamer 截图</translation>
     </message>
     <message>
         <source>The phone is still taking the last screenshot</source>
@@ -22103,8 +22103,8 @@
         <translation>这台手机的安卓版本不支持从电脑下拉或收起通知栏</translation>
     </message>
     <message>
-        <source>The phone did not let GameScrcpy open or close the notification shade</source>
-        <translation>手机没有让 GameScrcpy 下拉或收起通知栏</translation>
+        <source>The phone did not let anmacgamer open or close the notification shade</source>
+        <translation>手机没有让 anmacgamer 下拉或收起通知栏</translation>
     </message>
     <message>
         <source>hardware overlay</source>
@@ -22183,8 +22183,8 @@
         <translation>手机拒绝了模拟的点击和按键</translation>
     </message>
     <message>
-        <source>Open GameScrcpy</source>
-        <translation>打开 GameScrcpy</translation>
+        <source>Open anmacgamer</source>
+        <translation>打开 anmacgamer</translation>
     </message>
     <message>
         <source>Quit</source>
@@ -22391,16 +22391,16 @@
         <translation>没保存上：文件被别的程序占用</translation>
     </message>
     <message>
-        <source>Install GameScrcpy Companion on the phone to type there with this computer&apos;s keyboard</source>
-        <translation>要用这台电脑的键盘在手机上打字，需要在手机上安装 GameScrcpy 伴侣</translation>
+        <source>Install anmacgamer Companion on the phone to type there with this computer&apos;s keyboard</source>
+        <translation>要用这台电脑的键盘在手机上打字，需要在手机上安装 anmacgamer 伴侣</translation>
     </message>
     <message>
-        <source>Install GameScrcpy Companion on the phone to show the cursor there</source>
-        <translation>要在手机上显示光标，需要在手机上安装 GameScrcpy 伴侣</translation>
+        <source>Install anmacgamer Companion on the phone to show the cursor there</source>
+        <translation>要在手机上显示光标，需要在手机上安装 anmacgamer 伴侣</translation>
     </message>
     <message>
-        <source>Install GameScrcpy Companion on the phone to show the key hints there</source>
-        <translation>要在手机上显示键位提示，需要在手机上安装 GameScrcpy 伴侣</translation>
+        <source>Install anmacgamer Companion on the phone to show the key hints there</source>
+        <translation>要在手机上显示键位提示，需要在手机上安装 anmacgamer 伴侣</translation>
     </message>
     <message>
         <source>Install</source>
@@ -22411,48 +22411,48 @@
         <translation>先不</translation>
     </message>
     <message>
-        <source>On the phone, turn on GameScrcpy Companion in the list of keyboards, then choose Try again</source>
-        <translation>请在手机的键盘列表里打开 GameScrcpy 伴侣，然后点“重试”</translation>
+        <source>On the phone, turn on anmacgamer Companion in the list of keyboards, then choose Try again</source>
+        <translation>请在手机的键盘列表里打开 anmacgamer 伴侣，然后点“重试”</translation>
     </message>
     <message>
         <source>Try again</source>
         <translation>重试</translation>
     </message>
     <message>
-        <source>Installing GameScrcpy Companion on the phone; allow it there if the phone asks</source>
-        <translation>正在手机上安装 GameScrcpy 伴侣；手机上弹出询问时请允许</translation>
+        <source>Installing anmacgamer Companion on the phone; allow it there if the phone asks</source>
+        <translation>正在手机上安装 anmacgamer 伴侣；手机上弹出询问时请允许</translation>
     </message>
     <message>
-        <source>On the phone, allow GameScrcpy Companion to display over other apps</source>
-        <translation>请在手机上允许 GameScrcpy 伴侣显示在其他应用的上层（悬浮窗）</translation>
+        <source>On the phone, allow anmacgamer Companion to display over other apps</source>
+        <translation>请在手机上允许 anmacgamer 伴侣显示在其他应用的上层（悬浮窗）</translation>
     </message>
     <message>
-        <source>GameScrcpy Companion is connected over Wi-Fi</source>
-        <translation>GameScrcpy 伴侣已通过 Wi-Fi 连接</translation>
+        <source>anmacgamer Companion is connected over Wi-Fi</source>
+        <translation>anmacgamer 伴侣已通过 Wi-Fi 连接</translation>
     </message>
     <message>
         <source>The cursor now shows on the phone</source>
         <translation>手机上现在会显示光标了</translation>
     </message>
     <message>
-        <source>GameScrcpy Companion disconnected; it connects again by itself on the same Wi-Fi</source>
-        <translation>GameScrcpy 伴侣已断开；在同一 Wi-Fi 下会自动重连</translation>
+        <source>anmacgamer Companion disconnected; it connects again by itself on the same Wi-Fi</source>
+        <translation>anmacgamer 伴侣已断开；在同一 Wi-Fi 下会自动重连</translation>
     </message>
     <message>
-        <source>GameScrcpy Companion is missing from this installation; reinstall GameScrcpy</source>
-        <translation>这份安装里缺少 GameScrcpy 伴侣，请重新安装 GameScrcpy</translation>
+        <source>anmacgamer Companion is missing from this installation; reinstall anmacgamer</source>
+        <translation>这份安装里缺少 anmacgamer 伴侣，请重新安装 anmacgamer</translation>
     </message>
     <message>
-        <source>GameScrcpy Companion could not be installed on the phone: %1</source>
-        <translation>没能在手机上安装 GameScrcpy 伴侣：%1</translation>
+        <source>anmacgamer Companion could not be installed on the phone: %1</source>
+        <translation>没能在手机上安装 anmacgamer 伴侣：%1</translation>
     </message>
     <message>
-        <source>GameScrcpy Companion could not be started on the phone</source>
-        <translation>无法在手机上启动 GameScrcpy 伴侣</translation>
+        <source>anmacgamer Companion could not be started on the phone</source>
+        <translation>无法在手机上启动 anmacgamer 伴侣</translation>
     </message>
     <message>
-        <source>GameScrcpy Companion was stopped from the phone</source>
-        <translation>GameScrcpy 伴侣已在手机上停止</translation>
+        <source>anmacgamer Companion was stopped from the phone</source>
+        <translation>anmacgamer 伴侣已在手机上停止</translation>
     </message>
     <message>
         <source>Demo capture card</source>
@@ -22547,8 +22547,8 @@
         <translation>正在重新连接：%1</translation>
     </message>
     <message>
-        <source>GameScrcpy connects again by itself as soon as %1 reaches the phone again</source>
-        <translation>等 %1 重新连上手机，GameScrcpy 会自己再连接</translation>
+        <source>anmacgamer connects again by itself as soon as %1 reaches the phone again</source>
+        <translation>等 %1 重新连上手机，anmacgamer 会自己再连接</translation>
     </message>
     <message>
         <source>Not connected: %1</source>
@@ -22559,8 +22559,8 @@
         <translation>确认 %1 已打开、能连到手机，然后再连接</translation>
     </message>
     <message>
-        <source>Connect GameScrcpy Companion first: scan the code in this window with the phone</source>
-        <translation>请先连上 GameScrcpy 伴侣：用手机扫描这个窗口里的二维码</translation>
+        <source>Connect anmacgamer Companion first: scan the code in this window with the phone</source>
+        <translation>请先连上 anmacgamer 伴侣：用手机扫描这个窗口里的二维码</translation>
     </message>
     <message>
         <source>Allow the screen recording on the phone when it asks</source>
@@ -22882,8 +22882,8 @@
 <context>
     <name>gs::app::ExtensionLinks</name>
     <message>
-        <source>GameScrcpy cannot open this link.</source>
-        <translation>GameScrcpy 打不开这个链接。</translation>
+        <source>anmacgamer cannot open this link.</source>
+        <translation>anmacgamer 打不开这个链接。</translation>
     </message>
     <message>
         <source>Another extension is still downloading.</source>
@@ -22993,8 +22993,8 @@
         <translation>下载的文件不是更新列表写的那个：SHA-256 对不上。</translation>
     </message>
     <message>
-        <source>The download is not an extension package GameScrcpy can read.</source>
-        <translation>下载的文件不是 GameScrcpy 能读取的扩展包。</translation>
+        <source>The download is not an extension package anmacgamer can read.</source>
+        <translation>下载的文件不是 anmacgamer 能读取的扩展包。</translation>
     </message>
     <message>
         <source>The package holds %1 %2, not the update the list names.</source>
@@ -23025,8 +23025,8 @@
         <translation>这个更新由公钥 %1 签名，已安装的版本由公钥 %2 签名。要接受新公钥，请先移除这个扩展，再重新安装这个包。</translation>
     </message>
     <message>
-        <source>This update does not run on this version of GameScrcpy.</source>
-        <translation>这个更新不能在这个版本的 GameScrcpy 上运行。</translation>
+        <source>This update does not run on this version of anmacgamer.</source>
+        <translation>这个更新不能在这个版本的 anmacgamer 上运行。</translation>
     </message>
 </context>
 <context>
@@ -23120,8 +23120,8 @@
         <translation>没能为 %1 写入技能说明。</translation>
     </message>
     <message>
-        <source>Another program already uses the connection point %1, so AI clients cannot reach GameScrcpy</source>
-        <translation>另一个程序已经占用了连接点 %1，AI 客户端连不上 GameScrcpy</translation>
+        <source>Another program already uses the connection point %1, so AI clients cannot reach anmacgamer</source>
+        <translation>另一个程序已经占用了连接点 %1，AI 客户端连不上 anmacgamer</translation>
     </message>
     <message>
         <source>AI clients cannot connect: %1</source>
@@ -23510,8 +23510,8 @@
         <translation>文件不是有效的 JSON。</translation>
     </message>
     <message>
-        <source>This is not a GameScrcpy key mapping profile.</source>
-        <translation>这不是 GameScrcpy 的键位方案。</translation>
+        <source>This is not a anmacgamer key mapping profile.</source>
+        <translation>这不是 anmacgamer 的键位方案。</translation>
     </message>
     <message>
         <source>The profile was made for another version of the format.</source>
@@ -23762,12 +23762,12 @@
         <translation>无法在 %1 上运行：gs 未能启动</translation>
     </message>
     <message>
-        <source>Could not run on the recording: gs is missing next to GameScrcpy</source>
-        <translation>无法在录像上运行：GameScrcpy 旁边缺少 gs</translation>
+        <source>Could not run on the recording: gs is missing next to anmacgamer</source>
+        <translation>无法在录像上运行：anmacgamer 旁边缺少 gs</translation>
     </message>
     <message>
-        <source>Problems are not checked: gs is missing next to GameScrcpy</source>
-        <translation>未检查问题：GameScrcpy 旁边缺少 gs</translation>
+        <source>Problems are not checked: gs is missing next to anmacgamer</source>
+        <translation>未检查问题：anmacgamer 旁边缺少 gs</translation>
     </message>
     <message>
         <source>Restart the logic on %1</source>

@@ -1,6 +1,6 @@
 # Guided tours
 
-The first time you open a part of GameScrcpy, a tour walks you through its main features one by one: everything dims except the place it is talking about, and a card next to it says what it is and how to use it, with the shortcut when there is one. So a big screen never has to be understood all at once.
+The first time you open a part of anmacgamer, a tour walks you through its main features one by one: everything dims except the place it is talking about, and a card next to it says what it is and how to use it, with the shortcut when there is one. So a big screen never has to be understood all at once.
 
 - The card has **Back**, **Next** and **Skip** at the bottom, and the dots show how far you are. Press **Next** when you have read a step; where a step asks you to do something (such as dragging a component onto the picture), doing it moves on too.
 - Esc skips as well. A tour you finished or skipped does not come back by itself.

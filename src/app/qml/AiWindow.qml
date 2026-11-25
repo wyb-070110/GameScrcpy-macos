@@ -56,7 +56,7 @@ Window {
     minimumWidth: 640
     minimumHeight: 480
     visible: false
-    title: qsTr("AI assistant — GameScrcpy")
+    title: qsTr("AI assistant — anmacgamer")
     color: Theme.colors.bgBase
 
     onClosing: AiChats.windowOpen = false

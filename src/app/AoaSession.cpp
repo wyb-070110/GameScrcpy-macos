@@ -74,7 +74,7 @@ void AoaSession::start(const platform::UsbPhone& phone, int rotation, QSize canv
         const std::string resource = usbResourceOf(phone);
         const std::string holder = "app:aoa:" + phone.serial;
         const exthost::ClaimResult claimed =
-            claims->claim(resource, ClaimHolder{holder, QStringLiteral("GameScrcpy"), {}}, false);
+            claims->claim(resource, ClaimHolder{holder, QStringLiteral("anmacgamer"), {}}, false);
         if (claimed == exthost::ClaimResult::Claimed) {
             m_resource = resource;
             m_holder = holder;

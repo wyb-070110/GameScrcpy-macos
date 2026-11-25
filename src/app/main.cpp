@@ -271,7 +271,7 @@ void loadInputProfile(gs::app::DeviceManager& devices, const QString& path)
                                           : std::filesystem::path());
 }
 
-// Inside GameScrcpy.app, bundled data lives in Contents/Resources; in a flat build directory it sits next to the binary.
+// Inside anmacgamer.app, bundled data lives in Contents/Resources; in a flat build directory it sits next to the binary.
 std::filesystem::path bundleResource(QStringView relative)
 {
     const QString appDir = QCoreApplication::applicationDirPath();
@@ -377,8 +377,8 @@ int main(int argc, char* argv[])
     if (!gs::platform::keepTimerResolution()) {
         qWarning("timer resolution may be throttled while the window is hidden");
     }
-    QGuiApplication::setApplicationName(u"GameScrcpy"_s);
-    QGuiApplication::setOrganizationName(u"GameScrcpy"_s);
+    QGuiApplication::setApplicationName(u"anmacgamer"_s);
+    QGuiApplication::setOrganizationName(u"anmacgamer"_s);
     QGuiApplication::setApplicationVersion(gs::app::toQString(gs::buildInfo().version));
 
     QCommandLineParser parser;

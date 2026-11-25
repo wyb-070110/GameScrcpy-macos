@@ -33,7 +33,7 @@ Platform.MenuBar {
     }
 
     Platform.Menu {
-        title: qsTr("GameScrcpy")
+        title: qsTr("anmacgamer")
 
         CommandItem {
             command: "app.about"
@@ -104,7 +104,7 @@ Platform.MenuBar {
         }
         Platform.MenuSeparator {}
         Platform.MenuItem {
-            text: qsTr("GameScrcpy")
+            text: qsTr("anmacgamer")
             onTriggered: {
                 bar.hub.show()
                 bar.hub.raise()

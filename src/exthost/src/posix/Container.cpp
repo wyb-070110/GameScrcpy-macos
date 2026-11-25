@@ -63,7 +63,7 @@ std::filesystem::path dataFolder()
     if (home == nullptr || *home != '/') {
         return {};
     }
-    return std::filesystem::path(home) / "Library" / "Application Support" / "GameScrcpy" / "Containers";
+    return std::filesystem::path(home) / "Library" / "Application Support" / "anmacgamer" / "Containers";
 #else
     if (const char* data = std::getenv("XDG_DATA_HOME"); data != nullptr && *data == '/') {
         return std::filesystem::path(data) / "GameScrcpy" / "Containers";

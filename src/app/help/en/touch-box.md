@@ -1,4 +1,4 @@
-A touch box is a small board that a phone takes for a plugged-in touch screen and keyboard, so you can control the phone even with USB debugging off. GameScrcpy does not drive any board by itself: an extension adds the touch box, and the box then gets a card of its own on the Devices page.
+A touch box is a small board that a phone takes for a plugged-in touch screen and keyboard, so you can control the phone even with USB debugging off. anmacgamer does not drive any board by itself: an extension adds the touch box, and the box then gets a card of its own on the Devices page.
 
 ## The ESP32 touch box
 

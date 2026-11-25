@@ -6,10 +6,13 @@ qt_add_executable(GameScrcpy MACOSX_BUNDLE
 # The Dock, Finder and Launchpad icon, compiled from packaging/macos/icon/GameScrcpy.icon by
 # packaging/macos/icon/build_icon.sh: Assets.car for macOS 26 and later, GameScrcpy.icns before.
 set_source_files_properties(resources/GameScrcpy.icns resources/Assets.car PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+# The app the user sees is anmacgamer (anmacgamer.app, its own bundle identifier); the CMake target keeps its
+# upstream name.
 set_target_properties(GameScrcpy PROPERTIES
+    OUTPUT_NAME "anmacgamer"
     MACOSX_BUNDLE_ICON_FILE "GameScrcpy"
-    MACOSX_BUNDLE_BUNDLE_NAME "GameScrcpy"
-    MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.nuoran.gamescrcpy"
+    MACOSX_BUNDLE_BUNDLE_NAME "anmacgamer"
+    MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.wyb070110.anmacgamer"
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
 )
 
@@ -608,7 +611,7 @@ add_custom_target(gs_server_package ALL
         "-DSOURCE=${PROJECT_SOURCE_DIR}/android/server/build/outputs/apk/release/server-release-unsigned.apk"
         "-DDESTINATION=$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/gs-server.apk"
         -P "${PROJECT_SOURCE_DIR}/cmake/CopyIfExists.cmake"
-    COMMENT "Placing the server build inside GameScrcpy.app/Contents/Resources"
+    COMMENT "Placing the server build inside anmacgamer.app/Contents/Resources"
     VERBATIM
 )
 
@@ -622,7 +625,7 @@ add_custom_target(gs_companion_package ALL
         "-DSOURCE=${PROJECT_SOURCE_DIR}/android/companion/build/outputs/apk/debug/output-metadata.json"
         "-DDESTINATION=$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/gs-companion.json"
         -P "${PROJECT_SOURCE_DIR}/cmake/CopyIfExists.cmake"
-    COMMENT "Placing the companion app build inside GameScrcpy.app/Contents/Resources"
+    COMMENT "Placing the companion app build inside anmacgamer.app/Contents/Resources"
     VERBATIM
 )
 
@@ -630,7 +633,7 @@ add_custom_target(gs_builtin_components
     COMMAND "${CMAKE_COMMAND}" -E rm -rf "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/components"
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${PROJECT_SOURCE_DIR}/examples/components"
         "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/components"
-    COMMENT "Placing the example components inside GameScrcpy.app/Contents/Resources"
+    COMMENT "Placing the example components inside anmacgamer.app/Contents/Resources"
     VERBATIM
 )
 
@@ -638,7 +641,7 @@ add_custom_target(gs_builtin_tasks
     COMMAND "${CMAKE_COMMAND}" -E rm -rf "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/tasks"
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${PROJECT_SOURCE_DIR}/examples/tasks"
         "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/tasks"
-    COMMENT "Placing the example tasks inside GameScrcpy.app/Contents/Resources"
+    COMMENT "Placing the example tasks inside anmacgamer.app/Contents/Resources"
     VERBATIM
 )
 
@@ -647,7 +650,7 @@ add_custom_target(gs_builtin_extensions
     COMMAND "${CMAKE_COMMAND}" -E rm -rf "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/extensions"
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/builtin-extensions"
         "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/extensions"
-    COMMENT "Placing the built-in extensions inside GameScrcpy.app/Contents/Resources"
+    COMMENT "Placing the built-in extensions inside anmacgamer.app/Contents/Resources"
     VERBATIM
 )
 
@@ -680,7 +683,7 @@ add_custom_command(TARGET GameScrcpy POST_BUILD
             "$<TARGET_FILE_DIR:GameScrcpy>/gs"
             "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/typescript/tsc"
     COMMAND /usr/bin/codesign --force --sign - "$<TARGET_BUNDLE_DIR:GameScrcpy>"
-    COMMENT "Assembling and ad-hoc signing GameScrcpy.app"
+    COMMENT "Assembling and ad-hoc signing anmacgamer.app"
     VERBATIM
 )
 

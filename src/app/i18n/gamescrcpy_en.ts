@@ -431,10 +431,10 @@
 <context>
     <name>McpPrompts</name>
     <message numerus="yes">
-        <source>%n file(s) changed in GameScrcpy after the AI made its draft; applying replaces them with the draft.</source>
+        <source>%n file(s) changed in anmacgamer after the AI made its draft; applying replaces them with the draft.</source>
         <translation>
-            <numerusform>%n file changed in GameScrcpy after the AI made its draft; applying replaces it with the draft.</numerusform>
-            <numerusform>%n files changed in GameScrcpy after the AI made its draft; applying replaces them with the draft.</numerusform>
+            <numerusform>%n file changed in anmacgamer after the AI made its draft; applying replaces it with the draft.</numerusform>
+            <numerusform>%n files changed in anmacgamer after the AI made its draft; applying replaces them with the draft.</numerusform>
         </translation>
     </message>
     <message numerus="yes">

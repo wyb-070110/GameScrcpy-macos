@@ -1423,7 +1423,7 @@ void ScriptWorkbench::runOnRecording(const QUrl& recording)
     }
     const QString program = tool();
     if (!QFileInfo::exists(program)) {
-        emit notify(tr("Could not run on the recording: gs is missing next to GameScrcpy"), QStringLiteral("bad"));
+        emit notify(tr("Could not run on the recording: gs is missing next to anmacgamer"), QStringLiteral("bad"));
         return;
     }
     m_replayName = name;
@@ -1675,7 +1675,7 @@ void ScriptWorkbench::startCheck()
     }
     const QString program = tool();
     if (!QFileInfo::exists(program)) {
-        m_checkNotice = tr("Problems are not checked: gs is missing next to GameScrcpy");
+        m_checkNotice = tr("Problems are not checked: gs is missing next to anmacgamer");
         emit checkingChanged();
         return;
     }

@@ -98,7 +98,7 @@ Dialog {
                 visible: dialog.examples.length === 0
                 textFormat: Text.PlainText
                 wrapMode: Text.Wrap
-                text: qsTr("No examples were found next to GameScrcpy.")
+                text: qsTr("No examples were found next to anmacgamer.")
                 color: Theme.colors.textSecondary
                 font.pixelSize: Theme.type.body.size
             }

@@ -23,7 +23,7 @@ Unplug the cable and plug it in again. If it stays offline, turn USB debugging o
 
 ### The Devices page says adb is not available {#adb-missing}
 
-GameScrcpy talks to phones through adb. Install Android SDK Platform-Tools (for example with Homebrew: `brew install --cask android-platform-tools`), or make sure no other program blocks adb. Then select **Retry** on the **Devices** page.
+anmacgamer talks to phones through adb. Install Android SDK Platform-Tools (for example with Homebrew: `brew install --cask android-platform-tools`), or make sure no other program blocks adb. Then select **Retry** on the **Devices** page.
 
 ### USB debugging is greyed out on a Samsung phone {#samsung-grey}
 
@@ -39,7 +39,7 @@ Turn off **Settings > Security and privacy > Auto Blocker** first.
 
 ### WiFi direct does not connect {#wifi-direct}
 
-This Mac and the phone must be on the same network, and GameScrcpy must be allowed under **System Settings > Privacy & Security > Local Network**. Some routers keep their devices apart (AP isolation), and a firewall can block UDP. If it still fails, choose **adb tunnel** on the phone's card on the **Devices** page.
+This Mac and the phone must be on the same network, and anmacgamer must be allowed under **System Settings > Privacy & Security > Local Network**. Some routers keep their devices apart (AP isolation), and a firewall can block UDP. If it still fails, choose **adb tunnel** on the phone's card on the **Devices** page.
 
 ### The picture stutters or lags {#lag}
 
@@ -47,9 +47,9 @@ This Mac and the phone must be on the same network, and GameScrcpy must be allow
 - In **Settings > Mirroring & quality**, lower **Maximum resolution** or **Bit rate limit**.
 - **Low-latency mode** in the same place gives the least delay, with occasional tearing.
 - The status capsule and the diagnostics overlay show the frame rate and the delay.
-- If the **Devices** page says Metal hardware acceleration is not available, run GameScrcpy directly on a Mac with Metal support. In some virtual machines the processor draws the picture, which may stutter.
+- If the **Devices** page says Metal hardware acceleration is not available, run anmacgamer directly on a Mac with Metal support. In some virtual machines the processor draws the picture, which may stutter.
 
-When the network gets slow, GameScrcpy lowers the resolution or the frame rate by itself, and brings them back when the network recovers.
+When the network gets slow, anmacgamer lowers the resolution or the frame rate by itself, and brings them back when the network recovers.
 
 ### Chinese and other characters do not reach the phone {#typing}
 
@@ -83,21 +83,21 @@ Look in **Settings > Keyboard shortcuts**; another command may use the same keys
 
 ## Other {icon=settings-2} {tone=gray}
 
-### GameScrcpy closed unexpectedly {#crashed}
+### anmacgamer closed unexpectedly {#crashed}
 
-At the next start, GameScrcpy offers to export diagnostics; you can also do it at any time in **Settings > About > Export diagnostics…**. The zip file holds the logs, the settings, the device list and the newest crash report; serial numbers, addresses, user names, Wi‑Fi names and clipboard text are taken out. Attach the file to your problem report.
+At the next start, anmacgamer offers to export diagnostics; you can also do it at any time in **Settings > About > Export diagnostics…**. The zip file holds the logs, the settings, the device list and the newest crash report; serial numbers, addresses, user names, Wi‑Fi names and clipboard text are taken out. Attach the file to your problem report.
 
 ### An extension causes trouble {#extension-trouble}
 
-On the **Extensions** page, **Find a problem extension** loads your extensions a few at a time and asks whether the problem still happens, until it finds the one behind it. To start once without any extension, run `open -a GameScrcpy --args --safe-mode`.
+On the **Extensions** page, **Find a problem extension** loads your extensions a few at a time and asks whether the problem still happens, until it finds the one behind it. To start once without any extension, run `open -a anmacgamer --args --safe-mode`.
 
-When an extension stops three times within a minute, GameScrcpy turns it off by itself and its card says why; the card also counts the stops of the last 7 days, and the extension's **Details** list each one with its crash report. More in [Extensions · When something goes wrong](help:extensions#trouble).
+When an extension stops three times within a minute, anmacgamer turns it off by itself and its card says why; the card also counts the stops of the last 7 days, and the extension's **Details** list each one with its crash report. More in [Extensions · When something goes wrong](help:extensions#trouble).
 
 ### Where are my settings and profiles? {#data-folder}
 
-In `~/Library/Application Support/GameScrcpy`: your profiles are in `profiles`, the logs in `logs`.
+In `~/Library/Application Support/anmacgamer`: your profiles are in `profiles`, the logs in `logs`.
 
-To use a separate data folder, set the `GS_DATA_DIR` environment variable before starting GameScrcpy.
+To use a separate data folder, set the `GS_DATA_DIR` environment variable before starting anmacgamer.
 
 ### Which phones work? {#which-phones}
 

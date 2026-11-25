@@ -67,7 +67,7 @@ While the camera is locked, the edges of the window glow so you can tell; turn o
 
 ## Type into the phone
 
-While key mapping is on, an input box that opens on the phone puts the window into typing: what you type goes into the box, and a note over the picture says "Typing on the phone: Enter sends, Esc goes back to the game". This needs [GameScrcpy Companion](help:companion), which tells GameScrcpy that the box is open.
+While key mapping is on, an input box that opens on the phone puts the window into typing: what you type goes into the box, and a note over the picture says "Typing on the phone: Enter sends, Esc goes back to the game". This needs [anmacgamer Companion](help:companion), which tells anmacgamer that the box is open.
 
 ## Full screen and the mini window
 
@@ -78,7 +78,7 @@ While key mapping is on, an input box that opens on the phone puts the window in
 
 ## Measure the real latency
 
-Choose **More > Measure the real latency**. While it runs, the phone shows a dot wherever it is touched; press keys or tap the picture as usual. GameScrcpy times how long each touch takes to show in the picture, and shows the median of your presses.
+Choose **More > Measure the real latency**. While it runs, the phone shows a dot wherever it is touched; press keys or tap the picture as usual. anmacgamer times how long each touch takes to show in the picture, and shows the median of your presses.
 
 > [!TIP]
 > If it cannot see the dots, press keys over darker parts of the picture.
@@ -89,4 +89,4 @@ On the **Devices** page, **More > Apps** on a mirrored phone lists its apps and 
 
 ## Closing
 
-Closing the mirror window ends mirroring for that phone. While you edit the key mapping, the close button asks in the middle of the window whether to **Leave editing** (which saves, like **Done**, and keeps the window open) or **Close the mirror window**; tick **Remember my choice** and it stops asking, and you can change it back under **Closing while editing keys** in **Settings > Mirroring & quality > Display**. If you choose to close with changes that are not saved, GameScrcpy asks about saving first.
+Closing the mirror window ends mirroring for that phone. While you edit the key mapping, the close button asks in the middle of the window whether to **Leave editing** (which saves, like **Done**, and keeps the window open) or **Close the mirror window**; tick **Remember my choice** and it stops asking, and you can change it back under **Closing while editing keys** in **Settings > Mirroring & quality > Display**. If you choose to close with changes that are not saved, anmacgamer asks about saving first.

@@ -22,8 +22,8 @@
           "tile": "teal",
           "title": { "en": "AOA touch over USB", "zh_CN": "AOA 有线触控" },
           "summary": {
-            "en": "Control a phone over the USB cable without USB debugging, and pair GameScrcpy Companion over Wi-Fi.",
-            "zh_CN": "不开 USB 调试也能经数据线控制手机，并经 Wi‑Fi 连接 GameScrcpy 伴侣。"
+            "en": "Control a phone over the USB cable without USB debugging, and pair anmacgamer Companion over Wi-Fi.",
+            "zh_CN": "不开 USB 调试也能经数据线控制手机，并经 Wi‑Fi 连接 anmacgamer 伴侣。"
           }
         },
         {
@@ -101,7 +101,7 @@
           "slug": "companion",
           "icon": "cursor-arrow",
           "tile": "lime",
-          "title": { "en": "GameScrcpy Companion", "zh_CN": "GameScrcpy 伴侣" },
+          "title": { "en": "anmacgamer Companion", "zh_CN": "anmacgamer 伴侣" },
           "summary": {
             "en": "The phone app for the cursor, key hints and typing on the phone, with switches you can change on either side.",
             "zh_CN": "手机上的光标、键位提示和打字都靠它，开关在电脑和手机上都能改。"

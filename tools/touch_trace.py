@@ -5,7 +5,7 @@
 moves are spaced, the speed over the last 100 ms before the lift, and the gap between the last move and the lift.
 Android treats a lift more than 40 ms after the last move as a stopped finger (no fling; docs/handoff/swipe-design.md).
 
-    GS_TOUCH_TRACE=/tmp/touch.log open build/mac-app/bin/GameScrcpy.app   # then mirror and swipe
+    GS_TOUCH_TRACE=/tmp/touch.log open build/mac-app/bin/anmacgamer.app   # then mirror and swipe
     tools/touch_trace.py /tmp/touch.log
     tools/touch_trace.py --size 1080x2400 /tmp/touch.log
     tools/touch_trace.py --self-test

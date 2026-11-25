@@ -46,8 +46,8 @@ A profile is either a single `.json` file or a profile folder. A profile folder 
 ![A profile folder is exported as one .gsprofile file; send it to a friend, who imports it on the Profiles page.](figure:profile-share)
 
 - **To share**: **Export…** in **More** on the card. A profile folder is saved as a `.gsprofile` file, which keeps its logic and pictures; you can also save just its keys as `.json`.
-- **To receive**: **Import…** on the **Profiles** page opens `.json` and `.gsprofile` files. You can also drop files, or a profile folder, onto the GameScrcpy window.
+- **To receive**: **Import…** on the **Profiles** page opens `.json` and `.gsprofile` files. You can also drop files, or a profile folder, onto the anmacgamer window.
 - **Other formats**: with a converter extension, **Import…** also opens the other formats it knows, and the card's **More** gains **Export as …**; see [What extensions add](help:extension-features#converters).
 
 > [!WARNING]
-> **Only import profiles you trust**: a profile with logic can tap, swipe and press keys on the phone by itself, and can read the keys you hold and where the pointer is in the mirror window. GameScrcpy asks before it imports one.
+> **Only import profiles you trust**: a profile with logic can tap, swipe and press keys on the phone by itself, and can read the keys you hold and where the pointer is in the mirror window. anmacgamer asks before it imports one.

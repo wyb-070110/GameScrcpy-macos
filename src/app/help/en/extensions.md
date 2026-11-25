@@ -1,11 +1,11 @@
-Extensions add features to GameScrcpy: touch boxes, new ways to reach phones, places pictures and sound come from and go to, reading aloud and voice commands, interface languages, AI model services, importing and exporting other formats, and panels, components, themes and picture filters (extension video filters are not available on macOS yet). GameScrcpy comes with no extensions; each comes from its own author. Look at what one asks for before installing it; once installed, it can do only what you allow.
+Extensions add features to anmacgamer: touch boxes, new ways to reach phones, places pictures and sound come from and go to, reading aloud and voice commands, interface languages, AI model services, importing and exporting other formats, and panels, components, themes and picture filters (extension video filters are not available on macOS yet). anmacgamer comes with no extensions; each comes from its own author. Look at what one asks for before installing it; once installed, it can do only what you allow.
 
 Where the things extensions add show up: [What extensions add](help:extension-features)
 
 ## Install an extension {#install}
 
 1. **Get the package**: an extension comes as a `.gsext` file, and a bundle that installs a set of extensions at once is a `.gsbundle`. Download it from the author's project or release page, or choose an install link on a web page (see below).
-2. **Install it**: on the **Extensions** page choose **Install from file…** and pick the file, or drag it straight into the GameScrcpy window.
+2. **Install it**: on the **Extensions** page choose **Install from file…** and pick the file, or drag it straight into the anmacgamer window.
 3. **Look before installing**: the install dialog lists the version, the authors, the signature, the permissions it asks for and what it depends on. If all is well, choose **Install**; for an extension with native code the button says **Trust and install**.
 4. **Turn it on**: an installed extension has a card on the **Extensions** page. It loads only once you turn on the switch on its card, and turning it on allows the permissions it asks for.
 
@@ -14,33 +14,33 @@ Where the things extensions add show up: [What extensions add](help:extension-fe
 
 ## Install links on web pages {#links}
 
-An author can put a `gamescrcpy://` link on a web page; choosing it hands the link to GameScrcpy, or to the copy already running.
+An author can put a `gamescrcpy://` link on a web page; choosing it hands the link to anmacgamer, or to the copy already running.
 
-- :import: **Install links**: GameScrcpy first downloads the package; the bottom of the main window shows "Downloading an extension from …" with the progress, and **Cancel** stops it. Only when the package's SHA-256 matches the link does the usual install dialog open, saying "Downloaded from … · SHA-256 matches the link", and from there it is just like installing from a file; when it does not match, nothing is installed. Downloads use https only, and a package can be at most 200 MiB.
+- :import: **Install links**: anmacgamer first downloads the package; the bottom of the main window shows "Downloading an extension from …" with the progress, and **Cancel** stops it. Only when the package's SHA-256 matches the link does the usual install dialog open, saying "Downloaded from … · SHA-256 matches the link", and from there it is just like installing from a file; when it does not match, nothing is installed. Downloads use https only, and a package can be at most 200 MiB.
 - :link: **Extension links**: `gamescrcpy://extension/` followed by an extension's id opens the **Extensions** page at that extension's card.
 
-The installed version takes `gamescrcpy://` links by itself. A portable copy needs **Register gamescrcpy:// links** under **Settings > General > Extension links**. When that card says "Another copy of GameScrcpy opens these links now.", the links go to another copy on this computer; choose **Register gamescrcpy:// links** again to have this copy open them. To stop, choose **Remove gamescrcpy:// links**.
+The installed version takes `gamescrcpy://` links by itself. A portable copy needs **Register gamescrcpy:// links** under **Settings > General > Extension links**. When that card says "Another copy of anmacgamer opens these links now.", the links go to another copy on this computer; choose **Register gamescrcpy:// links** again to have this copy open them. To stop, choose **Remove gamescrcpy:// links**.
 
 > [!NOTE]
-> **A link goes to GameScrcpy on its own**: when you pass a link from Terminal, the link must be the only argument after `GameScrcpy.app/Contents/MacOS/GameScrcpy`. Given together with other arguments, GameScrcpy neither opens the link nor starts.
+> **A link goes to anmacgamer on its own**: when you pass a link from Terminal, the link must be the only argument after `anmacgamer.app/Contents/MacOS/anmacgamer`. Given together with other arguments, anmacgamer neither opens the link nor starts.
 
 ## Signatures and publishers {#signing}
 
 An author can sign a package. The install dialog and the extension's details tell how it is signed:
 
 - :shield: **Verified publisher**: the signature is valid and uses the same key as when this computer installed the extension before, so it comes from the same author.
-- :info: **Signed with key …, which this computer has not seen before**: the signature is valid and the files are unchanged, but the key is new here, so GameScrcpy cannot tell whose it is. Compare the key with the one the author shows on their project page. Once installed, every update of the extension has to be signed with the same key.
+- :info: **Signed with key …, which this computer has not seen before**: the signature is valid and the files are unchanged, but the key is new here, so anmacgamer cannot tell whose it is. Compare the key with the one the author shows on their project page. Once installed, every update of the extension has to be signed with the same key.
 - :triangle-alert: **Unsigned**: there is no way to tell who made it or whether it was changed. Install it only if you trust where it came from.
 
 A package whose signature does not match its files, an unsigned package for an installed version that is signed, and an update signed with a different key are all refused. When an author really changes keys, remove the extension first, then install the new package.
 
 ## Extensions with native code {#native}
 
-Some extensions bring native macOS code of their own (`.dylib` libraries), such as those that drive touch boxes. Before installing, GameScrcpy checks that library and shows what it found in the install dialog:
+Some extensions bring native macOS code of their own (`.dylib` libraries), such as those that drive touch boxes. Before installing, anmacgamer checks that library and shows what it found in the install dialog:
 
-- :shield: **Restricted native code**: when an extension declares that it runs restricted, its library runs in a separate sandboxed process without rights of its own: it cannot open your files, use the network or start other programs, and it reaches devices only through GameScrcpy, as far as you allow. The dialog says "Restricted: it can only do what it declares".
+- :shield: **Restricted native code**: when an extension declares that it runs restricted, its library runs in a separate sandboxed process without rights of its own: it cannot open your files, use the network or start other programs, and it reaches devices only through anmacgamer, as far as you allow. The dialog says "Restricted: it can only do what it declares".
 - :triangle-alert: **Native code**: a library that is not restricted has your user account's rights on this Mac. The dialog lists which of the checked system functions its code uses (network, files, keyboard and mouse, other programs), and adds a clear warning when it is not signed. Install it only if you trust where it came from.
-- :circle-x: **Not installed, for your safety**: GameScrcpy refuses code that can inject itself into other programs, code for another processor architecture, code that macOS security checks block, and code whose signature does not match its files, and says why. Gatekeeper and XProtect also check native libraries when macOS loads them.
+- :circle-x: **Not installed, for your safety**: anmacgamer refuses code that can inject itself into other programs, code for another processor architecture, code that macOS security checks block, and code whose signature does not match its files, and says why. Gatekeeper and XProtect also check native libraries when macOS loads them.
 
 An extension's native library always runs in a process of its own; when that process stops three times within a minute, the extension is turned off (see "When something goes wrong" below).
 
@@ -59,7 +59,7 @@ The help articles an extension brings are in the "Extensions" group of this help
 
 ## Update extensions {#updates}
 
-When an author names an update list in the extension, GameScrcpy can look for new versions for you:
+When an author names an update list in the extension, anmacgamer can look for new versions for you:
 
 - :refresh-cw: **Check by itself**: turn on **Check extensions for updates** under **Settings > General > Updates** to check at most once a day at startup. It is off by default; a check only reads the lists the extensions name and sends nothing about what you have installed.
 - :search: **Check now**: choose **Check for updates** on the **Extensions** page at any time.
@@ -70,17 +70,17 @@ When the new version asks for more permissions or dependencies than before, the 
 
 For an extension without an update list, download the new version from its author and install it from the file or a link as usual. The install dialog says "Replaces version …", and the extension's settings and the permissions you allowed are kept.
 
-## When an extension does not fit this GameScrcpy {#compatibility}
+## When an extension does not fit this anmacgamer {#compatibility}
 
-An extension is made for the GameScrcpy versions it knows, and its card, its **Details** and the install dialog say "Made for GameScrcpy 2.1" when the author named that version. Whether it works is decided by the interfaces it asks for, so an extension made for an older version keeps working as long as those interfaces did not change. One that needs a newer GameScrcpy says "Needs a newer GameScrcpy" on its card and does not load; one made for an older GameScrcpy that no longer works with this one says "Made for an older GameScrcpy". When the version is known, the card names it instead: "Made for GameScrcpy 2.0; does not work with 2.1", or "Made for GameScrcpy 2.1; needs a newer GameScrcpy". The install dialog names the same reason and does not let you install such a package.
+An extension is made for the anmacgamer versions it knows, and its card, its **Details** and the install dialog say "Made for anmacgamer 2.1" when the author named that version. Whether it works is decided by the interfaces it asks for, so an extension made for an older version keeps working as long as those interfaces did not change. One that needs a newer anmacgamer says "Needs a newer anmacgamer" on its card and does not load; one made for an older anmacgamer that no longer works with this one says "Made for an older anmacgamer". When the version is known, the card names it instead: "Made for anmacgamer 2.0; does not work with 2.1", or "Made for anmacgamer 2.1; needs a newer anmacgamer". The install dialog names the same reason and does not let you install such a package.
 
-After GameScrcpy is updated, the first start that finishes with your extensions lists the extensions you had turned on that this version does not open because of their version, with their names, versions and the reason. Choose **Check for updates** when one of them names an update list, **Open Extensions** to look at its card, or **Close**. For a version you already started once, the list does not come back.
+After anmacgamer is updated, the first start that finishes with your extensions lists the extensions you had turned on that this version does not open because of their version, with their names, versions and the reason. Choose **Check for updates** when one of them names an update list, **Open Extensions** to look at its card, or **Close**. For a version you already started once, the list does not come back.
 
 ## When something goes wrong {#trouble}
 
-- :circle-x: **Turned off by itself**: when an extension's process stops three times within a minute, or its attachments or behaviors fail three times within 10 seconds, GameScrcpy turns it off and the card says why. Once the author fixes it and you update to the new version, turn the switch on to try again.
+- :circle-x: **Turned off by itself**: when an extension's process stops three times within a minute, or its attachments or behaviors fail three times within 10 seconds, anmacgamer turns it off and the card says why. Once the author fixes it and you update to the new version, turn the switch on to try again.
 - :activity: **Health**: when an extension stopped in the last 7 days, its card says how many times. The **Health** part of its **Details** lists what happened each time, when, in which version and the crash report; **Clear the record** empties it.
 - :search: **Find a problem extension**: when you do not know which extension causes a problem, choose **Find a problem extension** on the **Extensions** page. Each step loads only some of your extensions; try what went wrong and answer **Still happens** or **Gone**. After a few steps it names the extension, and you can **Turn it off** or **Keep it on**.
-- :shield: **Safe mode**: start `open -a GameScrcpy --args --safe-mode` to load no extension this time; start it normally to load them again.
+- :shield: **Safe mode**: start `open -a anmacgamer --args --safe-mode` to load no extension this time; start it normally to load them again.
 
-When GameScrcpy ends unexpectedly while extensions are loaded, the next start loads none and the Extensions page says "No extension is loaded this time", with **Find the extension** to look for the cause; the start after that loads them as usual. When reporting a problem, attach a diagnostics file (**Settings > About > Export diagnostics…**), which lists your extensions and their latest crash reports.
+When anmacgamer ends unexpectedly while extensions are loaded, the next start loads none and the Extensions page says "No extension is loaded this time", with **Find the extension** to look for the cause; the start after that loads them as usual. When reporting a problem, attach a diagnostics file (**Settings > About > Export diagnostics…**), which lists your extensions and their latest crash reports.

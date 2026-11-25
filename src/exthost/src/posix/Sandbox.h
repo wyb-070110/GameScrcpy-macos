@@ -22,7 +22,7 @@ inline constexpr const char* kReadableVariable = "GS_EXTHOST_READABLE";
 inline constexpr const char* kContainerVariable = "GS_EXTHOST_CONTAINER";
 inline constexpr const char* kProgramVariable = "GS_EXTHOST_PROGRAM";
 
-// ~/Library/Application Support/GameScrcpy/Containers/GameScrcpy.Extension.<hash> (Linux: under XDG_DATA_HOME),
+// ~/Library/Application Support/anmacgamer/Containers/GameScrcpy.Extension.<hash> (Linux: under XDG_DATA_HOME),
 // made with mode 0700 and a tmp folder inside; empty if it cannot be made.
 [[nodiscard]] std::filesystem::path containerFolder(std::string_view extension, std::string& problem);
 

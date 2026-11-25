@@ -1,11 +1,11 @@
-A profile can carry logic: a small program in TypeScript or JavaScript that runs while the profile is in use. Logic can use the profile's keys, tap and swipe on the phone, wait, ask questions in the mirror window and find pictures and colors in the phone's picture. Everything else in GameScrcpy works without it.
+A profile can carry logic: a small program in TypeScript or JavaScript that runs while the profile is in use. Logic can use the profile's keys, tap and swipe on the phone, wait, ask questions in the mirror window and find pictures and colors in the phone's picture. Everything else in anmacgamer works without it.
 
 ## Open the logic
 
 1. **Open the logic view**: while editing a profile (**Edit key mapping** on the mirror window's toolbar), switch the middle of the top bar from **Picture** to **Logic**. You can also choose **Edit logic** under **More** on the mirror window's toolbar, or **Edit logic…** under **More** (…) on the profile's card on the **Profiles** page: when a phone uses the profile, its editor opens; when none does, a window with only the logic opens.
-2. **Add logic**: when the profile has no logic yet, select **Add logic**. GameScrcpy writes `logic.ts` and `tsconfig.json`, using the first key of your profile.
+2. **Add logic**: when the profile has no logic yet, select **Add logic**. anmacgamer writes `logic.ts` and `tsconfig.json`, using the first key of your profile.
 
-When the profile is a single `.json` file, GameScrcpy first turns it into a profile folder of the same name, with `profile.json` (the keys) and `logic.ts` (the logic). Profiles that come with an extension cannot have logic of their own; copy one to your profiles first.
+When the profile is a single `.json` file, anmacgamer first turns it into a profile folder of the same name, with `profile.json` (the keys) and `logic.ts` (the logic). Profiles that come with an extension cannot have logic of their own; copy one to your profiles first.
 
 ![The logic view](figure:script-workbench)
 
@@ -302,7 +302,7 @@ The blueprints have **New** (the constructor's arguments, gives the object), **C
 
 ## Tasks
 
-A task is logic that runs on its own, such as daily check-ins or farming: it does not change with the profile and keeps going when you switch games; your keys keep working, so you can play by hand while it runs. Select **New task** on the hub's **Tasks** page, and GameScrcpy writes a `task.ts` that runs as it is into the task's folder:
+A task is logic that runs on its own, such as daily check-ins or farming: it does not change with the profile and keeps going when you switch games; your keys keep working, so you can play by hand while it runs. Select **New task** on the hub's **Tasks** page, and anmacgamer writes a `task.ts` that runs as it is into the task's folder:
 
 ```ts
 export default class Farm extends Task {
@@ -335,7 +335,7 @@ Choose **Vision resources…** under **More** on a profile's card, or **Vision w
 
 ![The vision workbench](figure:vision-freeze,vision-draw,vision-name,vision-test!)
 
-When an AI client works on a profile and needs a picture, a color, a region or a point that is not there yet, it can ask you for them instead of guessing: GameScrcpy brings its window forward and opens this workbench on the AI's draft of the profile, with the AI's list on the right. Frame, pick or tap each item, select **Skip** for the ones you do not want, or answer one with a resource the profile already has; then select **Give to AI**. They are saved in the AI's draft, not in the profile you use, and the AI gets their names and values.
+When an AI client works on a profile and needs a picture, a color, a region or a point that is not there yet, it can ask you for them instead of guessing: anmacgamer brings its window forward and opens this workbench on the AI's draft of the profile, with the AI's list on the right. Frame, pick or tap each item, select **Skip** for the ones you do not want, or answer one with a resource the profile already has; then select **Give to AI**. They are saved in the AI's draft, not in the profile you use, and the AI gets their names and values.
 
 They are kept in the `res` folder of the profile folder. Logic uses them by name; the editor suggests the names and the check reports a misspelt one:
 
@@ -368,11 +368,11 @@ Dragging a third wire from the same output adds another arrow function. Removing
 
 - Use the profile on a mirrored phone. The logic starts by itself. Saving `logic.ts` reloads it; you do not need to reconnect.
 - If the logic fails, the mirror window shows the error, with the file and the line. The logic view shows it in **Console** too.
-- Lines written with `log.info`, `log.warn` and `log.error` also go to GameScrcpy's log file, in the `logs` folder next to the `profiles` folder.
+- Lines written with `log.info`, `log.warn` and `log.error` also go to anmacgamer's log file, in the `logs` folder next to the `profiles` folder.
 
 ## The command-line tool
 
-`gs` is the GameScrcpy command-line tool, inside `GameScrcpy.app/Contents/MacOS/`. The logic view checks the logic with it, and you can run it yourself:
+`gs` is the anmacgamer command-line tool, inside `anmacgamer.app/Contents/MacOS/`. The logic view checks the logic with it, and you can run it yourself:
 
 | Command | What it does |
 |---|---|
@@ -386,7 +386,7 @@ A profile folder made with `gs new` holds an `AGENTS.md` file that explains thes
 
 ## Learn the script API
 
-The reference is made from the program itself, so it always matches your version of GameScrcpy.
+The reference is made from the program itself, so it always matches your version of anmacgamer.
 
 - [Script API overview](help:api)
 - [touch](help:api/touch): taps and swipes

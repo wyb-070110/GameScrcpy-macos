@@ -904,7 +904,7 @@ struct SpeechState : public std::enable_shared_from_this<SpeechState> {
         }
         if (micStatus == AVAuthorizationStatusNotDetermined) {
             if (!bundleHasUsageKey(@"NSMicrophoneUsageDescription")) {
-                finishListener(entry, "microphone access requires running from GameScrcpy.app");
+                finishListener(entry, "microphone access requires running from anmacgamer.app");
                 return;
             }
             std::weak_ptr<SpeechState> weakSelf = shared_from_this();
@@ -944,7 +944,7 @@ struct SpeechState : public std::enable_shared_from_this<SpeechState> {
         }
         if (srStatus == SFSpeechRecognizerAuthorizationStatusNotDetermined) {
             if (!bundleHasUsageKey(@"NSSpeechRecognitionUsageDescription")) {
-                finishListener(entry, "speech recognition requires running from GameScrcpy.app");
+                finishListener(entry, "speech recognition requires running from anmacgamer.app");
                 return;
             }
             std::weak_ptr<SpeechState> weakSelf = shared_from_this();

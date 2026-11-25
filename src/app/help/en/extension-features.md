@@ -5,12 +5,12 @@ How to install, turn on and update extensions: [Extensions](help:extensions)
 ## New devices on the Devices page {#devices}
 
 - :plug: **Touch boxes**: an extension that drives touch boxes gives each box a card of its own on the Devices page, showing its state and what it is doing, such as the progress of flashing its firmware; the card's **More** holds the actions the extension offers. The phone takes touches through the box, so it can be controlled without USB debugging; see [Touch boxes](help:touch-box).
-- :link: **New ways to connect**: some extensions reach phones their own way. A phone connected through one shows up on the Devices page like any other, with that connection method's icon before the card's summary; when the connection drops, GameScrcpy gives the reason the extension reports. The extension's **Details** say "Connection methods: …".
+- :link: **New ways to connect**: some extensions reach phones their own way. A phone connected through one shows up on the Devices page like any other, with that connection method's icon before the card's summary; when the connection drops, anmacgamer gives the reason the extension reports. The extension's **Details** say "Connection methods: …".
 - :monitor-smartphone: **Picture sources**: an extension that brings pictures and sound, such as from a capture device of some kind, shows up on the Devices page like a capture card and can provide the picture for a phone; see [Capture cards](help:capture-card).
 
 ## Pictures and sound {#media}
 
-- :share: **Send elsewhere**: an extension that takes pictures or sound, such as a virtual camera, shows up in the mirror window's **More** as "Send to …". Select it to start sending this phone's picture there, and again to stop; when something goes wrong on the extension's side, GameScrcpy says "Stopped sending to …: …".
+- :share: **Send elsewhere**: an extension that takes pictures or sound, such as a virtual camera, shows up in the mirror window's **More** as "Send to …". Select it to start sending this phone's picture there, and again to stop; when something goes wrong on the extension's side, anmacgamer says "Stopped sending to …: …".
 - :history: **Export recordings**: an extension that exports recordings adds "Export as …" to the **More** menu of each recording under **More > Recordings…**, to save the recording in a format it supports.
 - :eye: **Extensions reading the picture**: extensions that read the picture, for example to recognize things in it, are listed under "Extensions reading the picture" in the mirror window's **More**, turned on or off for each phone. One can mark what it sees on the picture.
 
@@ -28,7 +28,7 @@ The logic in your own profiles can read aloud and listen right away. The logic o
 
 ## Interface languages {#languages}
 
-A language pack extension adds an interface language to GameScrcpy, and some also bring translations of this help; articles without a translation show in English. Once it is installed and on, choose it under **Interface language** in **Settings > Appearance > Language**, where it shows as "language · extension".
+A language pack extension adds an interface language to anmacgamer, and some also bring translations of this help; articles without a translation show in English. Once it is installed and on, choose it under **Interface language** in **Settings > Appearance > Language**, where it shows as "language · extension".
 
 While the extension is off, the interface follows macOS until it is on again; once the extension is removed, the interface follows macOS.
 
@@ -49,7 +49,7 @@ Once the extension is turned off or removed, the service shows "(not available)"
 
 ## Import and export other formats {#converters}
 
-Converter extensions let GameScrcpy read and write other formats:
+Converter extensions let anmacgamer read and write other formats:
 
 - :import: **Import**: choose **Import…** on the **Profiles** page; the file dialog gains "All files that can be imported" and the formats the extensions know. Dragging a file into the window works too. What you import becomes a profile of yours.
 - :share: **Export**: the **More** menu of a profile card, of a task's settings and of a recording gains "Export as …".

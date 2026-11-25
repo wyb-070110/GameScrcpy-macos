@@ -37,7 +37,7 @@ Column {
 
                 Text {
                     textFormat: Text.PlainText
-                    text: "GameScrcpy"
+                    text: "anmacgamer"
                     color: Theme.colors.textPrimary
                     font.pixelSize: Theme.type.subtitle.size
                     font.weight: Theme.type.subtitle.weight
