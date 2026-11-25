@@ -24,6 +24,8 @@
 
 namespace gs::app {
 
+class PreeditBubble;
+
 class MirrorInputItem final : public QQuickItem
 {
     Q_OBJECT
@@ -106,6 +108,7 @@ private:
     void startFlick(QPointF direction);
     void startFling();
     void releaseKeys();
+    void showPreedit(const QString& text, int cursor);
     void follow(QPointF position);
     [[nodiscard]] bool pressRelative(QMouseEvent* event, bool down);
 
@@ -144,6 +147,8 @@ private:
     // How far the finger has coasted, in points of the picture.
     double m_coasted = 0.0;
     QPointF m_lastPress;
+    // The pinyin (or other text) the input method is still composing, shown on the picture.
+    PreeditBubble* m_preedit = nullptr;
     bool m_capturing = false;
     bool m_typing = false;
     bool m_touching = false;

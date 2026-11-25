@@ -1,5 +1,7 @@
 #include "MirrorInputItem.h"
 
+#include "PreeditBubble.h"
+
 #include <QGuiApplication>
 #include <QHoverEvent>
 #include <QInputMethod>
@@ -48,6 +50,7 @@ MirrorInputItem::MirrorInputItem(QQuickItem* parent)
     connect(&m_coastIdle, &QTimer::timeout, this, &MirrorInputItem::liftSwipe);
     m_flickTimer.setInterval(8);
     connect(&m_flickTimer, &QTimer::timeout, this, &MirrorInputItem::flickStep);
+    m_preedit = new PreeditBubble(this);
 }
 
 std::optional<input::Vec2> MirrorInputItem::normalized(const QRectF& content, QPointF position, bool clamped)
@@ -248,6 +251,7 @@ void MirrorInputItem::setTyping(bool on)
     m_typing = on;
     if (!on) {
         releaseKeys();
+        showPreedit({}, 0);
     }
     setFlag(ItemAcceptsInputMethod, on);
     if (hasActiveFocus()) {
@@ -261,6 +265,9 @@ QVariant MirrorInputItem::inputMethodQuery(Qt::InputMethodQuery query) const
     case Qt::ImEnabled:
         return m_typing;
     case Qt::ImCursorRectangle:
+        if (m_preedit->showing()) {
+            return m_preedit->caretRect();
+        }
         return QRectF(m_lastPress.isNull() ? m_content.center() : m_lastPress, QSizeF(1, 1));
     case Qt::ImHints:
         return static_cast<int>(Qt::ImhNoPredictiveText);
@@ -441,15 +448,29 @@ void MirrorInputItem::flickStep()
     }
 }
 
+// The page turn. A finger that has already dragged the page far (kSettleFrom of the picture that way) has, for
+// the phone, already brought the next page in: one more flick would turn a second page. That finger holds still
+// for kSettleSteps × 8 ms and lifts with no speed, and the phone settles on the page it is on. A shorter drag ends
+// in the flick.
 void MirrorInputItem::startFlick(QPointF direction)
 {
     constexpr int kFlickSteps = 3;
     constexpr double kFlickStep = 0.025;
+    constexpr double kSettleFrom = 0.4;
+    constexpr int kSettleSteps = 8;
     m_coastIdle.stop();
     m_coasting = false;
-    m_flickStep = QPointF(direction.x() * kFlickStep * m_content.width(),
-                          direction.y() * kFlickStep * m_content.height());
-    m_flickSteps = kFlickSteps;
+    const QPointF travel = m_swipePoint - m_swipeStart;
+    const double dragged = direction.x() != 0.0 ? direction.x() * travel.x() / m_content.width()
+                                                : direction.y() * travel.y() / m_content.height();
+    if (dragged >= kSettleFrom) {
+        m_flickStep = QPointF();
+        m_flickSteps = kSettleSteps;
+    } else {
+        m_flickStep = QPointF(direction.x() * kFlickStep * m_content.width(),
+                              direction.y() * kFlickStep * m_content.height());
+        m_flickSteps = kFlickSteps;
+    }
     m_flickTimer.start();
 }
 
@@ -722,12 +743,35 @@ void MirrorInputItem::inputMethodEvent(QInputMethodEvent* event)
     if (m_typing && !event->commitString().isEmpty()) {
         emit typed(event->commitString());
     }
+    int cursor = static_cast<int>(event->preeditString().size());
+    for (const QInputMethodEvent::Attribute& attribute : event->attributes()) {
+        if (attribute.type == QInputMethodEvent::Cursor) {
+            cursor = attribute.start;
+        }
+    }
+    showPreedit(m_typing ? event->preeditString() : QString(), cursor);
     event->accept();
+}
+
+// The composing text goes where the user last pressed on the picture (the phone's text box, most of the time);
+// before any press, a little above the bottom of the picture, where a chat app keeps its box.
+void MirrorInputItem::showPreedit(const QString& text, int cursor)
+{
+    const bool wasShowing = m_preedit->showing();
+    const QPointF anchor = !m_lastPress.isNull() && m_content.contains(m_lastPress)
+                               ? m_lastPress
+                               : QPointF(m_content.center().x() - m_content.width() * 0.3,
+                                         m_content.bottom() - m_content.height() * 0.12);
+    m_preedit->show(text, cursor, anchor, m_content);
+    if (wasShowing || m_preedit->showing()) {
+        QGuiApplication::inputMethod()->update(Qt::ImCursorRectangle);
+    }
 }
 
 void MirrorInputItem::focusOutEvent(QFocusEvent* event)
 {
     releaseKeys();
+    showPreedit({}, 0);
     if (std::exchange(m_buttons, 0) != 0) {
         emit mouseButtonsChanged(0);
     }

@@ -381,6 +381,8 @@ qt_add_qml_module(GameScrcpy
         PhoneVendors.cpp
         PhoneVendors.h
         PictureTouch.cpp
+        PreeditBubble.cpp
+        PreeditBubble.h
         PictureTouch.h
         PictureZoom.cpp
         PictureZoom.h
