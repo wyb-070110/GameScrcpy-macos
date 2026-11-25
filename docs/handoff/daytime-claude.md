@@ -37,3 +37,18 @@
 - 17:53 Hourly run: every backlog item is ticked; nothing to do.
 - 18:58 Antigravity still out of quota (refresh 19:13); will send it the continue message after the refresh. Mac kept awake 6 h more.
 - 19:00 User: "你来吧". Claude took over A8 from Antigravity's uncommitted work (out of quota): reviewed, applied all but its main.cpp screenshot hook, ctest 174/174 incl. the new toolbar QML tests; demo check of a stripped side toolbar clean. Committed 88dad52. Antigravity told (antigravity-next.md) to drop its copy and merge.
+
+## 2026-11-26 night (user asleep)
+
+- df69526 built-in game profiles: Gemini's Honkai: Star Rail PC-key profile ships as the built-in official
+  extension `gamescrcpy.games` (phone app and cloud app copies); built-in extensions are on by default.
+- 1328836 settings rows: no "已覆盖" badge, Reset is enough. d3c8aec companion icon (Gemini direction B, Aurora
+  green). 2b04298 shorter first-run guide (two points, GPL-3.0, skips USB-debugging steps for a connected phone).
+- User data reset to a fresh install (backup: ~/Library/Application Support/GameScrcpy.backup-2026-11-26,
+  profiles kept).
+- No-adb mirroring (other session): d3ec7af companion MirrorServer, bb7b903 DeviceManager wiring. Not tested on
+  the phone yet: needs companion 2.2.0 installed (USB debugging on once), then debugging off.
+- a7a6add user-visible rename to anmacgamer (anmacgamer.app, io.github.wyb070110.anmacgamer, data folder moves
+  from GameScrcpy on first start, 104 UI texts + translations, help, companion texts, DMG). 175/175 tests.
+- Code rename: plan in docs/handoff/rename-code-plan.md (Tier A internal, Tier B needs a yes, Tier C keep).
+- Gemini is rewriting the root docs (G9); not committed until reviewed.
