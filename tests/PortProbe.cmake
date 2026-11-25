@@ -363,11 +363,12 @@ gs_add_unit_test(gs_capture_tests
 )
 target_compile_definitions(gs_capture_tests PRIVATE GS_CAPTURE_TEST_DATA_DIR="${PROJECT_SOURCE_DIR}/tests/data/capture")
 
-# Hardware for scripts: device ids and names, the fake backend, and the macOS backend that lists no devices yet.
+# Hardware for scripts: device ids and names, the fake backend, and the macOS IOKit/termios serial backend.
 gs_add_unit_test(gs_hardware_tests
     SOURCES
         unit/hardware/HardwareTests.cpp
-        unit/hardware/posix/NoDevicesBackendTests.cpp
+        $<$<PLATFORM_ID:Darwin>:unit/hardware/mac/SerialBackendTests.cpp>
+        $<$<NOT:$<PLATFORM_ID:Darwin>>:unit/hardware/posix/NoDevicesBackendTests.cpp>
     LIBRARIES
         gs::hardware
 )
