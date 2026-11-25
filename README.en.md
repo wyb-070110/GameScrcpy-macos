@@ -101,4 +101,5 @@ Code written for **anmacgamer** on macOS is released under the [GNU GPL 3.0 or l
 
 - **Upstream source**: Built upon and adapted from [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy) (Apache License 2.0), with attribution and thanks to the upstream author.
 - **[scrcpy](https://github.com/Genymobile/scrcpy)**: the pioneer of low-latency Android mirroring that inspired the design.
+- [QtScrcpy](https://github.com/barry-ran/QtScrcpy): the base of GameScrcpy 1.x.
 - Third-party open-source components (Qt, FFmpeg, dav1d, SDL3, OpenSSL, libusb, QuickJS-ng, TypeScript, QWindowKit, nlohmann/json, miniz, QR Code generator, Lucide, doctest, tl::expected), their versions and licenses are listed in [third_party/README.md](third_party/README.md), [LICENSING.md](LICENSING.md), and in the app under "Settings > About > Open-source licenses".

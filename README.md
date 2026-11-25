@@ -99,4 +99,5 @@ cmake --workflow --preset posix-core
 
 - **上游项目出处**：本项目基于 [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy)（Apache License 2.0）移植与开发，特此标注出处并致谢原作者。
 - **[scrcpy](https://github.com/Genymobile/scrcpy)**：安卓低延迟投屏的先驱，投屏思路源自该项目。
+- [QtScrcpy](https://github.com/barry-ran/QtScrcpy)：GameScrcpy 1.x 的基础。
 - 用到的第三方开源组件（Qt、FFmpeg、dav1d、SDL3、OpenSSL、libusb、QuickJS-ng、TypeScript、QWindowKit、nlohmann/json、miniz、QR Code generator、Lucide、doctest、tl::expected）及其版本与许可证见 [third_party/README.md](third_party/README.md) 与 [LICENSING.md](LICENSING.md)，也可在程序内“设置 > 关于 > 开源许可”查看。
