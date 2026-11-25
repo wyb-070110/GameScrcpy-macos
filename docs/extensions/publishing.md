@@ -1,10 +1,10 @@
-# 打包与发布
+# Packing and publishing
 
-简体中文 · [English](publishing.en.md)
+English · [简体中文](publishing.zh-CN.md)
 
-扩展以 `.gsext` 文件发布：它是一个 zip，最上层是 `manifest.json` 和扩展的其他文件。用户在扩展页“从文件安装…”装它，或者点网页上的 `gamescrcpy://install` 链接。
+An extension is published as a `.gsext` file: a zip with `manifest.json` and the extension's other files at the top. Users install it with "Install from file…" on the Extensions page, or by clicking a `gamescrcpy://install` link on a web page.
 
-## 打包：`gs pack`
+## Packing: `gs pack`
 
 ```powershell
 gs pack .\lap-timer
@@ -12,70 +12,70 @@ gs pack .\lap-timer -o .\dist\alice.lap-timer-1.2.0.gsext
 gs pack .\lap-timer --sign $env:USERPROFILE\keys\alice.key
 ```
 
-- 先做和 `gs validate` 一样的全部检查，有错误就不打包。
-- 默认写到文件夹旁边，名字是 `<扩展 id>-<版本>.gsext`；`-o` 指定别的位置，但不能写在被打包的文件夹里面。
-- 文件夹里的所有文件都会进包，名字以点开头的文件和文件夹（`.git`、`.build`、`.vscode` 等）除外。源代码、测试和 `README` 要不要一起发由你决定，不想发的放到别处或用点开头的文件夹。
-- 包的上限：最多 4096 个文件，单个文件最大 64 MiB，解开后一共最大 256 MiB，压缩比不超过 100。
-- `--official` 只给 GameScrcpy 自己的扩展用（允许 `gamescrcpy.` 开头的 id）。
+- It first runs every check of `gs validate` and packs nothing when there are errors.
+- By default it writes `<extension id>-<version>.gsext` next to the folder; `-o` picks another place, but never inside the folder being packed.
+- Every file in the folder goes into the package, except files and folders whose names start with a dot (`.git`, `.build`, `.vscode` and the like). Whether sources, tests and a `README` ship with it is up to you; move out what should not ship, or keep it in a folder that starts with a dot.
+- A package holds at most 4096 files, each at most 64 MiB, at most 256 MiB unpacked in all, compressed at most 100 to 1.
+- `--official` is for anmacgamer's own extensions only (it allows ids starting with `gamescrcpy.`).
 
-## 版本号与更新
+## Versions and updates
 
-- 每次发布都提高 `version`（语义化版本：修了问题加修订号，加了功能加次版本号，改得不兼容加主版本号）。用户装新版本会替换旧版本，设置与已同意的权限按 `id` 保留。
-- 新版本多申请了权限（或者 `network` 多了域名、`files.paths` 多了文件夹），或者多了必需的依赖，用户要重新打开扩展、同意新的要求，扩展才会载入。尽量一次把需要的权限申请清楚，理由写具体。
-- 清单写了 `updates.index` 的扩展，GameScrcpy 能提示用户有新版本（见下文[更新列表](#更新列表)）；没写的，在你的发布页、仓库或网页上告诉用户，最方便的是给一个安装链接（见下文）。
-- 不要改 `id`：换了 id 就是另一个扩展，设置、权限和签名都不跟过去。
+- Raise `version` with every release (semantic versioning: the patch number for fixes, the minor number for new features, the major number for incompatible changes). Installing a new version replaces the old one; settings and allowed permissions stay with the `id`.
+- When a new version asks for more permissions (or more hosts in `network`, more folders in `files.paths`) or for new required dependencies, users have to turn the extension on again and agree before it loads. Ask for what you need at once, with specific reasons.
+- For an extension whose manifest has `updates.index`, anmacgamer can tell users about new versions (see [Update lists](#update-lists) below); for the others, tell users on your release page, repository or web site, best with an install link (see below).
+- Do not change the `id`: a new id is another extension, and settings, permissions and the signature do not carry over.
 
-## 签名
+## Signing
 
-签了名的包，这台电脑第一次见到这个公钥时，安装框和卡片写“已用公钥 … 签名，这台电脑以前没见过这个公钥”；以后再装用同一个公钥签的版本，才写“已验证的发布者 · 公钥 …”。两处都只写公钥，不写清单里作者自称的名字。之后的更新也必须由同一把钥匙签：别人改过的包、冒充你发的更新都装不上。没签名的原生扩展在安装框里有醒目的提醒，受限的原生扩展没签名时只是一条提示。
+The first time this computer sees the key of a signed package, the install dialog and the card say "Signed with key …, which this computer has not seen before"; only later versions signed with the same key show "Verified publisher · key …". Both name the key, never the name the author gives in the manifest. Every later update must be signed with the same key: a package someone else changed, or an update published in your name, does not install. An unsigned native extension gets a prominent warning in the install dialog; an unsigned restricted one gets only a note.
 
-1. 生成一对钥匙（只做一次）：
+1. Make a key pair (once):
 
    ```powershell
    gs ext keygen $env:USERPROFILE\keys\alice.key
    ```
 
-   它写出私钥 `alice.key` 和公钥 `alice.pub`，并打印出要放进清单的一行，例如 `"authorKey": "RWQ…"`。私钥只能你自己有：谁拿到它谁就能以你的名义签名。带密码的 minisign 私钥 `gs` 用不了，可以用 `minisign -C -W` 给一份副本去掉密码。
-2. 把 `authorKey` 写进 `manifest.json`。
-3. 打包时签名：`gs pack <文件夹> --sign <私钥文件>`。私钥和 `authorKey` 对不上时报 `signing-key-mismatch`。打包后 `gs` 会再检查一遍签名，并打印“signed with key <钥匙 id>”。
+   It writes the secret key `alice.key` and the public key `alice.pub`, and prints the line to put into the manifest, such as `"authorKey": "RWQ…"`. Keep the secret key to yourself: whoever has it can sign extensions as you. `gs` cannot use a minisign secret key with a password; take the password off a copy with `minisign -C -W`.
+2. Put `authorKey` into `manifest.json`.
+3. Sign while packing: `gs pack <folder> --sign <secret key file>`. A key that does not match `authorKey` gives `signing-key-mismatch`. After packing, `gs` checks the signature once more and prints "signed with key <key id>".
 
-签名的格式和 minisign 兼容，也可以用自己的工具签：包里放 `SHA512SUMS`（包里除它和签名之外每个文件一行：128 位十六进制的 SHA-512、两个空格、包内路径）和 `SHA512SUMS.minisig`（用 minisign 对 `SHA512SUMS` 的签名），清单里的 `authorKey` 是对应的公钥。
+The signature is minisign-compatible, so you can sign with your own tools too: put `SHA512SUMS` into the package (one line for every other file of the package: the SHA-512 as 128 hex digits, two spaces and the package path) and `SHA512SUMS.minisig` (a minisign signature of `SHA512SUMS`), with the matching public key as `authorKey` in the manifest.
 
-GameScrcpy 检查签名的规则：
+How anmacgamer treats signatures:
 
-- 文件和 `SHA512SUMS` 对不上、多了或少了文件、签名不是 `authorKey` 的钥匙签的：装不上（`signature-invalid`）。
-- 装着的版本签了名，新包没签名：装不上（`signature-missing`）。
-- 新包换了一把钥匙签名：装不上（`publisher-changed`）。真要换钥匙，用户得先删掉旧的扩展再装。所以请备份好私钥；丢了私钥，老用户只能删掉再装。
-- 第一次安装时就信任包里的公钥，以后都按它校验。请把你的公钥公布在别处（例如仓库的 README），让用户第一次装时能核对。
-- 可以装回同一个 id 的旧版本（用来回退），签名规则照样适用。
+- Files that do not match `SHA512SUMS`, files added or missing, or a signature made with another key than `authorKey`: it does not install (`signature-invalid`).
+- An installed version that is signed and a new package that is not: it does not install (`signature-missing`).
+- A new package signed with another key: it does not install (`publisher-changed`). To switch keys, users have to remove the old extension first and install again, so back up your secret key; if it is lost, existing users can only remove and reinstall.
+- The key in the package is trusted from the first install on and every later version is checked against it, so publish your public key somewhere else as well (in your repository's README, for example) for users to compare the first time.
+- An older version of the same id can be installed again (to go back), with the same signature rules.
 
-## 安装链接
+## Install links
 
-在网页、论坛或 README 里放一个链接，用户点了就会在 GameScrcpy 里打开安装框：
+Put a link on a web page, a forum or a README, and clicking it opens the install dialog in anmacgamer:
 
 ```html
-<a href="gamescrcpy://install?url=https%3A%2F%2Fexample.com%2Fdownloads%2Falice.lap-timer-1.2.0.gsext&sha256=9f2b5c0e4d7a8b1c3e5f6a7b8c9d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f70812">在 GameScrcpy 里安装</a>
+<a href="gamescrcpy://install?url=https%3A%2F%2Fexample.com%2Fdownloads%2Falice.lap-timer-1.2.0.gsext&sha256=9f2b5c0e4d7a8b1c3e5f6a7b8c9d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f70812">Install in GameScrcpy</a>
 ```
 
-- `url` 是包的下载地址，必须是带主机名、不带用户名的 `https://`，按 URL 编码写，解码后最长 2048 个字符；`sha256` 是包的 SHA-256，64 位十六进制。两个参数各写一次，不能有别的参数，也不能带 `#`；整条链接只能是可打印的 ASCII 字符，最长 4096 个。
-- GameScrcpy 下载这个包（重定向最多 8 次，而且必须一直是 https，包最大 200 MiB），算出的 SHA-256 和链接对不上就不装；对上了就打开平常的安装框，上面写着从哪里下载的、SHA-256 与链接一致，之后的检查和同意与从文件安装完全一样。安装框里的来源是下载结束时（重定向之后）的主机，国际化域名显示成 ASCII 形式（`xn--…`），免得形近的字母冒充。
-- `gamescrcpy://extension/<扩展 id>` 打开扩展页并定位到这个扩展的卡片，适合放在“设置说明”里。
-- 安装包会注册 `gamescrcpy://`；便携版在设置 › 通用的“扩展链接”卡片上点一下注册。GameScrcpy 已经开着时，链接交给开着的那个。
-- 链接必须是命令行里唯一的参数：`GameScrcpy.exe "gamescrcpy://…"` 后面再带别的参数时，GameScrcpy 直接以失败退出、什么也不做，这样网页没法借链接给程序加选项。浏览器和系统打开链接时都只传这一个参数。
-- 一次只装一个：上一个链接的包还在等用户装时，新的链接被拒绝并提示先装完上一个；安装框开着时下载好的包也会被放掉，提示用户关掉安装框后再打开链接。
+- `url` is where the package downloads from, an `https://` address with a host and without a user name, URL-encoded and at most 2048 characters once decoded; `sha256` is the package's SHA-256 as 64 hex digits. Each appears once, with no other parameters and no `#`; the whole link is printable ASCII, at most 4096 characters.
+- anmacgamer downloads the package (following at most 8 redirects, all of them https, up to 200 MiB) and installs nothing when its SHA-256 does not match the link; when it matches, the usual install dialog opens and says where it was downloaded from and that the SHA-256 matches, and the checks and consent are the same as for a file. The source it shows is the host the download ended at (after redirects), with internationalized names in their ASCII form (`xn--…`), so that look-alike letters cannot pass for another site.
+- `gamescrcpy://extension/<extension id>` opens the Extensions page at the extension's card, which suits setup instructions.
+- The installer registers `gamescrcpy://`; the portable build registers it with one click on the "Extension links" card in Settings › General. When anmacgamer is already running, the link goes to that copy.
+- A link has to be the only argument on the command line: with anything after `GameScrcpy.exe "gamescrcpy://…"`, anmacgamer exits with a failure and does nothing, so a web page cannot use a link to add options to the program. Browsers and Windows pass a link as the only argument.
+- One at a time: while the package of an earlier link waits to be installed, a new link is refused with a hint to finish the first; a package that arrives while an install dialog is open is let go, with a hint to close the dialog and open the link again.
 
-算 SHA-256 和编码 URL 可以用 PowerShell：
+PowerShell computes the SHA-256 and encodes the URL:
 
 ```powershell
 (Get-FileHash .\alice.lap-timer-1.2.0.gsext -Algorithm SHA256).Hash.ToLower()
 [uri]::EscapeDataString("https://example.com/downloads/alice.lap-timer-1.2.0.gsext")
 ```
 
-每次发新版本，包的 SHA-256 都会变，链接要跟着换。
+The SHA-256 changes with every release, so the link has to change with it.
 
-## 更新列表
+## Update lists
 
-清单写了 `updates.index`（见[清单参考](manifest.md#updates)）的扩展，GameScrcpy 到这个地址取一份更新列表，看有没有新版本。一份列表可以给你的好几个扩展用：
+For an extension whose manifest has `updates.index` (see the [manifest reference](manifest.md#updates)), anmacgamer fetches an update list from that address to see whether there is a newer version. One list can serve several of your extensions:
 
 ```json
 {
@@ -101,38 +101,38 @@ GameScrcpy 检查签名的规则：
 }
 ```
 
-| 字段 | 规则 |
+| Field | Rule |
 |:--|:--|
-| `format`、`version` | 固定为 `gamescrcpy.extension-index` 与 `1` |
-| `extensions` | 最多 256 个扩展，每个 `id` 只列一次 |
-| `versions` | 每个扩展 1～128 个版本，同一版本只列一次 |
-| `url` | 包的下载地址，规则同 `updates.index`：https、有主机名、不带用户名 |
-| `sha256` | 包的 SHA-256，64 位十六进制 |
-| `size` | 包的字节数，1 字节～200 MiB |
-| `publisher` | 可选，签这个包的 minisign 公钥（同清单的 `authorKey`） |
-| `requires` | 可选，写法同清单的 `requires`（最多 32 项）；有这台 GameScrcpy 不提供的扩展点或版本时，不提示这个版本 |
-| `released` | 可选，发布日期，写成 `YYYY-MM-DD` |
-| `notes` | 可选，更新说明，最多 4096 字节，显示在扩展详情里 |
+| `format`, `version` | Always `gamescrcpy.extension-index` and `1` |
+| `extensions` | Up to 256 extensions, each `id` listed once |
+| `versions` | 1 to 128 versions for each extension, each version listed once |
+| `url` | Where the package downloads from, by the rules of `updates.index`: https, with a host, without a user name |
+| `sha256` | The package's SHA-256 as 64 hex digits |
+| `size` | The package's size in bytes, from 1 byte to 200 MiB |
+| `publisher` | Optional: the minisign public key that signs the package (as `authorKey` in the manifest) |
+| `requires` | Optional, written as `requires` in the manifest (up to 32 entries); a version that needs an extension point or version this anmacgamer does not offer is not offered |
+| `released` | Optional: the release date as `YYYY-MM-DD` |
+| `notes` | Optional: what is new, at most 4096 bytes, shown in the extension's Details |
 
-- 列表最大 1 MiB、最多嵌套 8 层，整份严格读取：多余的字段、重复的字段、写错的值都让整份列表作废，扩展详情里写出问题和位置（如 `$.extensions[0].versions[1].sha256: not 64 hexadecimal digits`）。
-- 提示哪个版本：比装着的版本和用户跳过的版本都新、能在这台电脑上运行的最高版本；预发布版（如 `1.3.0-beta.1`）只提示给装着预发布版的用户。
-- 什么时候取：用户在扩展页点“检查更新”时；设置 › 通用的“检查扩展更新”打开时（默认关），GameScrcpy 启动时每天最多取一次。只走 https，重定向只跟到 https、最多 8 次，用系统代理，不带 Cookie、不用缓存，30 秒没有数据算失败；请求里不带扩展的 id。失败不打扰用户：日志一行，扩展详情里写原因，之前的提示保留；列表里没有这个扩展时提示去掉。
-- 下载与安装：用户点“更新”才下载（同时只下一个，能看到进度、能取消）。包要和列表写的大小、SHA-256 对得上，包里必须是列表写的 id 与版本、能在这台电脑上运行；列表写了 `publisher` 时包必须用这个公钥签名；装着的版本签了名时，更新必须用同一个公钥签名，换了公钥一律装不上（要接受新公钥，用户得先删掉旧的扩展再装）。装着的版本没签名时，签了名的更新照常能装，之后就按它的公钥校验。都对上了才打开平常的安装框，按钮是“更新”，上面列出“与 X 版相比的变化”（增减的权限与依赖、接口版本）；要的比以前多时提醒装上后会保持关闭，等用户重新打开并同意。从不自动安装。
-- 发布新版本的做法：打包、签名，把包放到下载地址，再在列表的 `versions` 里加上这一版（`size` 与 `sha256` 用最终的包算），最后上传列表。先传包、后传列表，用户就不会看到下载不了的版本。
+- A list is at most 1 MiB and 8 levels deep and is read strictly as a whole: an extra field, a repeated field or a wrong value voids the whole list, and the extension's Details show the problem and where it is (such as `$.extensions[0].versions[1].sha256: not 64 hexadecimal digits`).
+- Which version is offered: the highest one that is newer than both the installed version and the version the user skipped and that can run on this computer; prerelease versions (such as `1.3.0-beta.1`) are offered only to users who have a prerelease installed.
+- When it is fetched: when the user chooses "Check for updates" on the Extensions page, and, with "Check extensions for updates" on in Settings › General (off by default), at most once a day when anmacgamer starts. Only https, with redirects only to https and at most 8 of them, through the system proxy, without cookies or a cache; 30 seconds without data count as a failure, and the request does not carry the extension's id. Failures do not bother the user: one log line, the reason in the extension's Details, and an earlier offer stays; when the list no longer has the extension, its offer goes away.
+- Downloading and installing: only when the user chooses "Update" (one download at a time, with progress and a way to cancel). The package has to match the size and SHA-256 of the list, contain the id and version the list gives and be able to run on this computer; when the list gives a `publisher`, the package must be signed with that key; when the installed version is signed, the update must be signed with the same key, and a changed key is always refused (to accept a new key, users remove the old extension first and install again). When the installed version is not signed, a signed update installs as usual and its key is checked from then on. Only then does the usual install dialog open, with the button "Update" and "Changes since version X" (permissions and dependencies added or removed, interface versions); when it asks for more than before, it warns that the extension stays off until the user turns it on and agrees. Nothing installs by itself.
+- Publishing a new version: pack and sign it, upload the package to its address, add the version to `versions` in the list (with the `size` and `sha256` of the final package), and upload the list last. With the package up before the list, users never see a version they cannot download.
 
-## 整合包
+## Bundles
 
-扩展页的“导出整合包…”把打开着的扩展连同它们的设置一起导出成一个 `.gsbundle`，用户“从文件安装…”就能一次装好一组扩展。它也是一个 zip：`bundle.json`（`schemaVersion` 1、`name`、`description`、`extensions` 列出每个扩展的 `id`、`version`、是否内置、是否打开和设置的值）加上 `extensions/<扩展 id>-<版本>.gsext`，最多 64 个扩展。`gs validate <整合包>` 会逐个检查里面的包。
+"Export bundle…" on the Extensions page exports the extensions that are on, with their settings, into one `.gsbundle`, and "Install from file…" installs the whole set at once. It is a zip too: `bundle.json` (`schemaVersion` 1, `name`, `description`, and `extensions` with the `id`, `version`, whether it is built in, whether it is on and the values of its settings for each) plus `extensions/<extension id>-<version>.gsext`, up to 64 extensions. `gs validate <bundle>` checks every package in it.
 
-## 发布前检查
+## Before you publish
 
-- `gs validate` 没有错误，最好也没有警告；有脚本的过了 `gs check`；有测试的过了 `gs ext test`（原生扩展再用 `--hosted` 跑一次）。
-- `requires` 写成你照着写的那个版本的扩展点版本，用到新东西就写新的次版本（原生扩展写 `"native": "^2.0"`）。
-- 清单写了 `"gamescrcpy": "2.1"`：你照着写扩展的 GameScrcpy 版本的主.次；没写的 `gs validate` 报 `gamescrcpy-missing` 警告，卡片上也读不到你写的版本。
-- `id` 用你自己的前缀，`license`、`authors`、`repository` 都写好；`description` 一两句说清扩展做什么。
-- 每项权限的 `reason` 写的是用户能看懂的理由。
-- 名字、说明、面板标题、引导与帮助有中文译文（`l10n` 与 `locales`）。
-- 原生扩展：DLL 用 `/MT` 静态链接运行库，`gs validate` 显示它导出了 `gs_ext_main`；需要的话同时提供 arm64 的 DLL。用不到文件、网络和别的程序时，考虑写 `"sandbox": "restricted"`，用户装起来更放心。
-- 用 `gs pack --sign` 签名，保存好私钥，把公钥公布在仓库或网页上。
-- 写了 `updates.index` 的：新包传上去之后，更新列表里加上这一版。
-- 在 GameScrcpy 里从文件装一次，打开、同意权限，走一遍主要功能。
+- `gs validate` reports no errors, ideally no warnings; scripts pass `gs check`; tests pass `gs ext test` (and native extensions once more with `--hosted`).
+- `requires` names the version of each extension point you wrote against, with the new minor version wherever you use something new (native extensions write `"native": "^2.0"`).
+- The manifest says `"gamescrcpy": "2.1"`, the major.minor of the anmacgamer version you wrote the extension against; without it `gs validate` warns `gamescrcpy-missing` and the card cannot show the version you wrote.
+- The `id` has a prefix of your own, and `license`, `authors` and `repository` are filled in; `description` says in a sentence or two what the extension does.
+- Every permission's `reason` is something users understand.
+- Names, descriptions, panel titles, tours and help have translations (`l10n` and `locales`).
+- Native extensions: the DLL links the runtime statically with `/MT`, and `gs validate` shows that it exports `gs_ext_main`; ship an arm64 DLL too when you can. When it needs no files, network or other programs, consider `"sandbox": "restricted"`, which users can install with more confidence.
+- The package is signed with `gs pack --sign`, the secret key is backed up, and the public key is published in your repository or on your site.
+- With `updates.index`: once the new package is uploaded, the update list has the new version.
+- Install it once in anmacgamer from the file, turn it on, allow its permissions and walk through what it does.

@@ -5,6 +5,37 @@
 
 ---
 
+## 2026-11-26（第四批：G9 英文为主文档重写与更名 anmacgamer）
+
+### 做了什么
+按 `TEAM.md` 第四批 **G9** 要求，将仓库对外 Markdown 文档改为英文为主、去掉 AI 味与营销腔、项目名统一改为 **anmacgamer**，同时完整保留上游 [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy) 的出处、许可证事实与致谢（未提交 git，未动 `protocol/SPEC.md`、`src/`、`TEAM.md` 及其他成员的 `docs/handoff/` 文件）：
+
+1. **重命名（英文去掉 `.en` 作主文件，中文加 `.zh-CN`）**：
+   - `README.en.md` → `README.md`；原中文 `README.md` → `README.zh-CN.md`
+   - `CONTRIBUTING.en.md` → `CONTRIBUTING.md`；原中文 `CONTRIBUTING.md` → `CONTRIBUTING.zh-CN.md`
+   - `docs/extensions/` 下 6 对文档（`README`、`logic`、`manifest`、`native`、`publishing`、`testing`）：`*.en.md` → `*.md`，原中文 `*.md` → `*.zh-CN.md`，并同步更新所有顶部语言切换与内部互链。
+2. **改写与更新**：
+   - `README.md` / `README.zh-CN.md`：按 `git log` 与 `docs/macos-port.md` 核对已实现功能（含内置崩铁 PC 键位、伴侣链路免 adb 投屏、WiFi 直连自动回退 adb 隧道、固定音量采集、自定义工具栏、触控板四模式等），补齐「Not yet / 暂未支持」清单。
+   - `CONTRIBUTING.md` / `CONTRIBUTING.zh-CN.md`：精简为直白英文/中文开发指南，互链同步更新。
+   - `SECURITY.md`：英文为主，中文附后。
+   - `CODE_OF_CONDUCT.md`：仅将前言改为英文并更新项目名为 anmacgamer，Contributor Covenant 2.1 正文一字未动。
+   - `LICENSING.md`：英文置前、中文附后，全部许可证条款与自编译库版本号/许可证表保持原样。
+   - `CHANGELOG.md`：仅改写顶部 macOS 版部分为英文（补充 `2.2.1-beta3` 与 `2.2.1-beta2`），上游 `2.2.1` 及更早条目原样保留。
+   - `docs/README.md`、`docs/macos-port.md`、`docs/architecture.md`：改为直白英文，更新全部指向 `docs/extensions/` 与 `CONTRIBUTING.md` 的链接。
+   - `docs/extensions/*.md` 与 `docs/extensions/*.zh-CN.md`：正文中的程序名 `GameScrcpy` 改为 `anmacgamer`，代码块与技术标识符原样保留。
+
+### 验证了什么
+- `grep` 核对 `docs/extensions/` 残留 `.en.md` 链接数为 `0`，6 份 `.zh-CN.md` 顶部语言切换链接均指向对应英文 `.md`。
+- 核对 `git status --short` 确认未触碰任何红线文件，未执行 `git commit`。
+
+### 拿不准 / 需要 Claude 审阅确认的地方
+1. **程序包名、数据目录与技术标识符**：目前命令和路径里仍保留 `GameScrcpy.app`、`~/Library/Application Support/GameScrcpy`、`GameScrcpy_lupdate`、`gamescrcpy://`、`gamescrcpy_ext.h`、`gamescrcpy.d.ts`、`"gamescrcpy": "2.1"`，因为代码里的实际产物名和协议标识尚未改名。如后续统一改名，需要再批量同步命令行示例。
+2. **GitHub 仓库拼写**：现有链接中的仓库路径是 `wyb-070110/anmacgammer`（双 `m`），而项目名是 `anmacgamer`（单 `m`）。本次保留了原有仓库 URL 以防链接 404，请确认是否会改仓库名。
+3. **`docs/extensions/` 中的 Windows 细节**：上游扩展文档里仍保留 `gs-scripthost.exe`、`gs-exthost.exe`、`%APPDATA%\GameScrcpy`、`AppContainer` 等跨平台/Windows 描述，本次未删改技术细节；如果仓库定位为纯 macOS 项目，可由 Claude 决定是否精简掉 Windows 路径说明。
+4. **`CHANGELOG.md` 底部引用链接**：文件末尾目前只有 `[2.2.1-beta2]` 的 tag 链接，本次未动文件底部，打 `v2.2.1-beta3` tag 时可顺手补上 `[2.2.1-beta3]` 引用行。
+
+---
+
 ## 2026-11-25（G8 补充定案：方向 B 双端方案）
 
 ### 做了什么

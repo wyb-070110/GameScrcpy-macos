@@ -1,4 +1,4 @@
-本项目采用贡献者公约（Contributor Covenant）2.1 版。下面是英文原文，官方中文译本见 [contributor-covenant.org](https://www.contributor-covenant.org/zh-cn/version/2/1/code_of_conduct/)。遇到违反准则的行为，请通过仓库的 [GitHub Security 页面](https://github.com/wyb-070110/anmacgammer/security/advisories/new)私下向维护者报告，或联系维护者 [@wyb-070110](https://github.com/wyb-070110)。
+anmacgamer adopts the Contributor Covenant v2.1. An official Chinese translation is available at [contributor-covenant.org](https://www.contributor-covenant.org/zh-cn/version/2/1/code_of_conduct/). To report a violation, contact [@wyb-070110](https://github.com/wyb-070110) privately or use the repository's [GitHub Security page](https://github.com/wyb-070110/anmacgammer/security/advisories/new).
 
 # Contributor Covenant Code of Conduct
 

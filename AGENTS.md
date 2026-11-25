@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Guidance for AI coding agents (and humans) working in this repository. Read [CONTRIBUTING.en.md](CONTRIBUTING.en.md) for the full contributor guide and [docs/architecture.md](docs/architecture.md) for how the pieces fit together.
+Guidance for AI coding agents (and humans) working in this repository. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the full contributor guide and [docs/architecture.md](docs/architecture.md) for how the pieces fit together.
 
 ## What this is
 

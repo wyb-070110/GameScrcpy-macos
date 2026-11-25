@@ -1,48 +1,56 @@
-# anmacgamer — macOS 移植与技术说明
+# macOS Port Notes
 
-本项目将安卓投屏与操控客户端原生移植到 macOS（支持 Apple 芯片与 Intel Mac，macOS 14 Sonoma 及以上）。原则：各平台专有实现放在独立目录中，跨平台核心模块保持纯净。
+anmacgamer ports [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy) natively to macOS 14 Sonoma and later (Apple silicon and Intel). Platform-specific code lives in dedicated directories so cross-platform core modules stay clean.
 
-## 进度
+## Status
 
-| 阶段 | 内容 | 状态 |
-|---|---|---|
-| 1 | 核心层（base、protocol、input、vision、tsstrip、blueprint）在 macOS 上编译、测试 | 完成 |
-| 2 | platform 层 POSIX 实现，adb 与 session 模块，真机启动手机端服务并收流 | 完成（真机 USB 与无线调试均验收通过，见下文） |
-| 3 | 画面与声音（VideoToolbox、Qt RHI / Metal、SDL3） | 完成：VideoToolbox 硬解（H.264/H.265）+ dav1d（AV1）、SDL3 音频与 Qt RHI（Metal）均匀帧率呈现已打通；扩展自定义着色器滤镜暂未接入 |
-| 4 | Qt Quick 原生界面、输入捕获、USB/AOA 与串口 | 完成：Liquid Glass 界面、原生菜单栏与状态栏通知、免输入监控权限的键鼠映射、Xbox/PS 手柄与震动、双指触控板四模式滑动、libusb USB 枚举与 AOA 触控、IOKit `/dev/cu.*` 串口已打通 |
-| 5 | 脚本沙箱、原生扩展、OCR、语音、录屏与通用打包 | 完成：`gs-scripthost` / `gs-exthost` 沙箱隔离、`.dylib` 扩展、Vision OCR、AVFoundation / Speech 语音朗读与命令识别、录屏导出 MP4、Icon Composer 图标与通用二进制 `.dmg` 打包已完成 |
+| Stage | Scope | Status |
+|:--|:--|:--|
+| 1 | Core modules (`base`, `protocol`, `input`, `vision`, `tsstrip`, `blueprint`) building and passing tests on macOS | Done |
+| 2 | POSIX platform layer, `adb` and `session`, launching the phone server and streaming on a real phone | Done (verified over USB and wireless debugging; see below) |
+| 3 | Video and audio (VideoToolbox, Qt RHI / Metal, SDL3) | Done: VideoToolbox H.264/H.265 + dav1d AV1, SDL3 audio, and display-paced Qt RHI (Metal) rendering |
+| 4 | Qt Quick UI, input capture, USB/AOA, and serial ports | Done: Liquid Glass UI, native menu bar and notifications, key/mouse mapping without Input Monitoring permission, Xbox/PS gamepads with rumble, four-mode trackpad swipes, libusb USB enumeration and AOA touch, IOKit `/dev/cu.*` serial ports |
+| 5 | Sandboxed scripts, native extensions, OCR, speech, recording, and universal packaging | Done: `gs-scripthost` / `gs-exthost` sandboxing, `.dylib` extensions, Vision OCR, AVFoundation / Speech TTS and voice commands, MP4 recording, Icon Composer icon, universal `.dmg` packaging |
 
-## 持续集成
+## Not yet
 
-每次推送都会触发 `.github/workflows/macos.yml`，在 GitHub 的 Apple Silicon 虚拟机（`macos-15`）上用 Apple Clang 编译 Debug 和优化两个版本并运行单元测试，优化版本还会打印识图和脚本处理的耗时。真机测试在那里会显示为“跳过”。
+- HDMI capture cards
+- Bluetooth LE peripherals
+- Custom extension video shader filters (HLSL on Metal)
+- TypeScript type checking inside the editor on Intel Macs (scripts still execute)
+- Apple Developer ID notarization for `.dmg` releases
 
-## 准备 Mac
+## Continuous integration
+
+Each push runs `.github/workflows/macos.yml` on GitHub's Apple silicon runner (`macos-15`) with Apple Clang, building both Debug and Release configurations and running unit tests (the Release run also prints vision and script timing). Device tests are skipped in CI.
+
+## Prerequisites
 
 ```bash
 xcode-select --install
 brew install cmake ninja openssl@3 android-platform-tools
 ```
 
-- `openssl@3`：SHA-256、HMAC、AES-GCM 和随机数（Windows 上是 CNG）。
-- `android-platform-tools`：提供 `adb`。手机端服务的 APK 不需要在 Mac 上编译。
-- 第 3、4 步才需要：Qt 6.10（官方安装器）、`brew install ffmpeg sdl3 libusb`。
+- `openssl@3`: SHA-256, HMAC, AES-GCM, and random bytes (replaces Windows CNG).
+- `android-platform-tools`: provides `adb`. The phone-side server APK does not need to be built on macOS.
+- For the full app (stages 3–5): install Qt 6.10.3 for macOS (`~/Qt/6.10.3/macos`) and run `brew install ffmpeg sdl3 libusb`.
 
-## 编译和单元测试
+## Building and running unit tests
 
 ```bash
 cmake --workflow --preset posix-core            # Debug
-cmake --workflow --preset posix-core-release    # 优化版本，计时类测试会检查耗时
+cmake --workflow --preset posix-core-release    # Release (checks timing tests)
 ```
 
-构建脚本会自动在 Homebrew 的默认位置找 `openssl@3`；装在别处时加上 `-DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)`。
+CMake finds `openssl@3` in Homebrew's default prefix automatically; pass `-DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)` if installed elsewhere.
 
-`gs_platform_tests` 第一次运行时会在登录钥匙串里创建 `GameScrcpy / user-protection-key`。重新编译后的测试程序再读取它时，macOS 可能弹窗询问，选“始终允许”。
+The first run of `gs_platform_tests` creates `GameScrcpy / user-protection-key` in the login Keychain. When macOS prompts after a rebuild, choose **Always Allow**.
 
-## 真机验收（第 2 步）
+## Real-device verification (Stage 2)
 
-1. 手机打开开发者选项和 USB 调试，连上 Mac，`adb devices` 能看到它。
-2. 把手机端服务 `server-release-unsigned.apk` 放到 `android/server/build/outputs/apk/release/`，或用 `GS_SERVER_APK` 指向它。
-3. 运行：
+1. Enable Developer options and USB debugging on the phone, connect it, and verify `adb devices` lists it.
+2. Place `server-release-unsigned.apk` under `android/server/build/outputs/apk/release/` or point `GS_SERVER_APK` at it.
+3. Run:
 
 ```bash
 export GS_ADB_TEST_SERIAL=$(adb get-serialno)
@@ -51,75 +59,73 @@ build/posix-core/bin/gs_adb_device_tests
 build/posix-core/bin/gs_session_device_tests
 ```
 
-`gs_session_device_tests` 会通过 adb 推送并启动手机端服务，打开视频、音频和控制通道，检查收到的画面数据，反复开关会话，并确认线程、文件描述符和内存没有泄漏。全部通过就算第 2 步验收完成。
+`gs_session_device_tests` pushes and starts the phone server via adb, opens video, audio, and control channels, checks received frames, cycles sessions repeatedly, and verifies no thread, file descriptor, or memory leaks.
 
-### 无线调试
+### Wireless debugging
 
-WiFi 直连那一项只在无线序列号（`IP:端口`）下运行，所以 USB 和无线都要跑一遍。手机需要 Android 11 或更高版本，并且和 Mac 在同一网段。
+WiFi direct tests only run when `GS_ADB_TEST_SERIAL` is an `IP:port` wireless serial, so run both USB and wireless passes (requires Android 11+ on the same subnet as the Mac).
 
-1. 手机「开发者选项 → 无线调试」打开，点「使用配对码配对设备」，然后在 Mac 上：
+1. Enable **Developer options > Wireless debugging** on the phone, open **Pair device with pairing code**, and run:
 
 ```bash
-adb pair <手机 WLAN 地址>:<配对端口> <六位配对码>
-adb connect <手机 WLAN 地址>:<无线调试端口>
-export GS_ADB_TEST_SERIAL=<手机 WLAN 地址>:<无线调试端口>
+adb pair <phone-wlan-ip>:<pairing-port> <6-digit-code>
+adb connect <phone-wlan-ip>:<debug-port>
+export GS_ADB_TEST_SERIAL=<phone-wlan-ip>:<debug-port>
 ```
 
-2. 再运行上面两个测试程序。
+2. Run the two device test binaries above.
 
-注意：
+Notes:
 
-- 手机开着 VPN（比如 FlClash）时，无线调试页面显示的可能是 VPN 网卡的地址（例如 `198.18.0.1`）。要用 `adb shell ip -4 addr show wlan0` 查到的 WLAN 地址；两个端口都监听所有网卡。
-- Mac 开着代理软件的 TUN 模式也不用关，只要两边在同一网段：发往局域网的流量走物理网卡，不经过 TUN。跨网段时流量会经过默认路由（也就是 TUN），手机也连不回 Mac，WiFi 直连会失败。
-- 手机重启或换 Wi-Fi 后无线调试会关掉、端口会变，重新打开后再 `adb connect` 即可，不必重新配对。
+- If the phone runs a VPN (for example FlClash), the Wireless debugging screen may show the VPN interface IP (such as `198.18.0.1`). Use the WLAN address from `adb shell ip -4 addr show wlan0`; both ports listen on all interfaces.
+- Mac proxy tools in TUN mode do not need to be disabled when both devices are on the same subnet: LAN traffic uses the physical interface. Across subnets, traffic routes through TUN and WiFi direct cannot reach the Mac.
+- Rebooting the phone or switching Wi-Fi disables wireless debugging and changes the port; re-enable it and run `adb connect` again without re-pairing.
 
-### 验收记录（2026-11-24）
+### Device test record (2026-11-24)
 
-Apple Silicon Mac（macOS 27），三星 Galaxy Z Fold8（SM-F971B，Android 17），提交 `5292501`，Debug 构建。
+Apple silicon Mac (macOS 27), Samsung Galaxy Z Fold8 (`SM-F971B`, Android 17), commit `5292501`, Debug build.
 
-| 测试 | 连接 | 结果 |
-|---|---|---|
-| `gs_adb_device_tests` | 无线 | 11 个用例通过，88 个断言 |
-| `gs_session_device_tests` | 无线（两轮） | 15 个用例通过，733 个断言 |
-| `gs_session_device_tests` | USB | 15 个用例通过，123 个断言 |
+| Suite | Transport | Result |
+|:--|:--|:--|
+| `gs_adb_device_tests` | Wireless | 11 test cases passed, 88 assertions |
+| `gs_session_device_tests` | Wireless (2 runs) | 15 test cases passed, 733 assertions |
+| `gs_session_device_tests` | USB | 15 test cases passed, 123 assertions |
 
-无线下的主要数据：
+Key wireless metrics:
 
-- 推送服务到开始收流 981 ms；之后连续 5 次启动，中位数 362 ms（USB 215 ms）。
-- 只用 WiFi 直连，417 ms 开始收流。
-- 无损截图 1248×1972，139 ms；截图期间控制通道往返中位数 7.7 ms。
-- 双向各丢 10% 的链路上 200 次控制往返 82 ms，顺序正确。
-- 连续 5 次开关会话：句柄 45 → 45，私有内存 11.3 → 11.5 MB。
-- 会话结束后 UDP 端口 58 ms 内关闭；断线后保留 3 s 再关闭。
+- Cold push-to-first-frame: 981 ms; median over 5 consecutive starts: 362 ms (USB: 215 ms).
+- WiFi direct only: 417 ms to first frame.
+- Lossless screenshot (1248x1972): 139 ms; median control round-trip during capture: 7.7 ms.
+- 200 control round-trips under 10% bidirectional packet loss: 82 ms, all ordered correctly.
+- 5 consecutive start/stop cycles: FDs 45 -> 45, private memory 11.3 -> 11.5 MB.
+- UDP port closes within 58 ms after session end; held for 3 s after disconnect.
 
-未运行：两台设备同时收流（需要 `GS_ADB_TEST_OTHER_SERIAL`）、adb 服务重启后恢复（需要 `GS_ADB_TEST_RESTART=1`）。
+Not run in this pass: two phones streaming simultaneously (`GS_ADB_TEST_OTHER_SERIAL`) and recovery after adb server restart (`GS_ADB_TEST_RESTART=1`).
 
-## 平台层的 macOS 实现
+## Platform layer on macOS
 
-| 头文件 | Windows | macOS（`src/platform/src/posix`） |
-|---|---|---|
-| `TcpStream.h` | Winsock | BSD 套接字，`SO_NOSIGPIPE` |
-| `UdpSocket.h` | Winsock + qWAVE 标记视频流量 | BSD 套接字，DSCP CS5 + `NET_SERVICE_TYPE_VI`；`interrupt()` 额外给自己发一个空数据报来唤醒阻塞的接收 |
-| `Thread.h` | 线程描述、优先级 | `pthread_setname_np`、QoS 等级 |
-| `Crypto.h` | CNG、DPAPI | OpenSSL；`protectForUser` 用钥匙串里的用户密钥做 AES-GCM |
+| Header | Windows | macOS (`src/platform/src/posix`) |
+|:--|:--|:--|
+| `TcpStream.h` | Winsock | BSD sockets with `SO_NOSIGPIPE` |
+| `UdpSocket.h` | Winsock + qWAVE video marking | BSD sockets, DSCP CS5 + `NET_SERVICE_TYPE_VI`; `interrupt()` sends a self-addressed empty datagram to wake blocking receives |
+| `Thread.h` | Thread description and priority | `pthread_setname_np` and QoS classes |
+| `Crypto.h` | CNG, DPAPI | OpenSSL; `protectForUser` encrypts with AES-GCM using a Keychain key |
 
-其余平台头文件（托盘通知、语音、输入捕获、光标、前台窗口等）属于界面层，到第 4 步再实现。
+Winsock calls in tests are mapped to BSD sockets through `tests/compat/posix/winsock2.h`, keeping test code largely unchanged.
 
-测试里的 Winsock 调用经 `tests/compat/posix/winsock2.h` 映射到 BSD 套接字，测试代码本身基本不用改。
+## Native extensions on macOS
 
-## 原生扩展的 macOS 实现
+`contributes.native` in `manifest.json` supports a `dylib` entry alongside `dll`; macOS loads only `dylib` (see [Native extensions guide](extensions/native.md#macos)). `gs validate` inspects Mach-O binaries for architecture, exported `gs_ext_main`, and imports (chained fixups, bind opcodes, and symbol table), classifying them into network, file, process launch, and injection categories using macOS symbol tables.
 
-清单的 `contributes.native` 多了 `dylib` 一项（和 `dll` 并列），macOS 只载入它，见[原生扩展指南](extensions/native.md#macos)。`gs validate` 读 Mach-O：处理器、导出的 `gs_ext_main`、导入（取自链式修正与绑定指令，再加符号表），用 macOS 的函数表把导入分到联网、文件、启动程序、注入这几类，和 Windows 上读 PE 一样。
-
-`src/exthost` 里共享的文件（Channel、MediaRing、ImageSection、TapSection、InProcess、Server、Hosted）不改，它们的 Win32 调用由 `src/exthost/src/posix/compat/windows.h` 映射到 POSIX（实现在 `posix/Compat.cpp`）：
+Shared files in `src/exthost` (`Channel`, `MediaRing`, `ImageSection`, `TapSection`, `InProcess`, `Server`, `Hosted`) stay unchanged; their Win32 calls map to POSIX via `src/exthost/src/posix/compat/windows.h` (`posix/Compat.cpp`):
 
 | Windows | macOS |
-|---|---|
-| 事件 | 管道：`SetEvent` 写一个字节，等待时读空它（自动复位） |
-| 文件映射 | `shm_open` 后立即 `shm_unlink` 的共享内存 |
-| 进程、等待多个对象 | kqueue（`EVFILT_PROC`、`EVFILT_TIMER`）与 `poll` |
-| 把句柄复制进别的进程（`DuplicateHandle`） | 每个 gs-exthost 一条 Unix 套接字（桥），用 `SCM_RIGHTS` 传描述符；App 关掉它的一端时 gs-exthost 自己退出，代替作业对象 |
-| AppContainer（受限模式） | gs-exthost 启动后先进 macOS 沙箱（`sandbox_init`，规则写在 `posix/Container.cpp`）；之后交给它的文件用沙箱扩展令牌 |
-| 崩溃转储 | `crash.txt` 与日志，没有小型转储（`src/platform/src/posix/CrashHandler.cpp`） |
+|:--|:--|
+| Event | Pipe (`SetEvent` writes a byte; wait drains it, auto-reset) |
+| File mapping | `shm_open` followed immediately by `shm_unlink` |
+| Process / wait multiple | `kqueue` (`EVFILT_PROC`, `EVFILT_TIMER`) and `poll` |
+| `DuplicateHandle` | Per-`gs-exthost` Unix domain socket passing FDs via `SCM_RIGHTS`; closing the app end makes `gs-exthost` exit, replacing job objects |
+| AppContainer (restricted mode) | `sandbox_init` profile (`posix/Container.cpp`); files handed to the host later use sandbox extension tokens |
+| Crash minidump | `crash.txt` and logs (`src/platform/src/posix/CrashHandler.cpp`) |
 
-`Hosted.cpp` 只有启动 gs-exthost 的那一段放在 `#if defined(_WIN32)` 里，macOS 的启动在 `posix/Launch.inc` 与 `posix/Spawn.cpp`。测试：`gs_ext_tests`（Mach-O，包括两种绑定格式和去掉符号表的库）、`gs_mockhost_tests`（同一套测试文件在本进程和 gs-exthost 里跑）、`gs_exthost_tests`（共享内存双向、崩溃报告、受限模式、App 被杀后 gs-exthost 自己退出）。
+Only the `gs-exthost` launch block in `Hosted.cpp` is guarded by `#if defined(_WIN32)`; macOS uses `posix/Launch.inc` and `posix/Spawn.cpp`. Covered by `gs_ext_tests` (Mach-O parsing, both bind formats and stripped binaries), `gs_mockhost_tests` (in-process and `gs-exthost`), and `gs_exthost_tests` (shared memory round-trips, crash reporting, restricted sandbox, and exit when the parent app dies).

@@ -1,18 +1,28 @@
-# anmacgamer 更新日志
+# Changelog
 
-本文件记录每个版本的主要变化，格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循[语义化版本](https://semver.org/lang/zh-CN/)。
+Notable changes are documented here following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
 
-## [2.2.1-beta2] - 2026-11-25
+## [2.2.1-beta3] - 2026-11-25
 
-**anmacgamer** 面向 macOS 14 Sonoma 及以上（Apple 芯片与 Intel 通用二进制）的测试发布版本：
+macOS beta release of **anmacgamer** (universal binary for Apple silicon and Intel, macOS 14 Sonoma and later):
 
-- **原生音视频与渲染**：VideoToolbox H.264 / H.265 硬件解码与 dav1d AV1 解码，Qt RHI（Metal）直接绘制并对齐屏幕刷新节拍；SDL3 音频播放；自带精简编译的 LGPL FFmpeg 与 `adb`。
-- **连接、输入与外设**：USB 与无线调试（配对码 / 二维码）、WiFi 直连与 adb 隧道；免“输入监控”权限的键鼠映射、Mac 键盘中英文直输、Xbox / PS4 / PS5 手柄与震动；双指触控板四模式滑动与真实手指抬起速度传递；libusb USB 枚举与 AOA 触控；IOKit `/dev/cu.*` 串口外设读写。
-- **macOS 原生体验与生态**：Liquid Glass 界面风格、原生菜单栏与状态栏通知、Icon Composer 应用图标；`sandbox_init` 沙箱隔离的蓝图/TypeScript 脚本与 `.dylib` 原生扩展；macOS Vision 文字识别、`AVSpeechSynthesizer` / `SFSpeechRecognizer` 语音朗读与语音命令识别、Keychain 密钥保护。
+- Trackpad swipes: phone-side touch timing now follows Mac input cadence with real finger lift velocity; fast flicks turn one home-screen page and lists keep native scroll momentum. Direct mode is now the default.
+- Mirror window and toolbar: customizable toolbar buttons on any side (hidden buttons move to More, and commands such as notifications, quick settings, files, latency, and mini window can be pinned), always-on-top across Spaces, and an option to turn off the phone screen while mirroring.
+- Input and profiles: Chinese pinyin composition preview on screen via Companion IME (hides the phone's soft keyboard while connected), built-in PC-style keymap profile for Honkai: Star Rail, and fixed-volume phone audio capture so macOS alone controls playback volume.
+- Connections and hardware: automatic wireless transport falls back to the adb tunnel when WiFi direct cannot reach the phone; companion-link mirroring without adb (`TransportKind::Companion`); USB AOA touch and `/dev/cu.*` serial ports wired up on macOS.
+- Branding and packaging: project renamed to anmacgamer with the new Icon Composer Liquid Glass icon and custom DMG volume icon.
+
+## [2.2.1-beta2] - 2026-11-24
+
+Initial universal macOS 14+ beta build of **anmacgamer**:
+
+- Video and audio: VideoToolbox hardware decoding (H.264, H.265), dav1d AV1 decoding, Qt RHI (Metal) rendering paced to display refresh, SDL3 audio playback, and bundled LGPL FFmpeg and `adb`.
+- Input and connections: USB and wireless debugging (pairing code or QR), WiFi direct and adb tunnel, keyboard and mouse mapping without Input Monitoring permission, Xbox/PS4/PS5 controllers with rumble, and two-finger trackpad swipes.
+- macOS integration and automation: Liquid Glass UI, native menu bar and notifications, `sandbox_init`-confined blueprints/TypeScript (`gs-scripthost`) and `.dylib` native extensions (`gs-exthost`), Vision OCR, `AVSpeechSynthesizer` / `SFSpeechRecognizer` speech, and Keychain storage for AI keys.
 
 ---
 
-> 以下 `2.2.1` 及更早条目记录移植所基于的上游版本演进历史（出处见 [LICENSING.md](LICENSING.md)）。
+> Entries from `2.2.1` and earlier below come from upstream [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy) (see [LICENSING.md](LICENSING.md)).
 
 ## [2.2.1] - 2026-11-17
 
