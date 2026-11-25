@@ -1,4 +1,4 @@
-# GameScrcpy 文档 / Documentation
+# anmacgamer 文档 / Documentation
 
 ## 使用帮助 / User guide
 
@@ -13,10 +13,10 @@ These are the same pages as F1 in the app; a few pictures and in-app links only 
 | [方案与分享](../src/app/help/zh_CN/profiles.md) | [Profiles and sharing](../src/app/help/en/profiles.md) |
 | [脚本入门](../src/app/help/zh_CN/scripts.md) | [Getting started with scripts](../src/app/help/en/scripts.md) |
 | [跟着做的新手引导](../src/app/help/zh_CN/tours.md) | [Guided tours](../src/app/help/en/tours.md) |
-| [GameScrcpy 伴侣](../src/app/help/zh_CN/companion.md) | [GameScrcpy Companion](../src/app/help/en/companion.md) |
+| [伴侣应用](../src/app/help/zh_CN/companion.md) | [Companion app](../src/app/help/en/companion.md) |
 | [扩展](../src/app/help/zh_CN/extensions.md) | [Extensions](../src/app/help/en/extensions.md) |
 | [扩展带来的功能](../src/app/help/zh_CN/extension-features.md) | [What extensions add](../src/app/help/en/extension-features.md) |
-| [AOA 触控与 WinUSB 驱动](../src/app/help/zh_CN/aoa-driver.md) | [AOA touch and the WinUSB driver](../src/app/help/en/aoa-driver.md) |
+| [AOA 触控](../src/app/help/zh_CN/aoa-driver.md) | [AOA touch](../src/app/help/en/aoa-driver.md) |
 | [触控盒](../src/app/help/zh_CN/touch-box.md) | [Touch boxes](../src/app/help/en/touch-box.md) |
 | [采集卡](../src/app/help/zh_CN/capture-card.md) | [Capture cards](../src/app/help/en/capture-card.md) |
 | [常见问题](../src/app/help/zh_CN/faq.md) | [Questions and troubleshooting](../src/app/help/en/faq.md) |
@@ -26,11 +26,12 @@ These are the same pages as F1 in the app; a few pictures and in-app links only 
 - [扩展开发指南](extensions/README.md) / [Writing extensions](extensions/README.en.md)：扩展能做什么，清单、逻辑与原生接口，测试、打包与发布。
 - [脚本接口参考 / Script API reference](../sdk/docs/README.md)：由 `gs api write sdk` 从程序生成，类型声明在 [`sdk/types`](../sdk/types/gamescrcpy.d.ts)。
 - [原生扩展的 C 接口 / C interface for native extensions](../sdk/include/gamescrcpy_ext.h)。
-- [示例 / Examples](../examples)：组件、任务与扩展（主题、画面滤镜、原生 DLL、按键桥、语音命令、事件记录、引导与帮助、转换器、笔记页、读屏朗读）。
+- [示例 / Examples](../examples)：组件、任务与扩展（主题、画面滤镜、原生 `.dylib`、按键桥、语音命令、事件记录、引导与帮助、转换器、笔记页、读屏朗读）。
 
 ## 技术文档 / Technical documents
 
 - [架构概览 / Architecture](architecture.md)
+- [macOS 移植记录 / macOS port notes](macos-port.md)
 - [通信协议 / Protocol](../protocol/SPEC.md)
-- [第三方依赖 / Third-party dependencies](../third_party/README.md)
+- [第三方依赖与许可证 / Dependencies & licensing](../LICENSING.md) · [third_party/README.md](../third_party/README.md)
 - [参与开发 / Contributing](../CONTRIBUTING.md)

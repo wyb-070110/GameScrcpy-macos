@@ -1,16 +1,16 @@
-# Licensing / 许可证
+# anmacgamer 许可证 / Licensing
 
 ## 中文
 
-本仓库是 [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy) 的 macOS 移植版，包含两部分代码：
+**anmacgamer**（[wyb-070110/anmacgammer](https://github.com/wyb-070110/anmacgammer)）由 [@wyb-070110](https://github.com/wyb-070110) 维护，基于上游项目 [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy) 移植并开发，包含两部分代码：
 
 | 部分 | 许可证 | 怎么认 |
 |---|---|---|
-| 沿用的上游代码（包括为 macOS 修改过的上游文件） | [Apache License 2.0](LICENSES/Apache-2.0.txt)（原文同 [LICENSE](LICENSE)） | 没有 SPDX 标记的文件 |
-| macOS 移植新写的代码（2026-11-16 之后新增的文件：macOS 平台层、POSIX 移植、着色器、打包与构建脚本、测试等） | [GNU GPL 3.0 或更高版本](LICENSES/GPL-3.0-or-later.txt) | 文件开头写着 `SPDX-License-Identifier: GPL-3.0-or-later` |
+| 沿用的上游代码（来自 [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy)，包括为 macOS 修改过的上游文件） | [Apache License 2.0](LICENSES/Apache-2.0.txt)（原文同 [LICENSE](LICENSE)） | 没有 SPDX 标记的文件 |
+| anmacgamer 为 macOS 新写的代码（2026-11-16 之后新增的文件：macOS 平台层、POSIX 移植、着色器、打包与构建脚本、测试等） | [GNU GPL 3.0 或更高版本](LICENSES/GPL-3.0-or-later.txt) | 文件开头写着 `SPDX-License-Identifier: GPL-3.0-or-later` |
 
 GPL 3.0 与 Apache 2.0 兼容：两部分可以合在一起编译。**发布出去的 macOS 程序（.dmg）作为整体按 GPL 3.0 或更高版本提供**，
-这意味着任何人分发它（原样或修改后）都必须以同样条款公开对应的源代码。上游文件本身仍保留 Apache 2.0 与其版权声明。
+这意味着任何人分发它（原样或修改后）都必须以同样条款公开对应的源代码。沿用的上游文件本身仍保留 Apache 2.0 与其版权声明。
 
 程序附带的第三方组件各有许可证（程序里“设置 > 关于 > 开源许可”，以及 [third_party/README.md](third_party/README.md)）。
 macOS 版自行编译、随程序分发的库：
@@ -30,13 +30,12 @@ LGPL 库都以动态库形式放在 `GameScrcpy.app/Contents/Frameworks` 里，�
 
 ## English
 
-This repository is the macOS port of [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy) and holds two kinds
-of code:
+**anmacgamer** ([wyb-070110/anmacgammer](https://github.com/wyb-070110/anmacgammer)), maintained by [@wyb-070110](https://github.com/wyb-070110), is built upon the upstream project [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy) and holds two kinds of code:
 
 | Part | Licence | How to tell |
 |---|---|---|
-| Code kept from upstream (including upstream files changed for macOS) | [Apache License 2.0](LICENSES/Apache-2.0.txt) (same text as [LICENSE](LICENSE)) | files without an SPDX tag |
-| Code written for the macOS port (files added after 2026-11-16: the macOS platform layer, POSIX ports, shaders, packaging and build scripts, tests) | [GNU GPL 3.0 or later](LICENSES/GPL-3.0-or-later.txt) | files starting with `SPDX-License-Identifier: GPL-3.0-or-later` |
+| Code kept from upstream ([NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy), including upstream files changed for macOS) | [Apache License 2.0](LICENSES/Apache-2.0.txt) (same text as [LICENSE](LICENSE)) | files without an SPDX tag |
+| Code written for anmacgamer on macOS (files added after 2026-11-16: the macOS platform layer, POSIX ports, shaders, packaging and build scripts, tests) | [GNU GPL 3.0 or later](LICENSES/GPL-3.0-or-later.txt) | files starting with `SPDX-License-Identifier: GPL-3.0-or-later` |
 
 GPL 3.0 is compatible with Apache 2.0, so both build together. **The macOS program as distributed (the .dmg) is
 offered as a whole under GPL 3.0 or later**: anyone who distributes it, as is or changed, must publish the

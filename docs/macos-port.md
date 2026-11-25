@@ -1,16 +1,16 @@
-# macOS 移植（进行中）
+# anmacgamer — macOS 移植与技术说明
 
-本分支把 GameScrcpy 移植到 Apple Silicon Mac。原则：Windows 代码不动，各系统自己的实现放在单独的目录里，共享文件里只留极少量 `#if defined(_WIN32)`，便于继续合并原项目的更新。
+本项目将安卓投屏与操控客户端原生移植到 macOS（支持 Apple 芯片与 Intel Mac，macOS 14 Sonoma 及以上）。原则：各平台专有实现放在独立目录中，跨平台核心模块保持纯净。
 
 ## 进度
 
 | 阶段 | 内容 | 状态 |
 |---|---|---|
-| 1 | 核心层（base、protocol、input、vision、tsstrip、blueprint）在 macOS / Linux 上编译、测试 | 完成（GitHub Actions macOS arm64 通过） |
-| 2 | platform 层 POSIX 实现，adb 与 session 模块，真机启动手机端服务并收流 | 完成（2026-11-24 真机验收，USB 与无线调试均通过，见下文） |
-| 3 | 画面与声音（VideoToolbox、Qt RHI / Metal、SDL3） | 完成：VideoToolbox 硬解、SDL3 音频与 Qt RHI（Metal）投屏绘制已打通，扩展滤镜暂未接入 |
-| 4 | Qt Quick 界面与键鼠捕获 | 进行中：`GameScrcpy.app` 完整构建可投屏，原生透明标题栏拖拽/双击缩放、触控板滑动、钥匙串、防休眠、菜单栏与通知可用；全局键鼠与手柄捕获（`InputCapture`）待实现 |
-| 5 | 脚本进程隔离、原生扩展、OCR、录屏、打包 | 进行中：`gs-scripthost` / `gs-exthost` 沙箱隔离、`.dylib` 扩展、Vision OCR、录屏、`gs` 命令行、Bundle `Info.plist`（含本地网络权限）与 ad-hoc 签名已完成；DMG/发布打包待完成 |
+| 1 | 核心层（base、protocol、input、vision、tsstrip、blueprint）在 macOS 上编译、测试 | 完成 |
+| 2 | platform 层 POSIX 实现，adb 与 session 模块，真机启动手机端服务并收流 | 完成（真机 USB 与无线调试均验收通过，见下文） |
+| 3 | 画面与声音（VideoToolbox、Qt RHI / Metal、SDL3） | 完成：VideoToolbox 硬解（H.264/H.265）+ dav1d（AV1）、SDL3 音频与 Qt RHI（Metal）均匀帧率呈现已打通；扩展自定义着色器滤镜暂未接入 |
+| 4 | Qt Quick 原生界面、输入捕获、USB/AOA 与串口 | 完成：Liquid Glass 界面、原生菜单栏与状态栏通知、免输入监控权限的键鼠映射、Xbox/PS 手柄与震动、双指触控板四模式滑动、libusb USB 枚举与 AOA 触控、IOKit `/dev/cu.*` 串口已打通 |
+| 5 | 脚本沙箱、原生扩展、OCR、语音、录屏与通用打包 | 完成：`gs-scripthost` / `gs-exthost` 沙箱隔离、`.dylib` 扩展、Vision OCR、AVFoundation / Speech 语音朗读与命令识别、录屏导出 MP4、Icon Composer 图标与通用二进制 `.dmg` 打包已完成 |
 
 ## 持续集成
 

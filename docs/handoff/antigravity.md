@@ -220,3 +220,20 @@
     - 双指捏合：双指针同步 `11` 次移动，速度 `0.75 scr/s`，`lift gap = 0.1 ms` → `fling`。
   - `ctest --preset mac-app`：172/172（2 个真机测试跳过）。
 - **状态**：**可合并**
+
+
+---
+
+### 3. 文档重命名（`anmacgamer`）、标明上游出处与清理原作者/Windows 遗留痕迹
+
+- **改动文件**：
+  - 上游出处集中标注（仅此三处保留 `NuoRan/GameScrcpy` Apache-2.0 出处说明）：
+    - `README.md`、`README.en.md`：项目名称改为 **anmacgamer**，顶部图标换为新 macOS 图标 `packaging/macos/icon/GameScrcpy-1024.png`，仓库与发布/反馈/安全链接统一指向 `https://github.com/wyb-070110/anmacgammer`，功能列表同步至当前 macOS 通用版状态（Apple 芯片 + Intel、Liquid Glass、键鼠手柄、触控板、语音命令、USB/AOA、串口等），并在简介与“许可证与出处致谢”小节明确标注基于上游 `NuoRan/GameScrcpy`（Apache-2.0）。
+    - `LICENSING.md`：项目名改为 **anmacgamer**（`wyb-070110/anmacgammer`，维护者 `@wyb-070110`），保留上游 `NuoRan/GameScrcpy`（Apache-2.0）与 macOS 新增代码（GPL-3.0-or-later）的双层许可说明。
+  - 清理原作者联系方式、旧仓库链接与 Windows 痕迹：
+    - `CODE_OF_CONDUCT.md`：删除 `QQ 交流群 762961615`（中文导语与英文 Enforcement 两处），改为通过本仓库 [GitHub Security 页面](https://github.com/wyb-070110/anmacgammer/security/advisories/new)私下报告或联系维护者 `@wyb-070110`。
+    - `SECURITY.md`：安全漏洞私下报告链接改为 `https://github.com/wyb-070110/anmacgammer/security/advisories/new`（及维护者 `@wyb-070110`），“电脑端程序 / PC app”改为“Mac 端程序 / Mac app”。
+    - `CONTRIBUTING.md`、`CONTRIBUTING.en.md`：标题改为 **参与 anmacgamer 开发 / Contributing to anmacgamer**，Issues 链接指向 `wyb-070110/anmacgammer/issues`，将原有的 Windows 10/11、MSVC、`dev-env.ps1`、`msvc-debug`、`package.ps1`、Inno Setup 等全部重写为 macOS 开发环境、`mac-app`/`mac-release`/`posix-core` 构建与测试流程、`packaging/macos/package.sh` 打包说明及 GPL-3.0+ 贡献许可说明。
+    - `.github/ISSUE_TEMPLATE/bug_report.yml`、`.github/ISSUE_TEMPLATE/config.yml`：替换所有 `NuoRan/GameScrcpy` 链接为 `wyb-070110/anmacgammer`，版本号字段改为 `anmacgamer 版本 / Version`，安装方式改为 `.dmg 安装镜像`，系统环境由 `Windows 版本` 改为 `macOS 版本与芯片型号`。
+    - `AGENTS.md`、`docs/README.md`、`docs/architecture.md`、`docs/macos-port.md`、`docs/extensions/logic.{md,en.md}`、`src/app/help/{zh_CN,en}/touch-box.md`、`CHANGELOG.md`、`packaging/macos/RELEASE-NOTES-beta{1,2}.md`：项目名称统一为 `anmacgamer`，移除残余 `NuoRan` 链接、`WinUSB` 标题与 Windows 专属架构/命令描述。
+- **状态**：**可合并**
