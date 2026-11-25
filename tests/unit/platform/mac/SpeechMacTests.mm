@@ -14,6 +14,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <mutex>
 #include <optional>
@@ -139,6 +140,10 @@ TEST_CASE("macOS speech matches Chinese and English commands from recorded 16 kH
 {
     if (speechRecognitionDeniedBySystem()) {
         MESSAGE("Speech Recognition is denied in System Settings; skipping recognizer check");
+        return;
+    }
+    if (std::getenv("GITHUB_ACTIONS") != nullptr) {
+        MESSAGE("GitHub's virtual Macs never answer a recognition request; skipping recognizer check");
         return;
     }
 
