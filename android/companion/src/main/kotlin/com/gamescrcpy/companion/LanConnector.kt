@@ -235,7 +235,7 @@ class LanConnector(
             }
             socket.soTimeout = 0
             val session = LanCodec.sessionKey(key, hello, answer)
-            return Joined(LanConnection(socket, session, Hex.encode(reply.pc)), reply.pc)
+            return Joined(LanConnection(socket, session, Hex.encode(reply.pc), key.copyOf()), reply.pc)
         } catch (e: IOException) {
             runCatching { socket.close() }
             return null
