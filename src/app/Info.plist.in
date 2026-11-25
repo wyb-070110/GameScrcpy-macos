@@ -32,6 +32,10 @@
     <true/>
     <key>NSLocalNetworkUsageDescription</key>
     <string>GameScrcpy connects to your Android phone over the local network for low-latency WiFi direct mirroring, wireless debugging, and the companion app.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>GameScrcpy uses the microphone when a script or profile listens for voice commands.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>GameScrcpy uses speech recognition to match the voice commands a script or profile listens for.</string>
     <key>NSBonjourServices</key>
     <array>
         <string>_gs-companion._tcp</string>

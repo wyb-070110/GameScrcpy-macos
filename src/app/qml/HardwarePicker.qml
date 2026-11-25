@@ -317,7 +317,7 @@ Item {
                         horizontalAlignment: Text.AlignHCenter
                         textFormat: Text.PlainText
                         text: dialog.kind === "ble"
-                              ? qsTr("Turn the device on and put it in pairing mode; check that Bluetooth is on in Windows.")
+                              ? qsTr("Turn the device on and put it in pairing mode; check that Bluetooth is on in System Settings > Bluetooth.")
                               : qsTr("Plug the device in; if it does not show up, try another cable or USB port.")
                         color: Theme.colors.textSecondary
                         font.pixelSize: Theme.type.caption.size

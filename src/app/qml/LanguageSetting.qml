@@ -31,9 +31,9 @@ SettingRow {
     globalText: titleOf(String(globalValue ?? ""))
     fact: (missing.locale ?? "") === "" ? ""
           : missing.installed
-            ? qsTr("%1 comes from the extension %2, which is off, so the interface follows Windows until it is on "
+            ? qsTr("%1 comes from the extension %2, which is off, so the interface follows macOS until it is on "
                    + "again.").arg(missing.name).arg(missing.extensionName)
-            : qsTr("The extension that added %1 is no longer installed, so the interface follows Windows.")
+            : qsTr("The extension that added %1 is no longer installed, so the interface follows macOS.")
                   .arg(missing.name)
 
     SegmentedControl {

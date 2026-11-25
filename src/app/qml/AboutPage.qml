@@ -67,7 +67,7 @@ Column {
                     Layout.fillWidth: true
                     Layout.topMargin: Theme.space.xs
                     textFormat: Text.PlainText
-                    text: qsTr("Android mirroring, key mapping and automation for Windows. Open source under the Apache License 2.0.")
+                    text: qsTr("Android mirroring, key mapping and automation for macOS. Open source under the Apache License 2.0.")
                     color: Theme.colors.textSecondary
                     font.pixelSize: Theme.type.body.size
                     wrapMode: Text.Wrap

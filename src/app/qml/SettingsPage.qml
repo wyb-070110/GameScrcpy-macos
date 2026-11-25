@@ -177,7 +177,7 @@ Item {
 
     function toggleLabels(reducedBySystem: bool): var {
         return {
-            system: qsTr("Follow Windows (%1)").arg(reducedBySystem ? qsTr("on") : qsTr("off")),
+            system: qsTr("Follow macOS (%1)").arg(reducedBySystem ? qsTr("on") : qsTr("off")),
             on: qsTr("On"),
             off: qsTr("Off")
         }
@@ -667,9 +667,8 @@ Item {
                                 return qsTr("Up to 16 fingers. On an independent display touches still go the normal way.")
                             if (touchMethod.current === "aoa")
                                 return qsTr("A touch screen, mouse and keyboard on the USB cable that work even without "
-                                            + "USB debugging. On Windows USB debugging cannot be used while AOA is, so "
-                                            + "the picture comes over wireless debugging when the phone has it, "
-                                            + "otherwise there is no picture. Needs the WinUSB driver.")
+                                            + "USB debugging. AOA over USB is not available on macOS yet; use Normal or "
+                                            + "UHID touch screen instead.")
                             if (touchMethod.current === "none")
                                 return qsTr("Only shows the picture; taps, swipes and key mapping do not reach the phone.")
                             return ""
@@ -784,7 +783,7 @@ Item {
                             tone: "ghost"
                             small: true
                             iconName: "circle-help"
-                            text: qsTr("How to install the WinUSB driver")
+                            text: qsTr("About AOA on macOS")
                             onClicked: Commands.trigger("app.help", "aoa-driver")
                         }
                     }
@@ -979,7 +978,7 @@ Item {
                             dark: qsTr("Dark"),
                             light: qsTr("Light"),
                             system: Application.styleHints.colorScheme === Qt.ColorScheme.Light
-                                    ? qsTr("Follow Windows (light)") : qsTr("Follow Windows (dark)")
+                                    ? qsTr("Follow macOS (light)") : qsTr("Follow macOS (dark)")
                         })
                     }
                     AccentSetting {
@@ -1029,7 +1028,7 @@ Item {
                     tone: ""
 
                     LanguageSetting {
-                        labels: ({ system: qsTr("Follow Windows"), zh_CN: "简体中文", en: "English" })
+                        labels: ({ system: qsTr("Follow macOS"), zh_CN: "简体中文", en: "English" })
                     }
                 }
             }
@@ -1160,7 +1159,7 @@ Item {
                          + "the model service you choose here. Its changes wait in a draft until you apply them."),
                     qsTr("AI clients on this computer can use GameScrcpy through MCP: look up the script API, try "
                          + "logic on recordings, see a phone's picture, read the log, change profiles and run "
-                         + "scripts. They connect through a named pipe that only your Windows account can open; no "
+                         + "scripts. They connect through a local Unix socket that only your macOS user account can open; no "
                          + "network port is opened.")
                 ].join("\n\n")
                 titleReserve: page.titleReserve

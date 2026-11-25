@@ -210,7 +210,7 @@ SpeechEngineInfo SystemSpeechEngine::info() const
         speech = !m_voices.empty();
     }
     return {.id = fromView(SpeechEngines::kSystem),
-            .title = QStringLiteral("Windows"),
+            .title = QStringLiteral("macOS"),
             .say = speech,
             .listen = !languages.isEmpty(),
             .dictation = false,
@@ -246,7 +246,7 @@ std::uint64_t SystemSpeechEngine::say(const SpeechLineRequest& line, Spoken spok
                    each.name.compare(line.voice, Qt::CaseInsensitive) == 0;
         });
         if (found == known.end()) {
-            spoken(false, QStringLiteral("GS-API-110 Windows has no voice %1").arg(line.voice));
+            spoken(false, QStringLiteral("GS-API-110 macOS has no voice %1").arg(line.voice));
             return 0;
         }
         voice = found->id;
@@ -267,7 +267,7 @@ void SystemSpeechEngine::stop(std::uint64_t token)
 std::uint64_t SystemSpeechEngine::listen(const SpeechListenRequest& wanted, Heard heard, Ended ended)
 {
     if (!wanted.phrases) {
-        ended(QStringLiteral("GS-API-110 Windows only listens for a list of commands"));
+        ended(QStringLiteral("GS-API-110 macOS only listens for a list of commands"));
         return 0;
     }
     platform::SpeechCommands commands{.phrases = {}, .language = toUtf8(wanted.language)};

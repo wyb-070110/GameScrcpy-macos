@@ -124,7 +124,7 @@ Item {
         Text {
             readonly property string warning: [
                 row.taken.length > 0 ? qsTr("Also used by “%1”. Using it here removes it there.").arg(row.taken.join("”, “")) : "",
-                row.loose ? qsTr("Keys without Ctrl, Alt or Win also work buttons and lists, which then stop responding to this one.") : ""
+                row.loose ? qsTr("Keys without Command, Option or Control also work buttons and lists, which then stop responding to this one.") : ""
             ].filter(line => line !== "").join(" ")
             readonly property string message: warning !== "" ? warning
                 : !row.capturing && row.conflicted ? qsTr("Not in effect: another command uses these keys.") : ""

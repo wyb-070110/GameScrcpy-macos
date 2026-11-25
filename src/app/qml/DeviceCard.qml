@@ -430,7 +430,7 @@ Card {
                     small: true
                     tone: "ghost"
                     iconName: "circle-help"
-                    text: qsTr("How to install the driver")
+                    text: qsTr("About AOA on macOS")
                     onClicked: Commands.trigger("app.help", card.help)
                 }
             }

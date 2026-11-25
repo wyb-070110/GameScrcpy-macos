@@ -11,7 +11,7 @@ GameScrcpy Companion is a small app on the phone that works with GameScrcpy on y
 
 Over USB debugging there is no package to look for. The first time you turn on one of the features above, the mirror window says something like "Install GameScrcpy Companion on the phone to show the cursor there": choose **Install**, and allow it on the phone if the phone asks. When GameScrcpy later brings a newer companion, it replaces the one on the phone by itself.
 
-Without USB debugging, such as when AOA or a touch box controls the phone, scan the code in the control window to download it: [AOA touch and the WinUSB driver](help:aoa-driver)
+Without USB debugging, such as when a touch box controls the phone, scan the code in the control window to download it: [AOA touch over USB](help:aoa-driver)
 
 ## Switch it on either side {#switches}
 
@@ -35,7 +35,7 @@ The key hints on the phone show in full first, then fade to the opacity you set.
 2. **Reconnects by itself**: while Auto connect is on (it is by default), the companion finds the computers it was paired with on the same Wi-Fi and connects, also after the connection drops.
 3. **Your computers**: the companion's **Computers** page lists the computers this phone has connected to. **Connect now** tries again right away; **Remove** makes the phone forget the computer and the settings it sent, so connecting over Wi-Fi needs a new scan.
 
-If it does not connect, check that the computer and the phone are on the same Wi-Fi and that Windows Firewall allows GameScrcpy.
+If it does not connect, check that this Mac and the phone are on the same Wi-Fi, that GameScrcpy is allowed under **System Settings > Privacy & Security > Local Network**, and that the macOS firewall does not block GameScrcpy.
 
 ## Permissions the companion needs {#permissions}
 

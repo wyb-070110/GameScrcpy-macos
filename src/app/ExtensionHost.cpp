@@ -718,7 +718,7 @@ QString refusalText(ext::NativeRefusal refusal)
     case ext::NativeRefusal::Injection:
         return ExtensionHost::tr("Its code can reach into other programs, which extensions may not do.");
     case ext::NativeRefusal::Threat:
-        return ExtensionHost::tr("Windows Security found a threat in it.");
+        return ExtensionHost::tr("macOS security checks found a threat in it.");
     case ext::NativeRefusal::Blocked:
         return ExtensionHost::tr("The security settings of this computer block it.");
     case ext::NativeRefusal::BadSignature:
@@ -761,7 +761,7 @@ QVariantMap securityMap(const ext::NativeCheck& check, const std::optional<ext::
     const bool changed = before.has_value() && ext::authorChanged(*before, check.signature);
     QStringList warnings;
     if (check.scan == ext::ScanVerdict::Unavailable) {
-        warnings.append(ExtensionHost::tr("It could not be scanned with Windows Security."));
+        warnings.append(ExtensionHost::tr("macOS has no on-demand malware scan API; Gatekeeper and XProtect check native libraries when they load."));
     }
     for (const ext::Capability capability : check.uncovered) {
         warnings.append(mismatchText(capability));

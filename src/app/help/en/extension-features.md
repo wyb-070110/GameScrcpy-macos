@@ -16,13 +16,13 @@ How to install, turn on and update extensions: [Extensions](help:extensions)
 
 ## Reading aloud and voice commands {#speech}
 
-Logic can read text aloud with `speech.say` and listen for voice commands with `speech.listen`. Windows' own speech is used by default; extensions can provide other engines. Choose them under **Settings > Audio > Reading aloud and voice commands**:
+Logic can read text aloud with `speech.say` and listen for voice commands with `speech.listen`. macOS's own speech is used by default; extensions can provide other engines. Choose them under **Settings > Audio > Reading aloud and voice commands**:
 
 - :volume-2: **Reading aloud**: **Speech engine**, **Voice**, **Speaking rate** and **Speaking volume**; on the **Try it** row, **Read aloud** reads a sentence with these settings.
 - :audio-lines: **Voice commands**: **Voice command engine** and **Voice command language**; without a language, it is "Same as the interface".
 
 > [!NOTE]
-> **Windows' own voices and speech recognition**: when the card says that Windows has no voice or no speech recognizer, add a speech language in Windows Settings under Time & language, Speech.
+> **macOS voices and speech recognition**: when the card says that macOS has no voice or no speech recognizer, download a voice in **System Settings > Accessibility > Spoken Content**, and allow Microphone and Speech Recognition in **System Settings > Privacy & Security** when prompted.
 
 The logic in your own profiles can read aloud and listen right away. The logic of an extension needs the permission "Listen for voice commands you say" to listen, and the install dialog shows it.
 
@@ -30,7 +30,7 @@ The logic in your own profiles can read aloud and listen right away. The logic o
 
 A language pack extension adds an interface language to GameScrcpy, and some also bring translations of this help; articles without a translation show in English. Once it is installed and on, choose it under **Interface language** in **Settings > Appearance > Language**, where it shows as "language · extension".
 
-While the extension is off, the interface follows Windows until it is on again; once the extension is removed, the interface follows Windows.
+While the extension is off, the interface follows macOS until it is on again; once the extension is removed, the interface follows macOS.
 
 ## Files and folders for logic {#files}
 
@@ -58,7 +58,7 @@ The extension's **Details** show "File types it converts". Files larger than 32 
 
 ## Panels, components and more {#more}
 
-- :panel-top: **Panels**: an extension's panel can show beside the mirror window (**Extension panels** on the toolbar), as a page of the main window, as a section in Settings, in its own settings window, in the **More** menu of cards or in the tray menu.
+- :panel-top: **Panels**: an extension's panel can show beside the mirror window (**Extension panels** on the toolbar), as a page of the main window, as a section in Settings, in its own settings window, in the **More** menu of cards or in the menu bar item's menu.
 - :puzzle: **Components and add-ons**: extensions can add components to the library of the key mapping editor, add-ons to keys, and nodes and commands to logic. Add-ons for every profile are turned on and off in the extension's **Settings**.
 - :gamepad-2: **Input devices**: an extension can bring devices of its own into the key mapping, such as a special controller or a pedal; in the key mapping editor you press their buttons just like keys and gamepad buttons.
 - :crosshair: **Recognition engines**: extensions can give logic engines that recognize text, things or what the picture shows.

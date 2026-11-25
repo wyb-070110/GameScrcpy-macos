@@ -30,8 +30,8 @@ To link a profile, open **More** (…) on its card and choose **Link to …**. T
 - Search by profile name or by game.
 - Filter with **All**, **This game**, **Mine**, **From extensions** and **Problems**.
 - **Duplicate** makes a copy.
-- **Delete…** moves the profile to the Recycle Bin. Phones using it stop using it.
-- **Show in folder** shows the profile's file in File Explorer; **Open folder** opens the folder that holds all your profiles.
+- **Delete…** moves the profile to the Trash. Phones using it stop using it.
+- **Show in folder** shows the profile's file in Finder; **Open folder** opens the folder that holds all your profiles.
 
 A profile with a problem shows what is wrong on its card.
 

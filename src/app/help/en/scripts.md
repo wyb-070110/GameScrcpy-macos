@@ -140,7 +140,7 @@ let targets: PicturePoint[] = [];
 
 In the blueprint, **Variables** in **My blueprint** lists them with their type and group. Press **+** there to make one: name, type, one or many, starting value, category and description, and the two switches **Keep it for next time** and **Change it in the property panel**; the code it writes is shown when you save. In a function page the same list has the variables of that function, and **+** declares one at the top of its body.
 
-- Drag a variable onto the canvas and pick **Get** or **Set**; hold Ctrl while dragging for **Get**, Alt for **Set**. Drop it on a pin to fill that pin.
+- Drag a variable onto the canvas and pick **Get** or **Set**; hold ⌘ Command while dragging for **Get**, ⌥ Option for **Set**. Drop it on a pin to fill that pin.
 - Right-click an input pin and choose **Promote to variable** to make a variable from the value in it and connect it.
 - Double-click a variable in the list to change it; giving it another name changes every place that uses it, and only those.
 - A variable that is still used cannot be deleted; change those places first.
@@ -362,7 +362,7 @@ await parallel(async () => {
 });
 ```
 
-Dragging a third wire from the same output adds another arrow function. Removing one of the wires (select it and delete it, or Alt-click the output to remove them all) removes that arrow function too, and when only one is left the code goes back to plain statements. Dragging from an exec output that has no wire yet still puts the new block right after it.
+Dragging a third wire from the same output adds another arrow function. Removing one of the wires (select it and delete it, or ⌥ Option-click the output to remove them all) removes that arrow function too, and when only one is left the code goes back to plain statements. Dragging from an exec output that has no wire yet still puts the new block right after it.
 
 ## Check and run
 
@@ -372,15 +372,15 @@ Dragging a third wire from the same output adds another arrow function. Removing
 
 ## The command-line tool
 
-`gs.exe` is the GameScrcpy command-line tool, in the same folder as `GameScrcpy.exe`. The logic view checks the logic with it, and you can run it yourself:
+`gs` is the GameScrcpy command-line tool, inside `GameScrcpy.app/Contents/MacOS/`. The logic view checks the logic with it, and you can run it yourself:
 
 | Command | What it does |
 |---|---|
-| `.\gs.exe check <folder>` | Checks the logic, until it says "no problems". |
-| `.\gs.exe types <folder>` | Updates the type files after you change `profile.json` or the resources, so an outside editor knows the new keys and names. |
-| `.\gs.exe run <folder> --replay <session.json>` | Plays a session file (key presses with their times) and prints what the logic would do. |
-| `.\gs.exe test <folder>` | Runs the tests in the folder's `tests` folder. |
-| `.\gs.exe new <new folder> --profile <profile.json>` | Makes a profile folder with logic from an exported profile. |
+| `./gs check <folder>` | Checks the logic, until it says "no problems". |
+| `./gs types <folder>` | Updates the type files after you change `profile.json` or the resources, so an outside editor knows the new keys and names. |
+| `./gs run <folder> --replay <session.json>` | Plays a session file (key presses with their times) and prints what the logic would do. |
+| `./gs test <folder>` | Runs the tests in the folder's `tests` folder. |
+| `./gs new <new folder> --profile <profile.json>` | Makes a profile folder with logic from an exported profile. |
 
 A profile folder made with `gs new` holds an `AGENTS.md` file that explains these commands.
 

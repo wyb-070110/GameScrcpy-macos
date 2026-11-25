@@ -12,8 +12,8 @@
         <translation>构建 %1</translation>
     </message>
     <message>
-        <source>Android mirroring, key mapping and automation for Windows. Open source under the Apache License 2.0.</source>
-        <translation>Windows 上的 Android 投屏、键位映射与自动化工具，基于 Apache License 2.0 开源。</translation>
+        <source>Android mirroring, key mapping and automation for macOS. Open source under the Apache License 2.0.</source>
+        <translation>面向 macOS 的安卓投屏、键位映射与自动化工具。以 Apache License 2.0 开源。</translation>
     </message>
     <message>
         <source>Diagnostics</source>
@@ -92,12 +92,12 @@
         <translation>在“设置 &gt; AI”里填写 API 密钥。</translation>
     </message>
     <message>
-        <source>Windows Credential Manager did not keep the key (error %1).</source>
-        <translation>Windows 凭据管理器没能保存这个 Key（错误 %1）。</translation>
+        <source>macOS Keychain did not keep the key (error %1).</source>
+        <translation>macOS 钥匙串未能保存密钥（错误 %1）。</translation>
     </message>
     <message>
-        <source>Windows Credential Manager did not remove the key (error %1).</source>
-        <translation>Windows 凭据管理器没能删除这个 Key（错误 %1）。</translation>
+        <source>macOS Keychain did not remove the key (error %1).</source>
+        <translation>macOS 钥匙串未能移除密钥（错误 %1）。</translation>
     </message>
     <message>
         <source>Connected: %1 answered.</source>
@@ -1132,6 +1132,10 @@
         <source>Anthropic</source>
         <translation>Anthropic</translation>
     </message>
+    <message>
+        <source>Kept in the macOS Keychain under %1 and never shown again. A service on this computer, such as Ollama, may need none.</source>
+        <translation>保存在 macOS 钥匙串的 %1 名下，保存后不再显示。跑在这台电脑上的服务（例如 Ollama）通常不需要密钥。</translation>
+    </message>
     <message numerus="yes">
         <source>Every conversation with the assistant is kept on this computer. The newest %n are in the Recent menu of the assistant; all of them are in its own window.</source>
         <translation>
@@ -1169,10 +1173,6 @@
     <message>
         <source>API key</source>
         <translation>API Key</translation>
-    </message>
-    <message>
-        <source>Kept in Windows Credential Manager under %1 and never shown again. A service on this computer, such as Ollama, may need none.</source>
-        <translation>保存在 Windows 凭据管理器里（目标名 %1），不会再显示出来。本机上的服务（如 Ollama）可能不需要 Key。</translation>
     </message>
     <message>
         <source>A key is saved.</source>
@@ -4736,6 +4736,14 @@
         <translation>手机设置…</translation>
     </message>
     <message>
+        <source>%1 · AOA unavailable on macOS</source>
+        <translation>%1 · macOS 暂不支持 AOA</translation>
+    </message>
+    <message>
+        <source>About AOA on macOS</source>
+        <translation>关于 macOS 上的 AOA</translation>
+    </message>
+    <message>
         <source>Touch</source>
         <translation>触控</translation>
     </message>
@@ -4764,16 +4772,8 @@
         <translation>用 USB 线把手机连到这台电脑</translation>
     </message>
     <message>
-        <source>%1 · needs the WinUSB driver</source>
-        <translation>%1 · 需要 WinUSB 驱动</translation>
-    </message>
-    <message>
         <source>Choose a phone</source>
         <translation>选择手机</translation>
-    </message>
-    <message>
-        <source>How to install the driver</source>
-        <translation>如何安装驱动</translation>
     </message>
     <message>
         <source>Picture and sound</source>
@@ -5770,10 +5770,6 @@
         <translation>改用 adb 隧道</translation>
     </message>
     <message>
-        <source>How to install the driver</source>
-        <translation>如何安装驱动</translation>
-    </message>
-    <message>
         <source>About capture cards</source>
         <translation>关于采集卡</translation>
     </message>
@@ -5840,6 +5836,10 @@
     <message>
         <source>Choose phone…</source>
         <translation>选择手机…</translation>
+    </message>
+    <message>
+        <source>About AOA on macOS</source>
+        <translation>关于 macOS 上的 AOA</translation>
     </message>
     <message>
         <source>Try again</source>
@@ -5920,8 +5920,8 @@
         <translation>不可用</translation>
     </message>
     <message>
-        <source>Needs a driver</source>
-        <translation>需要驱动</translation>
+        <source>Not available on macOS</source>
+        <translation>macOS 暂不支持</translation>
     </message>
 </context>
 <context>
@@ -6307,10 +6307,6 @@
         <translation>卡片的“更多”菜单</translation>
     </message>
     <message>
-        <source>Tray menu</source>
-        <translation>托盘菜单</translation>
-    </message>
-    <message>
         <source>profiles</source>
         <translation>方案</translation>
     </message>
@@ -6551,6 +6547,10 @@
     <message>
         <source>Not used</source>
         <translation>未使用</translation>
+    </message>
+    <message>
+        <source>Menu bar menu</source>
+        <translation>菜单栏菜单</translation>
     </message>
     <message>
         <source>No extension yet. Install one from a .gsext package.</source>
@@ -6936,8 +6936,8 @@
         <translation>adb 不可用</translation>
     </message>
     <message>
-        <source>Install Android SDK Platform-Tools, or make sure no other program blocks adb, then try again.</source>
-        <translation>请安装 Android SDK Platform-Tools，或确认没有其他程序占用 adb，然后重试。</translation>
+        <source>Install Android SDK Platform-Tools or Homebrew android-platform-tools, or make sure no other program blocks adb, then try again.</source>
+        <translation>请安装 Android SDK Platform-Tools（或通过 Homebrew 安装 android-platform-tools），并确认没有其他程序占用 adb，然后重试。</translation>
     </message>
     <message>
         <source>The device is not connected</source>
@@ -7136,8 +7136,8 @@
         <translation>画面未使用显卡</translation>
     </message>
     <message>
-        <source>No usable graphics card was found (%1), as happens in virtual machines and remote desktops. The processor draws and decodes the picture, which may stutter; an up-to-date graphics driver helps.</source>
-        <translation>没有找到可用的显卡（%1），虚拟机和远程桌面中常见这种情况。画面改由处理器绘制和解码，可能会卡顿；更新显卡驱动会有帮助。</translation>
+        <source>Metal hardware acceleration is not available (%1), as happens in some virtual machines. The processor draws and decodes the picture, which may stutter; running directly on a Mac with Metal support helps.</source>
+        <translation>Metal 硬件加速不可用（%1），在部分虚拟机中会出现这种情况。画面改由处理器解码和绘制，可能会卡顿；在支持 Metal 的 Mac 上直接运行会更流畅。</translation>
     </message>
     <message>
         <source>GameScrcpy is not installed completely</source>
@@ -7827,8 +7827,8 @@
         <translation>它只能打开你勾选的设备。</translation>
     </message>
     <message>
-        <source>Turn the device on and put it in pairing mode; check that Bluetooth is on in Windows.</source>
-        <translation>请打开设备并让它进入配对状态，并确认 Windows 的蓝牙已打开。</translation>
+        <source>Turn the device on and put it in pairing mode; check that Bluetooth is on in System Settings &gt; Bluetooth.</source>
+        <translation>请打开设备电源并进入配对模式，同时确认“系统设置 &gt; 蓝牙”已开启蓝牙。</translation>
     </message>
     <message>
         <source>Plug the device in; if it does not show up, try another cable or USB port.</source>
@@ -8421,20 +8421,16 @@
         <translation>将替换已安装的版本 %1</translation>
     </message>
     <message>
-        <source>It runs its own Windows code in a separate process without rights of its own.</source>
-        <translation>它会在单独的进程里运行自带的 Windows 代码，这个进程自身没有任何权限。</translation>
-    </message>
-    <message>
-        <source>It runs its own Windows code in a separate process.</source>
-        <translation>它会在单独的进程里运行自己的 Windows 代码。</translation>
-    </message>
-    <message>
         <source>GameScrcpy checked this code before installing:</source>
         <translation>GameScrcpy 在安装前检查了这些代码：</translation>
     </message>
     <message>
         <source>Its code cannot open your files, use the network or start other programs.</source>
         <translation>它的代码不能打开你的文件、不能联网，也不能启动其他程序。</translation>
+    </message>
+    <message>
+        <source>Security check found no threat</source>
+        <translation>安全检查未发现威胁</translation>
     </message>
     <message>
         <source>Its code calls these system functions; the sandbox blocks them:</source>
@@ -8525,6 +8521,14 @@
         <translation>受限的原生代码</translation>
     </message>
     <message>
+        <source>It runs its own native macOS code in a separate process without rights of its own.</source>
+        <translation>它在单独的进程里运行自己的 macOS 原生代码，该进程自身没有任何系统权限。</translation>
+    </message>
+    <message>
+        <source>It runs its own native macOS code in a separate process.</source>
+        <translation>它在单独的进程里运行自己的 macOS 原生代码。</translation>
+    </message>
+    <message>
         <source>Restricted: it can only do what it declares</source>
         <translation>受限：只能做它声明的事</translation>
     </message>
@@ -8535,10 +8539,6 @@
     <message>
         <source>Signed by its author</source>
         <translation>已由作者签名</translation>
-    </message>
-    <message>
-        <source>Windows Security found no threat</source>
-        <translation>Windows 安全中心未发现威胁</translation>
     </message>
     <message>
         <source>Its code uses none of the system functions that are checked: network, files, keyboard and mouse, other programs.</source>
@@ -9938,12 +9938,12 @@
         <translation>%1（不可用）</translation>
     </message>
     <message>
-        <source>%1 comes from the extension %2, which is off, so the interface follows Windows until it is on again.</source>
-        <translation>%1 来自扩展“%2”，该扩展已关闭，界面暂时跟随 Windows，重新打开后恢复。</translation>
+        <source>%1 comes from the extension %2, which is off, so the interface follows macOS until it is on again.</source>
+        <translation>%1 来自已关闭的扩展 %2，重新打开前界面先跟随 macOS。</translation>
     </message>
     <message>
-        <source>The extension that added %1 is no longer installed, so the interface follows Windows.</source>
-        <translation>添加 %1 的扩展已卸载，界面改为跟随 Windows。</translation>
+        <source>The extension that added %1 is no longer installed, so the interface follows macOS.</source>
+        <translation>提供 %1 的扩展已不再安装，界面改为跟随 macOS。</translation>
     </message>
 </context>
 <context>
@@ -10277,8 +10277,8 @@
         <translation>保存</translation>
     </message>
     <message>
-        <source>Save all files (Ctrl+S)</source>
-        <translation>保存全部文件（Ctrl+S）</translation>
+        <source>Save all files (⌘S)</source>
+        <translation>保存全部文件（⌘S）</translation>
     </message>
     <message>
         <source>Done</source>
@@ -10320,6 +10320,14 @@
     <message>
         <source>%1: video filters take %2 ms a frame</source>
         <translation>%1：画面滤镜每帧耗时 %2 ms</translation>
+    </message>
+    <message>
+        <source>%1 can be controlled over AOA now</source>
+        <translation>现在可以经 AOA 控制 %1 了</translation>
+    </message>
+    <message>
+        <source>Android mirroring, key mapping and automation for macOS. Open source under the Apache License 2.0.</source>
+        <translation>面向 macOS 的安卓投屏、键位映射与自动化工具。以 Apache License 2.0 开源。</translation>
     </message>
     <message>
         <source>Turn off</source>
@@ -10402,10 +10410,6 @@
         <translation>%1 在 10 秒内出错 3 次，已被关闭</translation>
     </message>
     <message>
-        <source>The driver is installed: %1 can be controlled over AOA now</source>
-        <translation>驱动已装好：现在可以用 AOA 控制 %1 了</translation>
-    </message>
-    <message>
         <source>Diagnostics saved as %1</source>
         <translation>诊断包已保存为 %1</translation>
     </message>
@@ -10460,10 +10464,6 @@
     <message>
         <source>Version %1 · %2</source>
         <translation>版本 %1 · %2</translation>
-    </message>
-    <message>
-        <source>Android mirroring, key mapping and automation for Windows. Open source under the Apache License 2.0.</source>
-        <translation>Windows 上的 Android 投屏、键位映射与自动化工具，基于 Apache License 2.0 开源。</translation>
     </message>
     <message>
         <source>An AI connection is waiting for you</source>
@@ -12496,8 +12496,8 @@
         <translation>无法删除 %1。</translation>
     </message>
     <message>
-        <source>The file moves to the Recycle Bin. Phones using this profile stop using it.</source>
-        <translation>文件会移到回收站，正在用这个方案的手机会停用它。</translation>
+        <source>The file moves to the Trash. Phones using this profile stop using it.</source>
+        <translation>文件会移到废纸篓，正在使用这套方案的手机会停用它。</translation>
     </message>
     <message>
         <source>Could not restore %1.</source>
@@ -12867,10 +12867,6 @@
 <context>
     <name>RecordingsDialog</name>
     <message>
-        <source>Moved the recording to the Recycle Bin</source>
-        <translation>已把录像移到回收站</translation>
-    </message>
-    <message>
         <source>Recordings</source>
         <translation>录像</translation>
     </message>
@@ -12899,16 +12895,20 @@
         <translation>正在把录像导出为 %1…</translation>
     </message>
     <message>
-        <source>Move this recording to the Recycle Bin?</source>
-        <translation>把这段录像移到回收站？</translation>
-    </message>
-    <message>
-        <source>Move to the Recycle Bin</source>
-        <translation>移到回收站</translation>
+        <source>Moved the recording to the Trash</source>
+        <translation>已将录像移到废纸篓</translation>
     </message>
     <message>
         <source>No recordings of this phone yet — start one with Record on the toolbar.</source>
         <translation>这台手机还没有录像——点工具栏上的“录制”就能录一段。</translation>
+    </message>
+    <message>
+        <source>Move this recording to the Trash?</source>
+        <translation>要把这段录像移到废纸篓吗？</translation>
+    </message>
+    <message>
+        <source>Move to the Trash</source>
+        <translation>移到废纸篓</translation>
     </message>
     <message>
         <source>%1 · %2</source>
@@ -12941,8 +12941,8 @@
         <translation>导出为 %1…</translation>
     </message>
     <message>
-        <source>Move to the Recycle Bin…</source>
-        <translation>移到回收站…</translation>
+        <source>Move to the Trash…</source>
+        <translation>移到废纸篓…</translation>
     </message>
 </context>
 <context>
@@ -17676,8 +17676,8 @@
 <context>
     <name>ScriptCheck</name>
     <message>
-        <source>the TypeScript compiler is missing next to gs.exe (typescript/tsc.exe); reinstall GameScrcpy</source>
-        <translation>gs.exe 旁边缺少 TypeScript 编译器（typescript/tsc.exe），请重新安装 GameScrcpy</translation>
+        <source>the TypeScript compiler is missing next to gs (typescript/tsc); reinstall GameScrcpy</source>
+        <translation>gs 旁边缺少 TypeScript 编译器（typescript/tsc）；请重新安装 GameScrcpy</translation>
     </message>
     <message>
         <source>the TypeScript compiler did not start</source>
@@ -18153,24 +18153,8 @@
         <translation>界面语言</translation>
     </message>
     <message>
-        <source>Following Windows shows Chinese on a Chinese Windows and English elsewhere.</source>
-        <translation>跟随 Windows：中文系统显示中文，其他系统显示英文。</translation>
-    </message>
-    <message>
         <source>language chinese english locale</source>
         <translation>语言 中文 英文 界面语言 language</translation>
-    </message>
-    <message>
-        <source>Close to the tray while tasks have a schedule</source>
-        <translation>有计划任务时关闭到托盘</translation>
-    </message>
-    <message>
-        <source>Closing the main window keeps GameScrcpy running in the notification area while any task has a schedule, so the tasks still start on time. Quit from the menu of its icon there.</source>
-        <translation>只要有任务设了计划，关闭主窗口时 GameScrcpy 会留在通知区域继续运行，任务照样按时开始。要退出，用那里图标的菜单。</translation>
-    </message>
-    <message>
-        <source>tray notification area background minimize close schedule timer task quit</source>
-        <translation>tray notification area background minimize close schedule timer task quit 托盘 通知区域 后台 最小化 关闭 计划 定时 任务 退出</translation>
     </message>
     <message>
         <source>Check extensions for updates</source>
@@ -18187,10 +18171,6 @@
     <message>
         <source>Theme</source>
         <translation>主题</translation>
-    </message>
-    <message>
-        <source>Dark, light, or as Windows is set.</source>
-        <translation>深色、浅色，或跟随 Windows。</translation>
     </message>
     <message>
         <source>dark light mode color scheme</source>
@@ -18213,10 +18193,6 @@
         <translation>减少动态效果</translation>
     </message>
     <message>
-        <source>Turns animations off. Following Windows uses the animation effects switch in Windows settings.</source>
-        <translation>关闭界面动画。“跟随 Windows”时按 Windows 设置里的“动画效果”开关。</translation>
-    </message>
-    <message>
         <source>animation motion accessibility</source>
         <translation>动画 动效 辅助功能 animation</translation>
     </message>
@@ -18225,8 +18201,32 @@
         <translation>降低透明度</translation>
     </message>
     <message>
-        <source>Draws solid surfaces instead of see-through ones. Following Windows uses the transparency effects switch in Windows settings.</source>
-        <translation>用不透明的表面代替半透明效果。“跟随 Windows”时按 Windows 设置里的“透明效果”开关。</translation>
+        <source>Following macOS shows Chinese when macOS uses Simplified Chinese and English elsewhere.</source>
+        <translation>跟随 macOS 时，系统语言为简体中文则显示中文，其余情况显示英文。</translation>
+    </message>
+    <message>
+        <source>Keep in the menu bar while tasks have a schedule</source>
+        <translation>有定时任务时留在菜单栏运行</translation>
+    </message>
+    <message>
+        <source>Closing the main window keeps GameScrcpy running in the menu bar while any task has a schedule, so the tasks still start on time. Quit from its menu bar icon.</source>
+        <translation>只要有设了定时的任务，关闭主窗口后 GameScrcpy 仍会留在菜单栏运行，让任务按时启动。要完全退出，请在菜单栏图标的菜单里选“退出”。</translation>
+    </message>
+    <message>
+        <source>menu bar tray background minimize close schedule timer task quit</source>
+        <translation>菜单栏 托盘 后台 最小化 关闭 定时 计划 任务 退出</translation>
+    </message>
+    <message>
+        <source>Dark, light, or as macOS is set.</source>
+        <translation>深色、浅色，或跟随 macOS 外观。</translation>
+    </message>
+    <message>
+        <source>Turns animations off. Following macOS uses Reduce motion in System Settings &gt; Accessibility &gt; Display.</source>
+        <translation>关闭界面动效。跟随 macOS 时使用“系统设置 &gt; 辅助功能 &gt; 显示”里的“减弱动态效果”。</translation>
+    </message>
+    <message>
+        <source>Draws solid surfaces instead of see-through ones. Following macOS uses Reduce transparency in System Settings &gt; Accessibility &gt; Display.</source>
+        <translation>用实色底代替半透明效果。跟随 macOS 时使用“系统设置 &gt; 辅助功能 &gt; 显示”里的“降低透明度”。</translation>
     </message>
     <message>
         <source>transparent opacity blur accessibility</source>
@@ -18417,8 +18417,24 @@
         <translation>朗读引擎</translation>
     </message>
     <message>
-        <source>What reads text aloud when logic calls speech.say: Windows, or an engine that an extension provides.</source>
-        <translation>逻辑调用 speech.say 时用什么朗读：Windows，或扩展提供的引擎。</translation>
+        <source>What reads text aloud when logic calls speech.say: macOS, or an engine that an extension provides.</source>
+        <translation>逻辑调用 speech.say 时由谁朗读：macOS 自带语音，或扩展提供的引擎。</translation>
+    </message>
+    <message>
+        <source>What listens for the commands of speech.listen in logic: macOS, or an engine that an extension provides.</source>
+        <translation>逻辑调用 speech.listen 时由谁听取语音命令：macOS 自带语音识别，或扩展提供的引擎。</translation>
+    </message>
+    <message>
+        <source>touch uhid inject injection multitouch fingers hid aoa usb otg accessory none no touch view only</source>
+        <translation>触控 uhid 注入 多点触控 手指 hid aoa usb otg 配件 无 不触控 仅观看</translation>
+    </message>
+    <message>
+        <source>The folder new recordings go into, each as a folder of its own; exported videos are saved next to it. Empty uses GameScrcpy in your Movies folder.</source>
+        <translation>新录像存放的文件夹，每段录像各自一个子文件夹；导出的视频存在它旁边。留空时使用“影片”文件夹下的 GameScrcpy。</translation>
+    </message>
+    <message>
+        <source>Where the service answers; empty uses the service&apos;s own address. The assistant connects only to this address, through the macOS network proxy when one is set.</source>
+        <translation>服务的接口地址；留空时使用该服务自己的默认地址。小助手只会连接这个地址，系统设了网络代理时会经 macOS 代理连接。</translation>
     </message>
     <message>
         <source>speech say read aloud voice tts text to speech engine</source>
@@ -18463,10 +18479,6 @@
     <message>
         <source>Voice command engine</source>
         <translation>语音命令引擎</translation>
-    </message>
-    <message>
-        <source>What listens for the commands of speech.listen in logic: Windows, or an engine that an extension provides.</source>
-        <translation>逻辑里的 speech.listen 用什么听语音命令：Windows，或扩展提供的引擎。</translation>
     </message>
     <message>
         <source>speech listen voice command recognition microphone engine</source>
@@ -18553,16 +18565,16 @@
         <translation>点击和滑动怎样送到手机。普通方式所有手机都能用；UHID 触摸屏是手机当作自己屏幕的虚拟触摸屏；AOA 是数据线上的触摸屏、鼠标和键盘，不开 USB 调试也能用；不触控只看画面。下次连接这台手机时生效。</translation>
     </message>
     <message>
-        <source>touch uhid inject injection multitouch fingers hid aoa usb otg accessory winusb zadig driver none no touch view only</source>
-        <translation>touch uhid inject injection multitouch fingers hid aoa usb otg accessory winusb zadig driver none no touch view only 触控 注入 多指 配件 驱动 数据线 不触控 只看画面</translation>
-    </message>
-    <message>
         <source>Touch method from an extension</source>
         <translation>扩展的触控方式</translation>
     </message>
     <message>
         <source>A touch method an extension adds, chosen after Normal, UHID and AOA. While the extension is off or fails, touches go the normal way. Takes effect the next time the phone connects.</source>
         <translation>扩展添加的触控方式，排在普通、UHID 和 AOA 之后供选择。扩展关闭或出错时，触控照常走普通方式。下次手机连接时生效。</translation>
+    </message>
+    <message>
+        <source>touch extension dylib native box board method</source>
+        <translation>触控 扩展 dylib 原生 触控盒 开发板 方式</translation>
     </message>
     <message>
         <source>Device for the touch method</source>
@@ -18665,10 +18677,6 @@
         <translation>录像位置</translation>
     </message>
     <message>
-        <source>The folder new recordings go into, each as a folder of its own; exported videos are saved next to it. Empty uses GameScrcpy in your Videos folder.</source>
-        <translation>新的录像放在这个文件夹里，每段录像是一个文件夹；导出的视频存在它旁边。留空时用“视频”文件夹下的 GameScrcpy。</translation>
-    </message>
-    <message>
         <source>recording record video folder location save path mp4</source>
         <translation>recording record video folder location save path mp4 录像 录制 视频 文件夹 位置 保存 路径</translation>
     </message>
@@ -18747,10 +18755,6 @@
     <message>
         <source>Address</source>
         <translation>地址</translation>
-    </message>
-    <message>
-        <source>Where the service answers; empty uses the service&apos;s own address. The assistant connects only to this address, through the Windows proxy when there is one.</source>
-        <translation>模型服务的地址；留空则用该服务自己的地址。助手只连这个地址，Windows 设了代理时经代理连接。</translation>
     </message>
     <message>
         <source>ai assistant address url endpoint base api server ollama proxy</source>
@@ -18877,10 +18881,6 @@
         <translation>深度思考</translation>
     </message>
     <message>
-        <source>touch extension dll native box board method</source>
-        <translation>触控 扩展 原生 触控盒 开发板 方式</translation>
-    </message>
-    <message>
         <source>ai assistant reasoning effort strength minimal low medium high xhigh max think gpt claude deepseek</source>
         <translation>AI 小助手 助手 思考强度 推理 强度 最低 低 中 高 超高 最高 思考 gpt claude deepseek</translation>
     </message>
@@ -18971,10 +18971,6 @@
         <translation>语言</translation>
     </message>
     <message>
-        <source>Follow Windows</source>
-        <translation>跟随 Windows</translation>
-    </message>
-    <message>
         <source>Original resolution</source>
         <translation>原始分辨率</translation>
     </message>
@@ -19035,8 +19031,20 @@
         <translation>手机上的 GameScrcpy 伴侣</translation>
     </message>
     <message>
+        <source>About AOA on macOS</source>
+        <translation>关于 macOS 上的 AOA</translation>
+    </message>
+    <message>
         <source>Devices your own logic may use</source>
         <translation>你自己的逻辑可以用的设备</translation>
+    </message>
+    <message>
+        <source>Follow macOS (light)</source>
+        <translation>跟随 macOS（浅色）</translation>
+    </message>
+    <message>
+        <source>Follow macOS (dark)</source>
+        <translation>跟随 macOS（深色）</translation>
     </message>
     <message>
         <source>Ember</source>
@@ -19077,6 +19085,14 @@
     <message>
         <source>Restore all defaults</source>
         <translation>全部恢复默认</translation>
+    </message>
+    <message>
+        <source>Follow macOS</source>
+        <translation>跟随 macOS</translation>
+    </message>
+    <message>
+        <source>AI clients on this computer can use GameScrcpy through MCP: look up the script API, try logic on recordings, see a phone&apos;s picture, read the log, change profiles and run scripts. They connect through a local Unix socket that only your macOS user account can open; no network port is opened.</source>
+        <translation>这台电脑上的 AI 客户端可以通过 MCP 使用 GameScrcpy：查阅脚本接口、在录像上试跑逻辑、查看手机画面、读取日志、修改方案和运行脚本。它们通过只有你当前 macOS 用户账户才能打开的本地 Unix 套接字连接，不会开启任何网络端口。</translation>
     </message>
     <message>
         <source>AI model</source>
@@ -19129,10 +19145,6 @@
     <message>
         <source>The settings are grouped: mirroring and quality, audio, input and keys, shortcuts, general, appearance, extensions and AI. A number next to a group counts the settings a phone has changed for itself.</source>
         <translation>设置按类别分组：投屏与画质、音频、输入与键位、快捷键、通用、外观、扩展和 AI。分类旁边的数字是某台手机单独改过的设置数。</translation>
-    </message>
-    <message>
-        <source>Follow Windows (%1)</source>
-        <translation>跟随 Windows（%1）</translation>
     </message>
     <message>
         <source>on</source>
@@ -19243,6 +19255,10 @@
         <translation>手机当前 %2 Hz，每秒 %1 次</translation>
     </message>
     <message>
+        <source>Follow macOS (%1)</source>
+        <translation>跟随 macOS（%1）</translation>
+    </message>
+    <message>
         <source>Ask each time</source>
         <translation>每次都问</translation>
     </message>
@@ -19273,6 +19289,10 @@
     <message>
         <source>Capture card settings…</source>
         <translation>采集卡设置…</translation>
+    </message>
+    <message>
+        <source>A touch screen, mouse and keyboard on the USB cable that work even without USB debugging. AOA over USB is not available on macOS yet; use Normal or UHID touch screen instead.</source>
+        <translation>经 USB 数据线模拟触摸屏、鼠标和键盘，不开 USB 调试也能用。macOS 版暂未支持 USB AOA，请改用“普通”或“UHID 触摸屏”。</translation>
     </message>
     <message>
         <source>%1 From %2; when it fails, touches go the normal way.</source>
@@ -19319,10 +19339,6 @@
         <translation>停止投屏</translation>
     </message>
     <message>
-        <source>A touch screen, mouse and keyboard on the USB cable that work even without USB debugging. On Windows USB debugging cannot be used while AOA is, so the picture comes over wireless debugging when the phone has it, otherwise there is no picture. Needs the WinUSB driver.</source>
-        <translation>数据线上的触摸屏、鼠标和键盘，不开 USB 调试也能用。Windows 上用 AOA 时不能同时用 USB 调试，手机开了无线调试时画面走无线，否则没有画面。需要 WinUSB 驱动。</translation>
-    </message>
-    <message>
         <source>Only shows the picture; taps, swipes and key mapping do not reach the phone.</source>
         <translation>只显示画面；点击、滑动和键位都不会送到手机。</translation>
     </message>
@@ -19353,10 +19369,6 @@
     <message>
         <source>Keep the current touch method</source>
         <translation>保持现在的触控方式</translation>
-    </message>
-    <message>
-        <source>How to install the WinUSB driver</source>
-        <translation>如何安装 WinUSB 驱动</translation>
     </message>
     <message>
         <source>Twice the screen&apos;s refresh rate</source>
@@ -19415,20 +19427,8 @@
         <translation>你自己的逻辑可用的文件夹</translation>
     </message>
     <message>
-        <source>Follow Windows (light)</source>
-        <translation>跟随 Windows（浅色）</translation>
-    </message>
-    <message>
-        <source>Follow Windows (dark)</source>
-        <translation>跟随 Windows（深色）</translation>
-    </message>
-    <message>
         <source>The assistant in the key editor answers questions and changes the keys, the logic and the blueprint of the profile you edit. Only when you send a message, it sends what you wrote, the profile with its logic and, when it needs one, a picture of the phone&apos;s screen, to the model service you choose here. Its changes wait in a draft until you apply them.</source>
         <translation>键位编辑器里的助手能回答问题，并修改你正在编辑的方案的键位、逻辑和蓝图。只有在你发消息时，它才把你写的话、方案及其逻辑、需要时一张手机画面发给你在这里选的模型服务。它的改动先放进草稿，你采用后才生效。</translation>
-    </message>
-    <message>
-        <source>AI clients on this computer can use GameScrcpy through MCP: look up the script API, try logic on recordings, see a phone&apos;s picture, read the log, change profiles and run scripts. They connect through a named pipe that only your Windows account can open; no network port is opened.</source>
-        <translation>这台电脑上的 AI 客户端可以通过 MCP 使用 GameScrcpy：查脚本接口、在录像上试跑逻辑、看手机画面、读日志、修改方案和运行脚本。它们经只有你的 Windows 账户能打开的命名管道连接，不开任何网络端口。</translation>
     </message>
     <message>
         <source>Restore all to the global defaults</source>
@@ -19501,10 +19501,6 @@
         <translation>“%1”也在用这组键，改用到这里会从那边移除。</translation>
     </message>
     <message>
-        <source>Keys without Ctrl, Alt or Win also work buttons and lists, which then stop responding to this one.</source>
-        <translation>不带 Ctrl、Alt 或 Win 的键也用来操作按钮和列表，设为快捷键后它们将不再响应这个键。</translation>
-    </message>
-    <message>
         <source>Not in effect: another command uses these keys.</source>
         <translation>未生效：另一个命令占用了这组键。</translation>
     </message>
@@ -19539,6 +19535,10 @@
     <message>
         <source>Press the new keys…</source>
         <translation>按下新的快捷键…</translation>
+    </message>
+    <message>
+        <source>Keys without Command, Option or Control also work buttons and lists, which then stop responding to this one.</source>
+        <translation>不带 Command、Option 或 Control 的单键也会操作按钮和列表，设为快捷键后那些控件就不再响应这个键。</translation>
     </message>
     <message>
         <source>Esc cancels · Backspace clears</source>
@@ -19579,8 +19579,12 @@
         <translation>供逻辑里的 speech.say 与 speech.listen 使用</translation>
     </message>
     <message>
-        <source>Windows has no voice; add one under Time &amp; language, Speech.</source>
-        <translation>Windows 没有可以朗读的声音；可以在 Windows 设置的「时间和语言 → 语音」里添加。</translation>
+        <source>macOS has no voice installed; download one in System Settings &gt; Accessibility &gt; Spoken Content.</source>
+        <translation>macOS 没有可用的朗读声音；请在“系统设置 &gt; 辅助功能 &gt; 朗读内容”里下载。</translation>
+    </message>
+    <message>
+        <source>macOS has no speech recognizer available; check System Settings &gt; Keyboard &gt; Dictation or Privacy &amp; Security &gt; Speech Recognition.</source>
+        <translation>macOS 没有可用的语音识别器；请检查“系统设置 &gt; 键盘 &gt; 听写”或“隐私与安全性 &gt; 语音识别”。</translation>
     </message>
     <message>
         <source>The engine&apos;s default</source>
@@ -19597,10 +19601,6 @@
     <message>
         <source>Read aloud</source>
         <translation>朗读</translation>
-    </message>
-    <message>
-        <source>Windows has no speech recognizer; add a speech language under Time &amp; language, Speech.</source>
-        <translation>Windows 没有语音识别器；可以在 Windows 设置的「时间和语言 → 语音」里添加一种语音语言。</translation>
     </message>
 </context>
 <context>
@@ -19989,8 +19989,8 @@
         <translation>没能删除这个任务</translation>
     </message>
     <message>
-        <source>Its folder goes to the Recycle Bin, with its code and settings.</source>
-        <translation>它的文件夹连同代码和设置会移到回收站。</translation>
+        <source>Its folder goes to the Trash, with its code and settings.</source>
+        <translation>它的文件夹会连同代码和设置一起移到废纸篓。</translation>
     </message>
     <message>
         <source>Copied %1 to your tasks</source>
@@ -20200,8 +20200,8 @@
         <translation>任务页就是这些</translation>
     </message>
     <message>
-        <source>With the setting for it on, closing the window leaves GameScrcpy in the notification area so that tasks with a schedule still run on time. Help can replay this tour.</source>
-        <translation>打开对应的设置后，关掉窗口时 GameScrcpy 会留在通知区域，有时间表的任务照样按时运行。帮助里可以重新看这段引导。</translation>
+        <source>With the setting for it on, closing the window leaves GameScrcpy in the menu bar so that tasks with a schedule still run on time. Help can replay this tour.</source>
+        <translation>打开相应设置后，关闭窗口会让 GameScrcpy 留在菜单栏，好让设了定时的任务按时运行。可以在“帮助”里重看这段引导。</translation>
     </message>
 </context>
 <context>
@@ -21682,6 +21682,10 @@
         <translation>在线</translation>
     </message>
     <message>
+        <source>Not available on macOS</source>
+        <translation>macOS 暂不支持</translation>
+    </message>
+    <message>
         <source>Waiting for authorization</source>
         <translation>等待授权</translation>
     </message>
@@ -21728,6 +21732,38 @@
     <message>
         <source>Restored the original %1</source>
         <translation>已还原 %1 的原版</translation>
+    </message>
+    <message>
+        <source>composed by macOS</source>
+        <translation>由 macOS 合成</translation>
+    </message>
+    <message>
+        <source>Video: %1 fps received, %2 drawn, %3 replaced before drawn, %4 dropped by macOS</source>
+        <translation>画面：收到 %1 fps，绘制 %2，绘制前被新帧替换 %3，macOS 丢弃 %4</translation>
+    </message>
+    <message>
+        <source>Touch merging on this Mac: %1 ms on average, %2 ms at most (moves wait up to %3 ms for the next send)</source>
+        <translation>本机触控合并：平均 %1 ms，最高 %2 ms（移动最多等 %3 ms 随下一批发出）</translation>
+    </message>
+    <message>
+        <source>Touch from this Mac&apos;s send queue into the phone&apos;s input queue: %1 ms now, %2 ms best in 16 s (estimate); waiting for the next frame: %3 ms</source>
+        <translation>触控从本机发送队列进入手机输入队列：当前 %1 ms，16 秒内最佳 %2 ms（估算）；等待下一帧：%3 ms</translation>
+    </message>
+    <message>
+        <source>GameScrcpy is still running in the menu bar; scheduled tasks run as usual</source>
+        <translation>GameScrcpy 仍在菜单栏运行，定时任务会照常执行</translation>
+    </message>
+    <message>
+        <source>AOA touch over USB is not available on macOS yet</source>
+        <translation>macOS 版暂未支持 USB AOA 触控</translation>
+    </message>
+    <message>
+        <source>Connect with USB debugging or wireless debugging instead.</source>
+        <translation>请改用 USB 调试或无线调试连接。</translation>
+    </message>
+    <message>
+        <source>Touches go the normal way over adb instead.</source>
+        <translation>触控将改为经 adb 按普通方式发送。</translation>
     </message>
     <message>
         <source>This phone cannot use a UHID touch screen; touches go the normal way.</source>
@@ -21892,10 +21928,6 @@
         <translation>演示设备 %1</translation>
     </message>
     <message>
-        <source>Needs a driver</source>
-        <translation>需要驱动</translation>
-    </message>
-    <message>
         <source>In use</source>
         <translation>使用中</translation>
     </message>
@@ -21960,10 +21992,6 @@
         <translation>手机没有让 GameScrcpy 下拉或收起通知栏</translation>
     </message>
     <message>
-        <source>composed by Windows</source>
-        <translation>由 Windows 合成</translation>
-    </message>
-    <message>
         <source>hardware overlay</source>
         <translation>硬件叠加层</translation>
     </message>
@@ -21972,24 +22000,12 @@
         <translation>呈现方式未知</translation>
     </message>
     <message>
-        <source>Video: %1 fps received, %2 drawn, %3 replaced before drawn, %4 dropped by Windows</source>
-        <translation>视频：每秒收到 %1 帧，绘制 %2 帧，%3 帧未绘制即被替换，Windows 丢掉 %4 帧</translation>
-    </message>
-    <message>
         <source>Decoding: %1 ms per frame; the decoder holds %2 frames back</source>
         <translation>解码：每帧 %1 ms；解码器压着 %2 帧</translation>
     </message>
     <message>
         <source>Input to screen: %1 ms</source>
         <translation>按下到上屏：%1 ms</translation>
-    </message>
-    <message>
-        <source>Touch merging on the PC: %1 ms on average, %2 ms at most (moves wait up to %3 ms for the next send)</source>
-        <translation>电脑端触摸合并：平均 %1 ms，最多 %2 ms（移动最多等 %3 ms 才发出）</translation>
-    </message>
-    <message>
-        <source>Touch from the PC&apos;s send queue into the phone&apos;s input queue: %1 ms now, %2 ms best in 16 s (estimate); waiting for the next frame: %3 ms</source>
-        <translation>触摸从电脑发送队列到手机输入队列：现在 %1 ms，16 秒内最好 %2 ms（估计值）；等下一帧 %3 ms</translation>
     </message>
     <message>
         <source>GPU drawing the picture: %1 ms per frame (95% within %2 ms)</source>
@@ -22058,10 +22074,6 @@
     <message>
         <source>Quit</source>
         <translation>退出</translation>
-    </message>
-    <message>
-        <source>GameScrcpy is still running in the tray; scheduled tasks run as usual</source>
-        <translation>GameScrcpy 仍在托盘里运行，计划任务照常执行</translation>
     </message>
     <message>
         <source>The changes could not be saved to the profile</source>
@@ -22192,22 +22204,6 @@
         <translation>%1 没在投屏。先投屏才能运行脚本</translation>
     </message>
     <message>
-        <source>This phone needs the WinUSB driver before it can be controlled over AOA</source>
-        <translation>这台手机要先装 WinUSB 驱动才能用 AOA 控制</translation>
-    </message>
-    <message>
-        <source>Install it with Zadig as the illustrated guide shows. GameScrcpy notices by itself once it is installed</source>
-        <translation>照图解用 Zadig 安装，装好后 GameScrcpy 会自己认出来</translation>
-    </message>
-    <message>
-        <source>AOA needs the WinUSB driver for this phone</source>
-        <translation>这台手机用 AOA 需要 WinUSB 驱动</translation>
-    </message>
-    <message>
-        <source>Until it is installed, touches go the normal way. The illustrated guide shows how to install it with Zadig</source>
-        <translation>装好之前触控走普通方式，图解里有用 Zadig 安装的步骤</translation>
-    </message>
-    <message>
         <source>Another program is using this phone&apos;s USB</source>
         <translation>另一个程序正在占用这台手机的 USB</translation>
     </message>
@@ -22244,10 +22240,6 @@
         <translation>触控方式“%1”不可用，触控改用普通方式。</translation>
     </message>
     <message>
-        <source>AOA needs the WinUSB driver for this phone; touches go the normal way.</source>
-        <translation>这台手机用 AOA 需要 WinUSB 驱动，触控改用普通方式。</translation>
-    </message>
-    <message>
         <source>Another program is using this phone&apos;s USB, so AOA cannot start; touches go the normal way.</source>
         <translation>另一个程序占用着这台手机的 USB，AOA 无法启动，触控改用普通方式。</translation>
     </message>
@@ -22262,10 +22254,6 @@
     <message>
         <source>This phone is not on a USB cable, so AOA cannot be used; touches go the normal way.</source>
         <translation>这台手机没有用数据线连着，用不了 AOA，触控改用普通方式。</translation>
-    </message>
-    <message>
-        <source>View the driver guide</source>
-        <translation>查看驱动图解</translation>
     </message>
     <message>
         <source>Not saved: another program is using the file</source>
@@ -22398,6 +22386,14 @@
     <message>
         <source>Controlling</source>
         <translation>控制中</translation>
+    </message>
+    <message>
+        <source>AOA touch over USB is not available on macOS yet; touches go the normal way.</source>
+        <translation>macOS 版暂未支持 USB AOA 触控，已改用普通方式发送触控。</translation>
+    </message>
+    <message>
+        <source>About AOA on macOS</source>
+        <translation>关于 macOS 上的 AOA</translation>
     </message>
     <message>
         <source>The picture source was disconnected</source>
@@ -22707,12 +22703,12 @@
         <translation>它的代码能注入其他程序，扩展不允许这样做。</translation>
     </message>
     <message>
-        <source>Windows Security found a threat in it.</source>
-        <translation>Windows 安全中心在其中发现了威胁。</translation>
-    </message>
-    <message>
         <source>The security settings of this computer block it.</source>
         <translation>这台电脑的安全设置禁止了它。</translation>
+    </message>
+    <message>
+        <source>macOS has no on-demand malware scan API; Gatekeeper and XProtect check native libraries when they load.</source>
+        <translation>macOS 没有按需恶意软件扫描接口；动态库加载时由 Gatekeeper 与 XProtect 检查。</translation>
     </message>
     <message>
         <source>Unsigned</source>
@@ -22735,12 +22731,12 @@
         <translation>读写你为它选定的文件夹</translation>
     </message>
     <message>
-        <source>Its code cannot be read, so it cannot be checked.</source>
-        <translation>读不出它的代码，无法检查。</translation>
+        <source>macOS security checks found a threat in it.</source>
+        <translation>macOS 安全检查在其中发现了威胁。</translation>
     </message>
     <message>
-        <source>It could not be scanned with Windows Security.</source>
-        <translation>无法用 Windows 安全中心扫描。</translation>
+        <source>Its code cannot be read, so it cannot be checked.</source>
+        <translation>读不出它的代码，无法检查。</translation>
     </message>
     <message>
         <source>Signed with key %1, which this computer has not seen before</source>
@@ -23165,8 +23161,8 @@
         <translation>无画面</translation>
     </message>
     <message>
-        <source>Needs this phone on a USB cable with the WinUSB driver</source>
-        <translation>需要这台手机插着 USB 线并装好 WinUSB 驱动</translation>
+        <source>AOA touch over USB is not available on macOS yet; use Normal or UHID touch screen</source>
+        <translation>macOS 版暂未支持 USB AOA 触控；请改用“普通”或“UHID 触摸屏”</translation>
     </message>
     <message>
         <source>The extension that adds it is off</source>
@@ -23482,8 +23478,8 @@
         <translation>这段录像正在导出视频</translation>
     </message>
     <message>
-        <source>The recording could not be moved to the Recycle Bin</source>
-        <translation>无法把录像移到回收站</translation>
+        <source>The recording could not be moved to the Trash</source>
+        <translation>无法将这段录像移到废纸篓</translation>
     </message>
 </context>
 <context>
@@ -23525,14 +23521,6 @@
     <message>
         <source>Not saved: another program is using the file</source>
         <translation>没保存上：文件被别的程序占用</translation>
-    </message>
-    <message>
-        <source>Problems are not checked: gs.exe did not start</source>
-        <translation>没有检查问题：gs.exe 没能启动</translation>
-    </message>
-    <message>
-        <source>Could not run on %1: gs.exe did not start</source>
-        <translation>无法在 %1 上运行：gs.exe 没有启动</translation>
     </message>
     <message>
         <source>%1 could not be saved</source>
@@ -23595,10 +23583,6 @@
         <translation>%1 不是录像：请选择名字以 .gsrec 结尾的文件夹</translation>
     </message>
     <message>
-        <source>Could not run on the recording: gs.exe is missing next to GameScrcpy</source>
-        <translation>无法在录像上运行：GameScrcpy 旁边缺少 gs.exe</translation>
-    </message>
-    <message>
         <source>Running on %1…</source>
         <translation>正在 %1 上运行…</translation>
     </message>
@@ -23623,10 +23607,6 @@
         <translation>逻辑在 %1 上出错了，原因见控制台</translation>
     </message>
     <message>
-        <source>Problems are not checked: gs.exe is missing next to GameScrcpy</source>
-        <translation>没有检查问题：GameScrcpy 旁边缺少 gs.exe</translation>
-    </message>
-    <message>
         <source>The check did not finish</source>
         <translation>检查没有完成</translation>
     </message>
@@ -23649,6 +23629,22 @@
     <message>
         <source>Add logic to run it</source>
         <translation>先添加逻辑才能运行</translation>
+    </message>
+    <message>
+        <source>Problems are not checked: gs did not start</source>
+        <translation>未检查问题：gs 未能启动</translation>
+    </message>
+    <message>
+        <source>Could not run on %1: gs did not start</source>
+        <translation>无法在 %1 上运行：gs 未能启动</translation>
+    </message>
+    <message>
+        <source>Could not run on the recording: gs is missing next to GameScrcpy</source>
+        <translation>无法在录像上运行：GameScrcpy 旁边缺少 gs</translation>
+    </message>
+    <message>
+        <source>Problems are not checked: gs is missing next to GameScrcpy</source>
+        <translation>未检查问题：GameScrcpy 旁边缺少 gs</translation>
     </message>
     <message>
         <source>Restart the logic on %1</source>

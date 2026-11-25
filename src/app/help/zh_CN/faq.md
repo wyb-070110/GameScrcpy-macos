@@ -23,7 +23,7 @@
 
 ### “设备”页提示 adb 不可用 {#adb-missing}
 
-GameScrcpy 通过 adb 和手机通信。请安装 Android SDK Platform-Tools，或确认没有其他程序占用 adb，然后在“设备”页点“重试”。
+GameScrcpy 通过 adb 和手机通信。请安装 Android SDK Platform-Tools（例如通过 Homebrew 安装：`brew install --cask android-platform-tools`），或确认没有其他程序占用 adb，然后在“设备”页点“重试”。
 
 ### 三星手机的“USB 调试”是灰色的 {#samsung-grey}
 
@@ -39,7 +39,7 @@ GameScrcpy 通过 adb 和手机通信。请安装 Android SDK Platform-Tools，�
 
 ### WiFi 直连连不上 {#wifi-direct}
 
-电脑和手机要连在同一个网络。有些路由器会把连在它上面的设备互相隔离（AP 隔离），防火墙也可能拦截 UDP。仍然不行时，在“设备”页的手机卡片上改选“adb 隧道”。
+Mac 和手机要连在同一个网络，并在 **系统设置 > 隐私与安全性 > 本地网络** 中允许 GameScrcpy。有些路由器会把连在它上面的设备互相隔离（AP 隔离），防火墙也可能拦截 UDP。仍然不行时，在“设备”页的手机卡片上改选“adb 隧道”。
 
 ### 画面卡顿或延迟高 {#lag}
 
@@ -47,7 +47,7 @@ GameScrcpy 通过 adb 和手机通信。请安装 Android SDK Platform-Tools，�
 - 在“设置 > 投屏与画质”里调低“最大分辨率”或“码率上限”。
 - 同一页的“低延迟模式”延迟最低，偶尔会有画面撕裂。
 - 状态胶囊和诊断浮层会显示帧率和延迟。
-- 如果“设备”页提示画面未使用显卡，请更新显卡驱动。在虚拟机和远程桌面里，画面由处理器绘制，可能会卡顿。
+- 如果“设备”页提示 Metal 硬件加速不可用，请在支持 Metal 的 Mac 上直接运行。在部分虚拟机里，画面由处理器绘制，可能会卡顿。
 
 网络变慢时，GameScrcpy 会自动降低分辨率或帧率；网络恢复后会自动恢复。
 
@@ -89,15 +89,15 @@ GameScrcpy 通过 adb 和手机通信。请安装 Android SDK Platform-Tools，�
 
 ### 某个扩展出了问题 {#extension-trouble}
 
-在“扩展”页点“查找出问题的扩展”。它会分几轮加载你的扩展，每轮问你问题还在不在，直到找出是哪个扩展。想临时不加载任何扩展启动一次，可以用 `GameScrcpy.exe --safe-mode` 启动。
+在“扩展”页点“查找出问题的扩展”。它会分几轮加载你的扩展，每轮问你问题还在不在，直到找出是哪个扩展。想临时不加载任何扩展启动一次，可以在终端运行 `open -a GameScrcpy --args --safe-mode`。
 
 扩展一分钟内停了三次，GameScrcpy 会自己把它关掉，卡片上写明原因；卡片上还写着最近 7 天停了几次，“详情”里列着每一次和它的崩溃报告。更多见[扩展 · 出了问题](help:extensions#trouble)。
 
 ### 设置和方案存在哪里 {#data-folder}
 
-在 `%APPDATA%\GameScrcpy` 里：方案在 `profiles` 文件夹，日志在 `logs` 文件夹。
+在 `~/Library/Application Support/GameScrcpy` 里：方案在 `profiles` 文件夹，日志在 `logs` 文件夹。
 
-想把所有数据放在程序旁边，可以在 `GameScrcpy.exe` 所在的文件夹里放一个名为 `portable.flag` 的空文件。之后 GameScrcpy 会使用那里的 `data` 文件夹。
+想改用单独的数据文件夹，可以在启动前设置环境变量 `GS_DATA_DIR`。
 
 ### 哪些手机能用 {#which-phones}
 
@@ -105,4 +105,4 @@ Android 9 或更高版本的手机。HarmonyOS 5 及以后的版本不是 Androi
 
 ### 在哪里能找到所有命令 {#all-commands}
 
-按 <kbd>Ctrl</kbd>+<kbd>K</kbd> 打开命令面板。输入几个字查找命令，按 <kbd>Enter</kbd> 执行；面板里也会显示每个命令的快捷键。按 <kbd>F1</kbd> 可以打开这份帮助。
+按 <kbd>⌘ Command</kbd>+<kbd>K</kbd> 打开命令面板。输入几个字查找命令，按 <kbd>Return</kbd> 执行；面板里也会显示每个命令的快捷键。按 <kbd>F1</kbd> 可以打开这份帮助。

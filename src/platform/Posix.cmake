@@ -66,7 +66,7 @@ if(APPLE)
     endif()
     target_link_libraries(gs_platform PRIVATE "-framework CoreFoundation" "-framework Security"
                           "-framework Foundation" "-framework CoreGraphics" "-framework Vision" "-framework AppKit"
-                          "-framework Carbon" "-framework AVFoundation" "-framework UserNotifications"
+                          "-framework Carbon" "-framework AVFoundation" "-framework Speech" "-framework UserNotifications"
                           "-framework IOKit" "-framework GameController" "-framework CoreHaptics")
 else()
     target_sources(gs_platform PRIVATE src/posix/UserKeyFile.cpp src/posix/TextReaderNone.cpp)

@@ -204,7 +204,7 @@ std::string drawnWith(const PanelDeclaration& declaration)
     case ext::PanelPlace::ContextMenu:
         return "is a menu on cards; fill it with ui.contextMenu(" + quoted + ").set(items)";
     case ext::PanelPlace::Tray:
-        return "is a group in the tray menu; fill it with ui.tray(" + quoted + ").set(items)";
+        return "is a group in the menu bar item's menu; fill it with ui.tray(" + quoted + ").set(items)";
     default:
         return "is a panel; draw it with ui.panel(" + quoted + ").render()";
     }

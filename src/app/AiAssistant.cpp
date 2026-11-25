@@ -391,9 +391,9 @@ bool AiAssistant::saveKey(const QString& key)
     const std::error_code error = platform::writeCredential(keyTarget().toStdString(), cleaned.toStdString());
     if (error) {
         m_keyProblem =
-            QCoreApplication::translate("AiAssistant", "Windows Credential Manager did not keep the key (error %1).")
+            QCoreApplication::translate("AiAssistant", "macOS Keychain did not keep the key (error %1).")
                 .arg(error.value());
-        qWarning("ai: the %s API key was not saved in Windows Credential Manager (error %d)",
+        qWarning("ai: the %s API key was not saved in macOS Keychain (error %d)",
                  qUtf8Printable(service()), error.value());
         emit setupChanged();
         return false;
@@ -404,7 +404,7 @@ bool AiAssistant::saveKey(const QString& key)
     m_modelsState.clear();
     m_modelsProblem.clear();
     emit modelsChanged();
-    qInfo("ai: saved the %s API key in Windows Credential Manager", qUtf8Printable(service()));
+    qInfo("ai: saved the %s API key in macOS Keychain", qUtf8Printable(service()));
     emit setupChanged();
     return true;
 }
@@ -414,7 +414,7 @@ bool AiAssistant::forgetKey()
     const std::error_code error = platform::deleteCredential(keyTarget().toStdString());
     if (error) {
         m_keyProblem =
-            QCoreApplication::translate("AiAssistant", "Windows Credential Manager did not remove the key (error %1).")
+            QCoreApplication::translate("AiAssistant", "macOS Keychain did not remove the key (error %1).")
                 .arg(error.value());
         emit setupChanged();
         return false;
@@ -425,7 +425,7 @@ bool AiAssistant::forgetKey()
     m_modelsState.clear();
     m_modelsProblem.clear();
     emit modelsChanged();
-    qInfo("ai: removed the %s API key from Windows Credential Manager", qUtf8Printable(service()));
+    qInfo("ai: removed the %s API key from macOS Keychain", qUtf8Printable(service()));
     emit setupChanged();
     return true;
 }

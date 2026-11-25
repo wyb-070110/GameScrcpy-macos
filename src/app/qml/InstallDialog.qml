@@ -332,8 +332,8 @@ Dialog {
                         anchors.verticalCenter: parent.verticalCenter
                         title: dialog.restricted ? qsTr("Restricted native code") : qsTr("Native code")
                         info: dialog.restricted
-                              ? qsTr("It runs its own Windows code in a separate process without rights of its own.")
-                              : qsTr("It runs its own Windows code in a separate process.")
+                              ? qsTr("It runs its own native macOS code in a separate process without rights of its own.")
+                              : qsTr("It runs its own native macOS code in a separate process.")
                     }
                 }
 
@@ -390,7 +390,7 @@ Dialog {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         textFormat: Text.PlainText
-                        text: qsTr("Windows Security found no threat")
+                        text: qsTr("Security check found no threat")
                         color: Theme.colors.textSecondary
                         font.pixelSize: Theme.type.caption.size
                     }

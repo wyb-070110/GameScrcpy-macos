@@ -1577,7 +1577,7 @@ void McpTools::expire()
             process->deleteLater();
             found->second.process = nullptr;
             finish(call, failure(QStringLiteral("GS-MCP-020"),
-                                 QStringLiteral("gs.exe did not finish within %1 seconds, so it was stopped")
+                                 QStringLiteral("gs did not finish within %1 seconds, so it was stopped")
                                      .arg(std::chrono::duration_cast<std::chrono::seconds>(kProgramLimit).count())));
         }
     }
@@ -3632,7 +3632,7 @@ void McpTools::runProgram(quint64 call, const QStringList& arguments, const std:
     }
     const QString tool = program();
     if (!QFileInfo::exists(tool)) {
-        finish(call, failure(QStringLiteral("GS-MCP-020"), QStringLiteral("gs.exe is missing next to GameScrcpy, so this "
+        finish(call, failure(QStringLiteral("GS-MCP-020"), QStringLiteral("gs is missing next to GameScrcpy, so this "
                                                                           "cannot run")));
         return;
     }
@@ -3666,7 +3666,7 @@ void McpTools::runProgram(quint64 call, const QStringList& arguments, const std:
         }
         running->second.process = nullptr;
         running->second.deadline.reset();
-        finish(call, failure(QStringLiteral("GS-MCP-020"), QStringLiteral("gs.exe did not start")));
+        finish(call, failure(QStringLiteral("GS-MCP-020"), QStringLiteral("gs did not start")));
     });
     process->start();
 }

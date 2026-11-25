@@ -963,10 +963,10 @@ QString Recordings::moveToTrash(const QString& folder)
         return tr("The video of this recording is being exported");
     }
     if (!QFile::moveToTrash(clean)) {
-        qWarning("could not move %s to the Recycle Bin", qUtf8Printable(QDir::toNativeSeparators(clean)));
-        return tr("The recording could not be moved to the Recycle Bin");
+        qWarning("could not move %s to the Trash", qUtf8Printable(QDir::toNativeSeparators(clean)));
+        return tr("The recording could not be moved to the Trash");
     }
-    qInfo("moved the recording %s to the Recycle Bin", qUtf8Printable(QDir::toNativeSeparators(clean)));
+    qInfo("moved the recording %s to the Trash", qUtf8Printable(QDir::toNativeSeparators(clean)));
     return {};
 }
 
