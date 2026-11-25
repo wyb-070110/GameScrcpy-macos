@@ -40,6 +40,21 @@ QtObject {
         amber: "amber"
     })
 
+    // A shortcut as Qt writes it ("Ctrl+Shift+K") as a Mac shows it ("⇧⌘K"): Qt's Ctrl is the Command key on
+    // macOS and its Meta the Control key; modifiers in Apple's order ⌃ ⌥ ⇧ ⌘.
+    function keyLabel(sequence: string): string {
+        if (sequence === "")
+            return ""
+        const symbols = { Meta: "⌃", Alt: "⌥", Shift: "⇧", Ctrl: "⌘" }
+        const order = ["Meta", "Alt", "Shift", "Ctrl"]
+        return sequence.split(", ").map(chord => {
+            const parts = chord.endsWith("++") ? chord.slice(0, -2).split("+").concat(["+"]) : chord.split("+")
+            const key = parts.pop()
+            const held = order.filter(name => parts.indexOf(name) >= 0).map(name => symbols[name]).join("")
+            return held + key
+        }).join(" ")
+    }
+
     function toneFill(tone: string): color {
         const hue = accentChoices[toneHues[tone] ?? ""]
         if (hue === undefined)

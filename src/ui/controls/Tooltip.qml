@@ -44,7 +44,7 @@ T.ToolTip {
             Keycap {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: control.shortcut !== ""
-                text: control.shortcut
+                text: Theme.keyLabel(control.shortcut)
             }
         }
 

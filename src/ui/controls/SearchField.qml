@@ -64,7 +64,7 @@ T.TextField {
         anchors.right: parent.right
         anchors.rightMargin: Theme.space.sm
         anchors.verticalCenter: parent.verticalCenter
-        text: control.shortcut
+        text: Theme.keyLabel(control.shortcut)
     }
 
     Button {

@@ -45,7 +45,7 @@ T.AbstractButton {
          : control.popupEdge === "left" ? -width - Theme.space.xs : (control.width - width) / 2
         y: control.popupEdge === "bottom" ? control.height + Theme.space.xs
          : control.popupEdge === "top" ? -height - Theme.space.xs : (control.height - height) / 2
-        text: control.shortcut !== "" ? qsTr("%1 (%2)").arg(control.text).arg(control.shortcut) : control.text
+        text: control.shortcut !== "" ? qsTr("%1 (%2)").arg(control.text).arg(Theme.keyLabel(control.shortcut)) : control.text
         visible: control.text !== "" && control.hovered && !control.down
     }
 

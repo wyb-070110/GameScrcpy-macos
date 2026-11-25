@@ -587,7 +587,7 @@ McpOutcome AiChatTools::listCommands(const QJsonObject& arguments)
         if (!mentions(query, {title, description, commandText(command.keywords), command.id})) {
             continue;
         }
-        const QString keys = commands->shortcutCaps(command.id).join(u'+');
+        const QString keys = commands->shortcutCaps(command.id).join(QString());
         const QString shortcut = keys.isEmpty() ? u"no shortcut"_s : u"shortcut %1"_s.arg(keys);
         if (query.isEmpty()) {
             lines.append(u"- %1, %2"_s.arg(title, shortcut));

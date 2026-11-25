@@ -145,19 +145,20 @@ QStringList Commands::keyCaps(QKeyCombination combination)
     if (!bound(combination)) {
         return {};
     }
+    // macOS names and order (⌃ ⌥ ⇧ ⌘): Qt's Control modifier is the Command key there, its Meta the Control key.
     QStringList keys;
     const Qt::KeyboardModifiers modifiers = combination.keyboardModifiers();
-    if (modifiers.testFlag(Qt::ControlModifier)) {
-        keys.append(u"Ctrl"_s);
+    if (modifiers.testFlag(Qt::MetaModifier)) {
+        keys.append(u"⌃"_s);
     }
     if (modifiers.testFlag(Qt::AltModifier)) {
-        keys.append(u"Alt"_s);
+        keys.append(u"⌥"_s);
     }
     if (modifiers.testFlag(Qt::ShiftModifier)) {
-        keys.append(u"Shift"_s);
+        keys.append(u"⇧"_s);
     }
-    if (modifiers.testFlag(Qt::MetaModifier)) {
-        keys.append(u"Win"_s);
+    if (modifiers.testFlag(Qt::ControlModifier)) {
+        keys.append(u"⌘"_s);
     }
     keys.append(keyName(combination.key()));
     return keys;
@@ -165,7 +166,7 @@ QStringList Commands::keyCaps(QKeyCombination combination)
 
 QString Commands::keyText(QKeyCombination combination)
 {
-    return keyCaps(combination).join(u' ');
+    return keyCaps(combination).join(QString());
 }
 
 bool Commands::plain(QKeyCombination combination)
