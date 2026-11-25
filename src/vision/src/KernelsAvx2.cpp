@@ -1,5 +1,8 @@
 #include "Kernels.h"
 
+// Only for x86-64: in a universal macOS build the arm64 half compiles this file empty.
+#if defined(_M_X64) || defined(__x86_64__)
+
 #include <immintrin.h>
 
 namespace gs::vision::detail::avx2 {
@@ -166,3 +169,5 @@ void accumulateColumns(const ColumnWindow& job) noexcept
 }
 
 }
+
+#endif

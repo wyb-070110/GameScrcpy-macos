@@ -10,7 +10,13 @@
 #include <system_error>
 #include <type_traits>
 
-#if defined(_LIBCPP_VERSION) && _LIBCPP_VERSION < 200000
+#if defined(__APPLE__)
+#include <Availability.h>
+#endif
+
+// Apple's libc++ has floating-point from_chars only from macOS 26; an app that runs on older macOS parses itself.
+#if (defined(_LIBCPP_VERSION) && _LIBCPP_VERSION < 200000) ||                                                     \
+    (defined(__APPLE__) && defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && __MAC_OS_X_VERSION_MIN_REQUIRED < 260000)
 #include <cerrno>
 #include <clocale>
 #include <cstdlib>
