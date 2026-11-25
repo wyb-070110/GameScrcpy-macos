@@ -804,6 +804,12 @@ Item {
                         })
                     }
 
+                    SelectSetting {
+                        path: "touch.trackpadMode"
+                        labels: ({ pageTurn: qsTr("Page turn"), natural: qsTr("Natural fling"),
+                                   direct: qsTr("Direct"), scroll: qsTr("Scroll wheel") })
+                    }
+
                     SliderSetting {
                         path: "touch.trackpadSpeed"
                         unit: "%"

@@ -18601,6 +18601,18 @@
         <translation>touch send rate frequency hz moves latency aim camera smooth polling 触控 发送 频率 回报率 移动 延迟 转视角 跟手 平滑</translation>
     </message>
     <message>
+        <source>Trackpad swipe mode</source>
+        <translation>触控板滑动方式</translation>
+    </message>
+    <message>
+        <source>How a two-finger swipe on the trackpad reaches the phone. Page turn: a deliberate swipe turns one page. Natural fling: the phone flings with the speed you swiped. Direct: the finger stops where yours stop. Scroll wheel: sent as mouse scrolling.</source>
+        <translation>触控板双指滑动如何传到手机。翻页：一次有意的滑动正好翻一页。自然甩动：手机按你滑动的速度甩出去。跟手：手指停在哪里，手机上的手指就停在哪里。滚轮：当作鼠标滚轮发送。</translation>
+    </message>
+    <message>
+        <source>trackpad swipe mode page turn natural fling direct scroll wheel mapping</source>
+        <translation>触控板 滑动 方式 翻页 自然 甩动 跟手 滚轮 映射</translation>
+    </message>
+    <message>
         <source>Trackpad swipe speed</source>
         <translation>触控板滑动速度</translation>
     </message>
@@ -19373,6 +19385,22 @@
     <message>
         <source>Twice the screen&apos;s refresh rate</source>
         <translation>屏幕刷新率的两倍</translation>
+    </message>
+    <message>
+        <source>Page turn</source>
+        <translation>翻页</translation>
+    </message>
+    <message>
+        <source>Natural fling</source>
+        <translation>自然甩动</translation>
+    </message>
+    <message>
+        <source>Direct</source>
+        <translation>跟手</translation>
+    </message>
+    <message>
+        <source>Scroll wheel</source>
+        <translation>滚轮</translation>
     </message>
     <message>
         <source>The same commands as in the command palette. When the current profile binds a key too, the game gets it first.</source>

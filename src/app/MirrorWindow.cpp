@@ -162,6 +162,11 @@ void MirrorWindow::setTrackpad(double speed, bool inertia, double inertiaStrengt
     m_pointer->setTrackpad(speed, inertia, inertiaStrength, longest);
 }
 
+void MirrorWindow::setSwipeMode(int mode)
+{
+    m_pointer->setSwipeMode(static_cast<MirrorInputItem::SwipeMode>(mode));
+}
+
 void MirrorWindow::setPageTurn(double turnFrom)
 {
     m_pointer->setPageTurn(turnFrom);

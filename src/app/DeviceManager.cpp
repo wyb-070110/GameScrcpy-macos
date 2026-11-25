@@ -2933,6 +2933,7 @@ void DeviceManager::openMirror(Row& row)
     row.mirror->setTrackpad(touch.trackpadSpeed / 100.0, touch.trackpadInertia, touch.trackpadInertiaStrength / 100.0,
                             touch.trackpadLongestSwipe / 100.0);
     row.mirror->setPageTurn(touch.trackpadPageTurn / 100.0);
+    row.mirror->setSwipeMode(static_cast<int>(touch.trackpadMode));
     row.filters.clear();
     applyFilters(row);
     if (QQmlEngine* engine = m_engine.data(); engine != nullptr) {
@@ -7582,6 +7583,7 @@ void DeviceManager::applyLiveSettings()
                                     effective.touch.trackpadInertiaStrength / 100.0,
                                     effective.touch.trackpadLongestSwipe / 100.0);
             row.mirror->setPageTurn(effective.touch.trackpadPageTurn / 100.0);
+            row.mirror->setSwipeMode(static_cast<int>(effective.touch.trackpadMode));
             followApp(row);
         }
         syncCompanion(row);

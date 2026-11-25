@@ -436,6 +436,10 @@ struct Keymap {
 enum class TouchMethod : std::uint8_t { Inject, Uhid, Aoa, None };
 inline constexpr std::array<std::string_view, 4> kTouchMethodNames{"inject", "uhid", "aoa", "none"};
 
+// The order matches MirrorInputItem::SwipeMode.
+enum class TrackpadMode : std::uint8_t { PageTurn, Natural, Direct, Scroll };
+inline constexpr std::array<std::string_view, 4> kTrackpadModeNames{"pageTurn", "natural", "direct", "scroll"};
+
 struct Touch {
     static constexpr std::size_t kMaxExtensionLength = 64 + 1 + 64;
     static constexpr std::size_t kMaxDeviceLength = 512;
@@ -444,6 +448,7 @@ struct Touch {
     std::string extension;
     std::string device;
     std::int32_t rateHz = 0;
+    TrackpadMode trackpadMode = TrackpadMode::PageTurn;
     std::int32_t trackpadSpeed = 100;
     bool trackpadInertia = true;
     std::int32_t trackpadInertiaStrength = 100;
@@ -492,6 +497,17 @@ struct Touch {
                                                              "smooth polling"),
                    .scope = Scope::Device,
                    .live = true});
+        v.choice("trackpadMode", m.trackpadMode, kTrackpadModeNames,
+                 {.title = GS_TRANSLATE_NOOP("Settings", "Trackpad swipe mode"),
+                  .description = GS_TRANSLATE_NOOP("Settings", "How a two-finger swipe on the trackpad reaches the "
+                                                               "phone. Page turn: a deliberate swipe turns one page. "
+                                                               "Natural fling: the phone flings with the speed you "
+                                                               "swiped. Direct: the finger stops where yours stop. "
+                                                               "Scroll wheel: sent as mouse scrolling."),
+                  .keywords = GS_TRANSLATE_NOOP("Settings", "trackpad swipe mode page turn natural fling direct "
+                                                            "scroll wheel mapping"),
+                  .scope = Scope::Device,
+                  .live = true});
         v.integer("trackpadSpeed", m.trackpadSpeed, 25, 400,
                   {.title = GS_TRANSLATE_NOOP("Settings", "Trackpad swipe speed"),
                    .description = GS_TRANSLATE_NOOP("Settings", "How far a two-finger swipe on the trackpad moves the "
