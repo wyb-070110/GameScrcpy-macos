@@ -11147,6 +11147,10 @@
         <translation>扩展按钮</translation>
     </message>
     <message>
+        <source>Keep on top</source>
+        <translation>置顶</translation>
+    </message>
+    <message>
         <source>Close the panel</source>
         <translation>关闭面板</translation>
     </message>
@@ -11223,6 +11227,10 @@
     <message>
         <source>Send to %1</source>
         <translation>发送到 %1</translation>
+    </message>
+    <message>
+        <source>Stop keeping on top</source>
+        <translation>取消置顶</translation>
     </message>
     <message>
         <source>Import a profile</source>
@@ -18522,6 +18530,18 @@
     <message>
         <source>speech say read aloud voice tts text to speech engine</source>
         <translation>朗读 语音 声音 引擎 文字转语音 tts</translation>
+    </message>
+    <message>
+        <source>Keep the mirror window on top</source>
+        <translation>投屏窗口置顶</translation>
+    </message>
+    <message>
+        <source>The mirror window stays above other windows, also when you work in another app or switch desktops.</source>
+        <translation>投屏窗口始终在其他窗口上面，切到别的应用或别的桌面时也一样。</translation>
+    </message>
+    <message>
+        <source>on top float pin always front window</source>
+        <translation>置顶 浮动 总在最前 窗口 on top float pin always front window</translation>
     </message>
     <message>
         <source>Toolbar buttons</source>

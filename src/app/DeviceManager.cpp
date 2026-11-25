@@ -2935,6 +2935,7 @@ void DeviceManager::openMirror(Row& row)
     row.mirror->setSharpness(display.sharpness / 100.0);
     row.mirror->setTitleBarFixed(display.titleBar == settings::TitleBarMode::Fixed);
     row.mirror->setToolbarPinned(display.toolbar == settings::ToolbarMode::Pinned);
+    row.mirror->setOnTop(display.mirrorOnTop);
     const settings::Touch touch = m_settings.effective(row.deviceId.toStdString()).touch;
     row.mirror->setTrackpad(touch.trackpadSpeed / 100.0, touch.trackpadInertia, touch.trackpadInertiaStrength / 100.0,
                             touch.trackpadLongestSwipe / 100.0);
@@ -7585,6 +7586,7 @@ void DeviceManager::applyLiveSettings()
             row.mirror->setSharpness(effective.display.sharpness / 100.0);
             row.mirror->setTitleBarFixed(effective.display.titleBar == settings::TitleBarMode::Fixed);
             row.mirror->setToolbarPinned(effective.display.toolbar == settings::ToolbarMode::Pinned);
+            row.mirror->setOnTop(effective.display.mirrorOnTop);
             row.mirror->setTrackpad(effective.touch.trackpadSpeed / 100.0, effective.touch.trackpadInertia,
                                     effective.touch.trackpadInertiaStrength / 100.0,
                                     effective.touch.trackpadLongestSwipe / 100.0);

@@ -28,6 +28,7 @@ Item {
     property bool cropEditing: false
     property rect cropBox: Qt.rect(0, 0, 1, 1)
     property bool toolbarPinned: false
+    property bool onTop: false
     property bool titleFixed: true
     readonly property int fixedTitleHeight: titleBar.titleHeight
     property int reservedTop: 0
@@ -47,7 +48,8 @@ Item {
         { id: "volume", text: qsTr("Volume") }, { id: "tasks", text: qsTr("Tasks") },
         { id: "record", text: qsTr("Record") }, { id: "panels", text: qsTr("Extension panels") },
         { id: "extensions", text: qsTr("Extension buttons") }, { id: "diagnostics", text: qsTr("Diagnostics") },
-        { id: "fullScreen", text: qsTr("Full screen") }, { id: "pin", text: qsTr("Pin the toolbar") }
+        { id: "fullScreen", text: qsTr("Full screen") }, { id: "onTop", text: qsTr("Keep on top") },
+        { id: "pin", text: qsTr("Pin the toolbar") }
     ]
 
     // The orientation choices sit in the More menu when the rotate button is not on the toolbar.
@@ -1686,6 +1688,15 @@ Item {
                     visible: (toolbar.tight || !overlay.toolbarShows("volume")) && commandState.enabled
                 }
                 MenuItem {
+                    visible: toolbar.tight || !overlay.toolbarShows("onTop")
+                    height: visible ? implicitHeight : 0
+                    iconName: "layers"
+                    checkable: true
+                    checked: overlay.onTop
+                    text: qsTr("Keep on top")
+                    onTriggered: AppSettings.setValue("display.mirrorOnTop", !overlay.onTop)
+                }
+                MenuItem {
                     visible: toolbar.tight || !overlay.toolbarShows("pin")
                     height: visible ? implicitHeight : 0
                     iconName: "pin"
@@ -1977,7 +1988,17 @@ Item {
             }
         }
 
-        ToolbarSeparator { visible: !toolbar.tight && overlay.toolbarShows("pin") }
+        ToolbarSeparator { visible: !toolbar.tight && (overlay.toolbarShows("onTop") || overlay.toolbarShows("pin")) }
+
+        ToolbarButton {
+            id: onTopButton
+
+            visible: !toolbar.tight && overlay.toolbarShows("onTop")
+            iconName: "layers"
+            text: overlay.onTop ? qsTr("Stop keeping on top") : qsTr("Keep on top")
+            selected: overlay.onTop
+            onClicked: AppSettings.setValue("display.mirrorOnTop", !overlay.onTop)
+        }
 
         ToolbarButton {
             id: pinButton

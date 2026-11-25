@@ -220,6 +220,7 @@ struct Display {
     EditingClose closeWhileEditing = EditingClose::Ask;
     ScreenOffAction phoneScreenOff = ScreenOffAction::Ask;
     bool screenOffWhileMirroring = false;
+    bool mirrorOnTop = false;
     // The mirror toolbar's buttons the user took off it, comma-separated ids (they stay in its "More" menu).
     std::string toolbarHidden;
 
@@ -315,6 +316,12 @@ struct Display {
                    .keywords = GS_TRANSLATE_NOOP("Settings", "screen off dark display power battery heat mirroring "
                                                              "start"),
                    .scope = Scope::Device});
+        v.boolean("mirrorOnTop", m.mirrorOnTop,
+                  {.title = GS_TRANSLATE_NOOP("Settings", "Keep the mirror window on top"),
+                   .description = GS_TRANSLATE_NOOP("Settings", "The mirror window stays above other windows, also "
+                                                                "when you work in another app or switch desktops."),
+                   .keywords = GS_TRANSLATE_NOOP("Settings", "on top float pin always front window"),
+                   .live = true});
         v.text("toolbarHidden", m.toolbarHidden, kMaxToolbarHiddenLength,
                {.title = GS_TRANSLATE_NOOP("Settings", "Toolbar buttons"),
                 .description = GS_TRANSLATE_NOOP("Settings", "Which buttons the mirror toolbar shows; choose them "

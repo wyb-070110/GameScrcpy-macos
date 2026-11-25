@@ -16,6 +16,8 @@ void setMacWindowGlass(QWindow* window, bool on);
 // chromeHeight (points) are the window's parts around the picture. 0 resizes freely.
 void setMacWindowAspect(QWindow* window, double aspect, int chromeWidth, int chromeHeight);
 bool startMacWindowDrag(QWindow* window);
+// Above the windows of every app and on every desktop (also beside an app in full screen); off puts it back.
+void setMacWindowOnTop(QWindow* window, bool on);
 void performMacTitleBarDoubleClick(QWindow* window);
 
 }

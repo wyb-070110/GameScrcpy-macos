@@ -89,6 +89,19 @@ bool styleMacWindow(QWindow* window)
     return true;
 }
 
+void setMacWindowOnTop(QWindow* window, bool on)
+{
+    NSWindow* host = nativeWindow(window);
+    if (host == nil) {
+        return;
+    }
+    constexpr NSWindowCollectionBehavior kEverywhere =
+        NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorFullScreenAuxiliary;
+    host.level = on ? NSFloatingWindowLevel : NSNormalWindowLevel;
+    host.hidesOnDeactivate = NO;
+    host.collectionBehavior = on ? (host.collectionBehavior | kEverywhere) : (host.collectionBehavior & ~kEverywhere);
+}
+
 void setMacWindowDark(QWindow* window, bool dark)
 {
     NSWindow* host = nativeWindow(window);
