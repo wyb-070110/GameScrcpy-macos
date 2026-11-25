@@ -70,4 +70,10 @@ Antigravity 的模型：**Gemini 4 Carbon (Medium)**（Claude 系列在你的套
 
 G4 → G5 → G6 → G7 按顺序做，每篇开头写日期和结论，做完在 `docs/handoff/gemini/README.md` 记一笔。
 
+#### 第三批
+
+| # | 任务 | 产出 |
+|---|---|---|
+| G8 | **App 图标：你来定风格、出方案**。用户请你按用途来决定，不受现有标志限制。<br>**用途**：GameScrcpy for macOS 把安卓手机（以游戏为主）投到 Mac 上，用 Mac 的键盘、鼠标、触控板和手柄来玩、来操作手机；低延迟、原画质、高刷新率；还能做键位映射、自动化脚本和录屏。用户是想在 Mac 上玩手机游戏、或用 Mac 操作手机的人。软件界面是 macOS 26 的 Liquid Glass 风格，强调色是系统蓝 #0A84FF。<br>**限制**：macOS 26 及以后用 Icon Composer 分层图标（一个背景填充 + 最多 4 组前景图层；图层是 1024×1024 的透明 PNG 或 SVG；系统自己加圆角形状、边距、玻璃高光和阴影）；不能有文字；16 px 时还要认得出；不用安卓机器人、任何品牌标志或游戏角色。现在的临时标志是 `docs/images/logo.png`（横放的手机 + 准星），可以参考，也可以推翻。<br>**要交**：3–5 个方向，每个写清寓意、构图、颜色（具体色值）以及为什么适合这个用途；能出图就把概念图放进 `docs/handoff/gemini/icon/`；最后推荐一个，并把它拆成图层（背景色或渐变、每层画什么、位置和大小），让 Claude 照着做成 Icon Composer 图标 | `docs/handoff/gemini/icon.md`（+ `icon/` 概念图） |
+
 Gemini 桌面版如果不能直接写文件，就把成文的 Markdown 交给用户，存到上面的路径即可，Claude 会读。
