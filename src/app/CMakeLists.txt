@@ -642,7 +642,17 @@ add_custom_target(gs_builtin_tasks
     VERBATIM
 )
 
+# Built-in extensions (official, read-only): ready-made game profiles and the like.
+add_custom_target(gs_builtin_extensions
+    COMMAND "${CMAKE_COMMAND}" -E rm -rf "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/extensions"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/builtin-extensions"
+        "$<TARGET_BUNDLE_CONTENT_DIR:GameScrcpy>/Resources/extensions"
+    COMMENT "Placing the built-in extensions inside GameScrcpy.app/Contents/Resources"
+    VERBATIM
+)
+
 add_dependencies(GameScrcpy
+    gs_builtin_extensions
     gs_exthost_program
     gs_scripthost_program
     gs_cli
