@@ -38,6 +38,12 @@ Checks: `cmake --preset mac-app`, full build, `ctest --preset mac-app`, `qmllint
 | Protocol constants (`"GameScrcpy companion pairing key 1"`, `"GameScrcpy companion computer"`, HMAC contexts, golden vectors) | phones already paired would stop connecting; they are never shown |
 | Upstream credit (NuoRan/GameScrcpy, GameScrcpy-ESP32, licence notices) | the Apache-2.0 licence requires it |
 
+## Status (2026-11-26 night)
+
+Done: CMake target and project, QML module URIs (also Anmacgamer.Render), translation file names, copyright lines.
+Open: Java/Kotlin packages (needs a phone run: the Mac names `com.gamescrcpy.server.Main` and the companion's
+input method component), icon file names (README links; after Gemini's docs), Windows-only files, tier B.
+
 ## Order
 
 1. Tier A in one commit per row (build and tests green after each).

@@ -52,3 +52,8 @@
   from GameScrcpy on first start, 104 UI texts + translations, help, companion texts, DMG). 175/175 tests.
 - Code rename: plan in docs/handoff/rename-code-plan.md (Tier A internal, Tier B needs a yes, Tier C keep).
 - Gemini is rewriting the root docs (G9); not committed until reviewed.
+- Code rename tier A done: a6cfe6b QML modules Anmacgamer.*; 6446467 CMake target anmacgamer (+ Anmacgamer.Render);
+  1f59d68 CMake project anmacgamer (lupdate target anmacgamer_lupdate); e97a3aa translation files
+  anmacgamer_<lang>.ts (Chinese UI checked in a demo); f6c9935 copyright lines. 175/175 tests and gradle green
+  after each. Left for the morning: Java/Kotlin packages (needs a phone run), icon file names (README links;
+  after Gemini's G9), Windows-only files (ask), tier B (ask).
