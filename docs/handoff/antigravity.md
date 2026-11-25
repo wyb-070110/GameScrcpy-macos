@@ -249,3 +249,38 @@
   - 预设：`mac-release`（`arm64` + `x86_64` 通用二进制，`LSMinimumSystemVersion = 14.0`，零外部 Homebrew/Qt 路径依赖，内置 `gs-server.apk`、`gs-companion.apk`、`adb`、`Assets.car` 与全尺寸 `GameScrcpy.icns`）。
   - 产物路径：`/Users/york/GameScrcpy-macos-antigravity/build/package/GameScrcpy-2.2.1-beta2-macos-universal.dmg`（及同目录 `GameScrcpy.app`，大小 `148M`，SHA-256：`f74398e1f87899a43d51fe10b8ce2c0d355d411380fdad66a22dc10a48a9eef1`）。
 - **状态**：**可合并**
+
+
+---
+
+## [2026-11-25 晚间] 清理未提交 A8 副本、合并主线（`0c92d8a`）与完成 A9（响应 `SIGTERM`/`SIGINT`/`SIGHUP` 正常退出）
+
+### 0. 清理与合并主线 `ccr-e32722c2-75w11u`
+
+- 按 `antigravity-next.md` 丢弃本地未提交的 A8 工作副本（`git checkout -- src tests` 并移除未跟踪的 `toolbar-*.png`），快进合并主线至 `0c92d8a`（已包含 Claude 合并的 A8 改动 `88dad52`、方向 B 图标与文档更新 `af89b52` 及 `e7dc990`）。
+- 合并后验证 `ctest --preset mac-app`：174/174 全部通过（含新增的 `gs_floating_toolbar_tests` 与 `gs_toolbar_reveal_tests`，2 个真机测试跳过）。
+
+### 1. 完成 A9：收到 `SIGTERM`、`SIGINT`、`SIGHUP` 时正常走应用退出流程
+
+- **复现与根因定位**：
+  1. 在独立 `GS_DATA_DIR` 演示副本（`--safe-mode --demo-device tests/data/video/emulator_h264.media`）复现：向演示进程发送 `kill -TERM <demo_pid>` 后等待 2 秒，进程仍在运行，日志停留在 `hub window shown ...`，完全没有触发退出。
+  2. **根因一（`SIGTERM` / `SIGINT` 被 SDL3 吞掉）**：`DeviceManager` 启动时创建的 `InputCapture`（`src/platform/src/mac/InputCapture.mm`）调用 `SDL_InitSubSystem(SDL_INIT_GAMEPAD)`（`AudioOutput.cpp` 亦调用 `SDL_InitSubSystem(SDL_INIT_AUDIO)`）。SDL3 在未设置 `SDL_HINT_NO_SIGNAL_HANDLERS` 时会隐式初始化事件子系统并安装 `_SDL_HandleSIG` 捕获 `SIGINT` 与 `SIGTERM`，仅将其转为 SDL 内部的 `SDL_EVENT_QUIT` 事件；而主程序运行在 Qt 事件循环且未消费 SDL 事件队列，导致 `SIGTERM` 和 `SIGINT` 被静默吞掉。
+  3. **根因二（`SIGHUP` 及默认信号直接杀进程，不走 Qt 清理）**：未安装信号监听时，默认 POSIX 终止信号直接由内核终止进程，不会调用 `QCoreApplication::quit()`，导致 `aboutToQuit`（`ExtensionHost::finish()`）、`DeviceManager::closeWindows()` / `~DeviceManager()`（恢复手机输入法、停止手机端服务与伴侣连接）及 `~AppSettings()`（落盘配置）均不会执行。
+- **改动文件**：
+  - `src/platform/include/gs/platform/QuitSignal.h` & `src/platform/src/posix/QuitSignal.cpp`（新增，接入 `src/platform/Posix.cmake`，不影响 Windows）：
+    - 创建带 `FD_CLOEXEC | O_NONBLOCK` 的自管道（使用 `pipe` + `fcntl`，兼容 macOS 14.0+，不使用 macOS 27 专属的 `pipe2`），解除当前线程可能继承的 `SIGTERM`/`SIGINT`/`SIGHUP` 阻塞掩码，并通过 `sigaction`（`SA_RESTART`）注册异步信号安全处理函数（保留并恢复 `errno`）。
+    - 首次收到信号时将信号编号写入自管道唤醒主循环；若退出过程中再次收到第 2 次信号，立即恢复 `SIG_DFL` 解除掩码并 `raise` 当场终止，避免退出卡死；析构时还原先前的 `sigaction`（且因未设为 `SIG_IGN`，`gs-scripthost` / `gs-exthost` / `adb` 等 `exec` 子进程仍保持正常默认信号行为）。
+  - `src/platform/src/mac/InputCapture.mm` & `src/media/src/posix/AudioOutput.cpp`：在 `SDL_InitSubSystem` 前设置 `SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1")`，禁止 SDL3 抢占 `SIGINT`/`SIGTERM` 处理器。
+  - `src/app/main.cpp`（仅 `#if !defined(_WIN32)` 分支）：构造 `gs::platform::QuitSignal` 并挂接 `QSocketNotifier`，在 Qt 主线程收到信号后记录 `received SIGTERM/SIGINT/SIGHUP, quitting` 并调用 `QCoreApplication::quit()`（与菜单栏图标“退出”完全同一路径）。
+  - `tests/unit/platform/posix/PosixPlatformTests.cpp`：新增 2 项 `fork` 子进程单元测试：
+    1. 验证 `SIGTERM`、`SIGINT`、`SIGHUP`（即使预先被信号掩码阻塞，且同时启动了加载 SDL3 的 `InputCapture`）均能唤醒 `QuitSignal` 自管道并读出正确信号；
+    2. 验证退出途中收到第二次 `SIGTERM` 时立即按默认信号终止而不阻塞。
+- **验证命令与结果**：
+  - `python3 tools/check_source_rules.py`：所改/新增文件 0 违规。
+  - `ctest --preset mac-app -R gs_platform_tests -V`：41/41 用例（1025 断言）全部通过。
+  - 独立 `GS_DATA_DIR` 演示副本实测（仅向自身演示副本 PID 发信号，未触碰任何其他进程）：
+    - `SIGTERM`：`21:16:49.540 received SIGTERM, quitting` → `21:16:49.666 GameScrcpy exits with code 0`（耗时 ~126 ms，退出码 `0`）；
+    - `SIGINT`：`21:16:51.634 received SIGINT, quitting` → `21:16:51.739 GameScrcpy exits with code 0`（耗时 ~105 ms，退出码 `0`）；
+    - `SIGHUP`：`21:16:53.462 received SIGHUP, quitting` → `21:16:53.570 GameScrcpy exits with code 0`（耗时 ~108 ms，退出码 `0`）。
+  - `ctest --preset mac-app -j8`：174/174 全部通过（2 个真机测试跳过）。
+- **状态**：**可合并**
