@@ -6586,6 +6586,11 @@ void DeviceManager::usbChanged()
             continue;
         }
         row.usb.reset();
+        // A row adb no longer lists (USB debugging just turned off, its session ending) does not hold the phone: on
+        // the cable it is now a phone without adb, for AOA.
+        if (!row.listed) {
+            continue;
+        }
         adb.push_back({.serial = row.serial, .deviceId = row.deviceId});
         adbRows.push_back(i);
     }
