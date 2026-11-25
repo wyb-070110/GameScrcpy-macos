@@ -18420,6 +18420,18 @@
         <translation>手机休眠或进入息屏显示（AOD）时停止投屏，或者继续投屏。选“第一次询问”时，第一次熄屏会问你。用 GameScrcpy 关掉手机屏幕不算。需要 adb 连接。</translation>
     </message>
     <message>
+        <source>Turn the phone's screen off while mirroring</source>
+        <translation>投屏时关闭手机屏幕</translation>
+    </message>
+    <message>
+        <source>Turns the phone's own screen dark when mirroring starts; the phone keeps running and the picture keeps coming. Saves battery and keeps the phone cool. Turn it back on from the Device menu.</source>
+        <translation>开始投屏时让手机自己的屏幕变黑，手机照常运行，电脑上的画面不受影响。省电，手机也不容易发热。要重新点亮，用“设备”菜单。</translation>
+    </message>
+    <message>
+        <source>screen off dark display power battery heat mirroring start</source>
+        <translation>屏幕 关闭 熄屏 黑屏 省电 发热 投屏 开始</translation>
+    </message>
+    <message>
         <source>screen off sleep lock aod always on display disconnect stop mirroring battery</source>
         <translation>熄屏 息屏 休眠 锁屏 AOD 息屏显示 断开 停止投屏 省电</translation>
     </message>

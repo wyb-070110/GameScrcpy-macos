@@ -2015,7 +2015,13 @@ void DeviceManager::connectDevice(const QString& serial)
     qInfo("connecting to %s (%s)", qUtf8Printable(row.name()), qUtf8Printable(serial));
     row.controller->setUsbPhone(row.usb);
     row.controller->setHostFactory(row.transported ? transportHost(*row.transported) : SessionController::HostFactory{});
-    row.controller->start(row.transport, m_settings.effective(row.deviceId.toStdString()));
+    const settings::Settings starting = m_settings.effective(row.deviceId.toStdString());
+    row.controller->start(row.transport, starting);
+    if (starting.display.screenOffWhileMirroring && row.demo == nullptr) {
+        // Sent once the picture is streaming (SessionController::applyScreen).
+        row.screenOff = true;
+        row.controller->setScreenOff(true);
+    }
     row.session = {session::SessionPhase::Deploying, std::nullopt};
     rowChanged(index);
 }

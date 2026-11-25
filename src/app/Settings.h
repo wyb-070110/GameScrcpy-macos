@@ -217,6 +217,7 @@ struct Display {
     bool cameraGlow = true;
     EditingClose closeWhileEditing = EditingClose::Ask;
     ScreenOffAction phoneScreenOff = ScreenOffAction::Ask;
+    bool screenOffWhileMirroring = false;
 
     template <typename V, typename Self>
     static void visit(V& v, Self& m)
@@ -301,6 +302,15 @@ struct Display {
                                                             "stop mirroring battery"),
                   .scope = Scope::Device,
                   .live = true});
+        v.boolean("screenOffWhileMirroring", m.screenOffWhileMirroring,
+                  {.title = GS_TRANSLATE_NOOP("Settings", "Turn the phone's screen off while mirroring"),
+                   .description = GS_TRANSLATE_NOOP("Settings", "Turns the phone's own screen dark when mirroring "
+                                                                "starts; the phone keeps running and the picture "
+                                                                "keeps coming. Saves battery and keeps the phone "
+                                                                "cool. Turn it back on from the Device menu."),
+                   .keywords = GS_TRANSLATE_NOOP("Settings", "screen off dark display power battery heat mirroring "
+                                                             "start"),
+                   .scope = Scope::Device});
     }
 
     friend bool operator==(const Display&, const Display&) = default;
