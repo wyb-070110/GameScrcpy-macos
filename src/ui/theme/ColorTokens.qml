@@ -9,7 +9,9 @@ QtObject {
     // than paint, and floating ones are thicker glass.
     property bool glass: false
 
-    final readonly property color bgBase: overrides.bgBase ?? (glass ? "transparent"
+    // Under glass the main window paints itself transparent (Main.qml) so its sidebar shows the glass; every other
+    // window keeps a solid base, the same neutral grey as the main window's content.
+    final readonly property color bgBase: overrides.bgBase ?? (glass ? (dark ? "#1E1E20" : "#F5F5F7")
                                                                      : (dark ? "#0B0C0F" : "#E8EBEF"))
     final readonly property color bgRaised: overrides.bgRaised ?? (glass ? (dark ? "#14FFFFFF" : "#8CFFFFFF")
                                                                          : (dark ? "#111317" : "#F4F5F8"))
