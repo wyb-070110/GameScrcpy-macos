@@ -264,16 +264,12 @@ AVSpeechSynthesisVoice* findVoice(const std::string& wanted)
         return nil;
     }
     NSString* wantedNs = nsText(wanted);
-    NSArray<AVSpeechSynthesisVoice*>* installed = [AVSpeechSynthesisVoice speechVoices];
-    // macOS 15 hands back a voice for any identifier, installed or not: only an installed one counts.
-    if (AVSpeechSynthesisVoice* direct = [AVSpeechSynthesisVoice voiceWithIdentifier:wantedNs]) {
-        for (AVSpeechSynthesisVoice* each in installed) {
-            if ([each.identifier isEqualToString:direct.identifier]) {
-                return direct;
-            }
-        }
+    // macOS 15 hands back some installed voice for any identifier: only the voice asked for counts.
+    AVSpeechSynthesisVoice* direct = [AVSpeechSynthesisVoice voiceWithIdentifier:wantedNs];
+    if (direct != nil && [direct.identifier caseInsensitiveCompare:wantedNs] == NSOrderedSame) {
+        return direct;
     }
-    for (AVSpeechSynthesisVoice* each in installed) {
+    for (AVSpeechSynthesisVoice* each in [AVSpeechSynthesisVoice speechVoices]) {
         if ([each.identifier caseInsensitiveCompare:wantedNs] == NSOrderedSame ||
             [each.name caseInsensitiveCompare:wantedNs] == NSOrderedSame) {
             return each;
