@@ -70,6 +70,14 @@ if [[ -n "$LEFT" ]]; then
     exit 1
 fi
 
+echo "== minimum macOS"
+# The libraries from Homebrew are built for the build machine's macOS: the app needs the newest of them.
+MINOS=$(find "$APP/Contents" -type f \( -perm -111 -o -name '*.dylib' \) -print0 \
+    | xargs -0 -n1 otool -l 2>/dev/null | awk '/LC_BUILD_VERSION/{getline; getline; getline; if ($1 == "minos") print $2}' \
+    | sort -V | tail -1)
+/usr/libexec/PlistBuddy -c "Set :LSMinimumSystemVersion $MINOS" "$APP/Contents/Info.plist"
+echo "needs macOS $MINOS"
+
 echo "== sign (ad hoc)"
 xattr -cr "$APP"
 codesign --force --deep --sign - "$APP"
