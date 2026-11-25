@@ -4736,14 +4736,6 @@
         <translation>手机设置…</translation>
     </message>
     <message>
-        <source>%1 · AOA unavailable on macOS</source>
-        <translation>%1 · macOS 暂不支持 AOA</translation>
-    </message>
-    <message>
-        <source>About AOA on macOS</source>
-        <translation>关于 macOS 上的 AOA</translation>
-    </message>
-    <message>
         <source>Touch</source>
         <translation>触控</translation>
     </message>
@@ -4772,8 +4764,16 @@
         <translation>用 USB 线把手机连到这台电脑</translation>
     </message>
     <message>
+        <source>%1 · USB unavailable</source>
+        <translation>%1 · USB 不可用</translation>
+    </message>
+    <message>
         <source>Choose a phone</source>
         <translation>选择手机</translation>
+    </message>
+    <message>
+        <source>How AOA touch over USB works</source>
+        <translation>了解 AOA 有线触控</translation>
     </message>
     <message>
         <source>Picture and sound</source>
@@ -5770,6 +5770,10 @@
         <translation>改用 adb 隧道</translation>
     </message>
     <message>
+        <source>How AOA touch over USB works</source>
+        <translation>了解 AOA 有线触控</translation>
+    </message>
+    <message>
         <source>About capture cards</source>
         <translation>关于采集卡</translation>
     </message>
@@ -5836,10 +5840,6 @@
     <message>
         <source>Choose phone…</source>
         <translation>选择手机…</translation>
-    </message>
-    <message>
-        <source>About AOA on macOS</source>
-        <translation>关于 macOS 上的 AOA</translation>
     </message>
     <message>
         <source>Try again</source>
@@ -5920,8 +5920,8 @@
         <translation>不可用</translation>
     </message>
     <message>
-        <source>Not available on macOS</source>
-        <translation>macOS 暂不支持</translation>
+        <source>USB unavailable</source>
+        <translation>USB 不可用</translation>
     </message>
 </context>
 <context>
@@ -19031,10 +19031,6 @@
         <translation>手机上的 GameScrcpy 伴侣</translation>
     </message>
     <message>
-        <source>About AOA on macOS</source>
-        <translation>关于 macOS 上的 AOA</translation>
-    </message>
-    <message>
         <source>Devices your own logic may use</source>
         <translation>你自己的逻辑可以用的设备</translation>
     </message>
@@ -19291,10 +19287,6 @@
         <translation>采集卡设置…</translation>
     </message>
     <message>
-        <source>A touch screen, mouse and keyboard on the USB cable that work even without USB debugging. AOA over USB is not available on macOS yet; use Normal or UHID touch screen instead.</source>
-        <translation>经 USB 数据线模拟触摸屏、鼠标和键盘，不开 USB 调试也能用。macOS 版暂未支持 USB AOA，请改用“普通”或“UHID 触摸屏”。</translation>
-    </message>
-    <message>
         <source>%1 From %2; when it fails, touches go the normal way.</source>
         <translation>%1 来自 %2；它出错时触控走普通方式。</translation>
     </message>
@@ -19339,6 +19331,10 @@
         <translation>停止投屏</translation>
     </message>
     <message>
+        <source>A touch screen, mouse and keyboard on the USB cable that work even without USB debugging. macOS needs no extra driver; without USB or wireless debugging there is no picture.</source>
+        <translation>数据线上的触摸屏、鼠标和键盘，不开 USB 调试也能用。macOS 无需安装额外驱动；不开 USB 调试或无线调试时没有画面。</translation>
+    </message>
+    <message>
         <source>Only shows the picture; taps, swipes and key mapping do not reach the phone.</source>
         <translation>只显示画面；点击、滑动和键位都不会送到手机。</translation>
     </message>
@@ -19369,6 +19365,10 @@
     <message>
         <source>Keep the current touch method</source>
         <translation>保持现在的触控方式</translation>
+    </message>
+    <message>
+        <source>How AOA touch over USB works</source>
+        <translation>了解 AOA 有线触控</translation>
     </message>
     <message>
         <source>Twice the screen&apos;s refresh rate</source>
@@ -21682,10 +21682,6 @@
         <translation>在线</translation>
     </message>
     <message>
-        <source>Not available on macOS</source>
-        <translation>macOS 暂不支持</translation>
-    </message>
-    <message>
         <source>Waiting for authorization</source>
         <translation>等待授权</translation>
     </message>
@@ -21752,14 +21748,6 @@
     <message>
         <source>GameScrcpy is still running in the menu bar; scheduled tasks run as usual</source>
         <translation>GameScrcpy 仍在菜单栏运行，定时任务会照常执行</translation>
-    </message>
-    <message>
-        <source>AOA touch over USB is not available on macOS yet</source>
-        <translation>macOS 版暂未支持 USB AOA 触控</translation>
-    </message>
-    <message>
-        <source>Connect with USB debugging or wireless debugging instead.</source>
-        <translation>请改用 USB 调试或无线调试连接。</translation>
     </message>
     <message>
         <source>Touches go the normal way over adb instead.</source>
@@ -21926,6 +21914,10 @@
     <message>
         <source>Demo device %1</source>
         <translation>演示设备 %1</translation>
+    </message>
+    <message>
+        <source>USB unavailable</source>
+        <translation>USB 不可用</translation>
     </message>
     <message>
         <source>In use</source>
@@ -22204,6 +22196,14 @@
         <translation>%1 没在投屏。先投屏才能运行脚本</translation>
     </message>
     <message>
+        <source>This phone cannot be opened over USB for AOA</source>
+        <translation>无法通过 USB 打开这台手机以使用 AOA</translation>
+    </message>
+    <message>
+        <source>Reconnect the USB cable, unlock the phone and try again</source>
+        <translation>请重新插拔 USB 数据线，解锁手机后再试</translation>
+    </message>
+    <message>
         <source>Another program is using this phone&apos;s USB</source>
         <translation>另一个程序正在占用这台手机的 USB</translation>
     </message>
@@ -22240,6 +22240,10 @@
         <translation>触控方式“%1”不可用，触控改用普通方式。</translation>
     </message>
     <message>
+        <source>This phone cannot be opened over USB for AOA; touches go the normal way.</source>
+        <translation>无法通过 USB 打开这台手机以使用 AOA，触控改走普通方式。</translation>
+    </message>
+    <message>
         <source>Another program is using this phone&apos;s USB, so AOA cannot start; touches go the normal way.</source>
         <translation>另一个程序占用着这台手机的 USB，AOA 无法启动，触控改用普通方式。</translation>
     </message>
@@ -22254,6 +22258,10 @@
     <message>
         <source>This phone is not on a USB cable, so AOA cannot be used; touches go the normal way.</source>
         <translation>这台手机没有用数据线连着，用不了 AOA，触控改用普通方式。</translation>
+    </message>
+    <message>
+        <source>How AOA touch over USB works</source>
+        <translation>了解 AOA 有线触控</translation>
     </message>
     <message>
         <source>Not saved: another program is using the file</source>
@@ -22386,14 +22394,6 @@
     <message>
         <source>Controlling</source>
         <translation>控制中</translation>
-    </message>
-    <message>
-        <source>AOA touch over USB is not available on macOS yet; touches go the normal way.</source>
-        <translation>macOS 版暂未支持 USB AOA 触控，已改用普通方式发送触控。</translation>
-    </message>
-    <message>
-        <source>About AOA on macOS</source>
-        <translation>关于 macOS 上的 AOA</translation>
     </message>
     <message>
         <source>The picture source was disconnected</source>
@@ -23161,8 +23161,8 @@
         <translation>无画面</translation>
     </message>
     <message>
-        <source>AOA touch over USB is not available on macOS yet; use Normal or UHID touch screen</source>
-        <translation>macOS 版暂未支持 USB AOA 触控；请改用“普通”或“UHID 触摸屏”</translation>
+        <source>Needs this phone on a USB cable</source>
+        <translation>需要用 USB 数据线连接这台手机</translation>
     </message>
     <message>
         <source>The extension that adds it is off</source>
