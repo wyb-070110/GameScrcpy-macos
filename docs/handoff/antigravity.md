@@ -120,3 +120,57 @@
 ---
 
 **当前分支状态：可合并（Ready to merge）**
+
+
+---
+
+## [2026-11-25] 下一批：合并主线 `dcbff67` 并完成 A2（macOS USB `libusb` 支持与 AOA 文案恢复）
+
+### 1. 合并主线 `ccr-e32722c2-75w11u`（快进至 `dcbff67`）
+
+- 执行 `git merge ccr-e32722c2-75w11u` 快进到 `dcbff67`，全量构建并运行 `ctest --preset mac-app -j4`：172/172 通过（2 个真机用例跳过）。
+- 按最新指示跳过 A3（Claude 已完成打包）。
+
+### 2. 完成 A2：macOS USB 手机枚举、热插拔与 AOA 控制传输（`src/platform/src/mac/Usb.mm`）
+
+- **改动文件**：
+  - `src/platform/Posix.cmake`：在 `APPLE` 分支为 `gs_platform` 链接 `libusb::libusb` 并定义 `GS_HAVE_LIBUSB`。
+  - `src/platform/src/mac/Usb.mm`：
+    - `usbLibraryVersion()`：返回 `libusb` 版本号（当前环境实测 `1.0.30`）。
+    - `listUsbPhones()`：通过 `libusb` 枚举 USB 设备（排除 Hub 与 Apple `0x05AC` iPhone/iPad 设备），检查接口描述符识别 ADB 接口（`0xFF/0x42/0x01` → `debugging = true`）、MTP（`0x06/0x01/0x01`）、Google AOA 配件模式（`0x18D1:0x2D00..0x2D05`）及主流安卓厂商复合设备，优先通过 `libusb` 读取 UTF-16LE/ASCII 字符串描述符并在设备被占用时回退读取 IOKit `IOUSBHostDevice` 注册表属性，`driver` 恒为 `UsbDriver::Ready`，按 `serial` 排序去重。
+    - `UsbDevice`：实现 `open`、`controlOut`（`0x40`）、`controlIn`（`0xC0`）、`maxPacketSize` 与 `failure` 错误映射，供 `AoaTouchSink` 发送 AOA v2 HID 控制传输。
+    - `UsbWatcher`：独立 `libusb_context` + `libusb_hotplug_register_callback` + 独立事件线程（`"usb watch"`），析构时通过 `libusb_hotplug_deregister_callback` + `libusb_interrupt_event_handler` 零等待干净退出（无任何固定延时 sleep）。
+  - `tests/unit/platform/mac/UsbMacTests.mm` & `tests/PortProbe.cmake`：覆盖 `usbLibraryVersion()`、`listUsbPhones()` 不变量与实机输出打印、`UsbDevice::open` 空/不存在设备返回 `UsbFailure::NotFound`（不触碰真实设备配件模式）、`UsbWatcher` 单次及连续多轮启停生命周期测试。
+  - AOA 文案恢复（去除“macOS 暂未支持 AOA”占位说明，且不含任何 WinUSB/Zadig 字样）：
+    - C++：`src/app/AoaSession.cpp`、`src/app/DeviceManager.cpp`、`src/app/DevicePresentation.cpp`、`src/app/PictureTouch.cpp`（未插线原因改为 `"Needs this phone on a USB cable"`）、`src/app/SessionController.cpp`。
+    - QML：`src/app/qml/SettingsPage.qml`、`src/app/qml/CaptureCardSheet.qml`、`src/app/qml/DeviceCard.qml`。
+    - 帮助与翻译：`src/app/help/index.json`、`src/app/help/{en,zh_CN}/aoa-driver.md`、`src/app/help/{en,zh_CN}/capture-card.md`、`src/app/i18n/gamescrcpy_zh_CN.ts`（`GameScrcpy_lupdate` 更新并补齐全部 12 条新译文，5732/5732 完成，`unfinished = 0`）。
+- **验证命令与结果**：
+  - `cmake --build --preset mac-app -j8 && cmake --build --preset mac-app --target all_qmllint`：0 编译警告、所改 QML 文件 0 `qmllint` 警告，所改文件 `check_source_rules.py` 0 违规。
+  - `ctest --preset mac-app -R gs_platform_tests --output-on-failure -V`：39/39 用例（993 断言）通过；打印 `libusb version: 1.0.30`，当前运行测试时手机 `RFGL71YMDHD` 未插在 USB 口上（`adb devices -l` 与 `libusb` 均为 `attached USB phones: 0`）。
+  - `ctest --preset mac-app -j4 --output-on-failure`：172/172 全部通过（170 通过，2 个真机测试跳过）。
+- **给 Claude 与用户的真机 / AOA 验证步骤（未自行切手机配件模式）**：
+  1. 插上手机 `RFGL71YMDHD` 后运行 `./build/mac-app/bin/gs_platform_tests -tc="*lists attached Android phones*" -s`，可查看 `listUsbPhones()` 输出的 `serial`、`name`、`vid/pid`、`driver=Ready` 与 `debugging=true/false`。
+  2. **有画面 + USB AOA 触控测试**：保持手机 USB 数据线连接（开启 USB 调试或无线调试），启动 `GS_DATA_DIR=~/GameScrcpy-data-antigravity ./build/mac-app/bin/GameScrcpy.app/Contents/MacOS/GameScrcpy --touch aoa`，投屏后在镜像窗口点击/滑动/按键，日志应打印 `touch on <serial> goes through an AOA touch screen on the USB cable`（GameScrcpy 使用 AOA v2 HID EP0 控制请求 `51/54/55/56/57`，macOS 下无需重装驱动，也不抢占 `adb` 接口）。
+  3. **无 USB 调试纯 AOA 控制窗测试**：在手机上关闭 USB 调试、仅插 USB 线，在设置中将触控方式设为 `AOA`，设备页会出现 `aoa-<serial>` 卡片（连接方式 `USB · AOA`），点连接后打开无画面控制窗口并在手机上看到触控/鼠标指针响应。
+- **状态**：**可合并**
+
+
+---
+
+### 3. 完成 A5：macOS `/dev/cu.*` 串口设备枚举与 `termios` 读写（`src/hardware/`）
+
+- **改动文件**：
+  - `src/hardware/Posix.cmake`：`APPLE` 分支编译 `src/Worker.cpp`、`src/Worker.h` 与 `src/mac/SerialBackend.cpp`，链接 `-framework CoreFoundation` 与 `-framework IOKit`；非 Apple POSIX 系统继续保留 `NoDevicesBackend.cpp`。
+  - `src/hardware/src/mac/SerialBackend.cpp`（新增）：
+    - `listMacSerialPorts()`：通过 IOKit `IOSerialBSDClient` 枚举全部 `/dev/cu.*` 串口，沿 `kIOServicePlane` 向上查找父级 USB 节点提取 `idVendor`、`idProduct` 及 `USB Product Name` / `kUSBProductString`（无 USB 产品名时回退 `IOTTYBaseName`），生成 `id = "serial:" + path`，按 `id` 排序去重。
+    - 热插拔监听：独立 `CFRunLoop` 线程（`"serial watch"`）注册 `IONotificationPortCreate`（`kIOFirstMatchNotification` + `kIOTerminatedNotification`），列表变化时触发 `watch` 回调；析构时通过 `CFRunLoopStop` 干净退出。
+    - `openMacSerial` & `PosixSerialLink`：校验 `validSerialOptions`，以 `O_RDWR | O_NOCTTY | O_NONBLOCK | O_CLOEXEC` 打开串口并设置 `TIOCEXCL` 独占锁，配置 `cfmakeraw`、5–8 数据位、1/2 停止位、无/偶/奇校验、无/硬件（`CRTSCTS`）/软件（`IXON | IXOFF`）流控，标准波特率直接走 `cfsetspeed` + `tcsetattr`，高波特率（如 ESP32 触控盒常用的 `921600` / `2000000` 等最高 `4000000`）自动回退 `IOSSIOSPEED` `ioctl`；`TIOCMBIS`/`TIOCMBIC` 控制 DTR/RTS 信号线；独立读线程基于 `poll` + 唤醒管道零延时监听数据与拔线断开（`Closed::Removed`），写操作经 `Worker` 队列带超时发送（完全符合 R9 规则，0 sleep）。
+  - `tests/unit/hardware/mac/SerialBackendTests.cpp` & `tests/PortProbe.cmake`：无需外接触控盒即可完整测试 IOKit `/dev/cu.*` 列表排序与多轮热插拔生命周期、非法参数/不存在端口/未支持设备类型的错误返回，以及基于 `openpty()` 伪终端的真实 `termios` 配置核验、`TIOCEXCL` 重复打开互斥、双向字节收发、DTR/RTS 信号设置与对端断开（模拟拔线 `Closed::Removed`）处理。
+- **验证命令与结果**：
+  - `cmake --preset mac-app && cmake --build --preset mac-app -j8`：0 警告、0 错误；所改文件 `check_source_rules.py` 0 违规。
+  - `ctest --preset mac-app -R gs_hardware_tests --output-on-failure -V`：全部通过（本机枚举输出：`IOKit /dev/cu.* serial ports: 3; id=serial:/dev/cu.Bluetooth-Incoming-Port name="Bluetooth-Incoming-Port" path=/dev/cu.Bluetooth-Incoming-Port vid=0000 pid=0000; id=serial:/dev/cu.BoseQCUltra2HP name="BoseQCUltra2HP" path=/dev/cu.BoseQCUltra2HP vid=0000 pid=0000; id=serial:/dev/cu.debug-console name="debug-console" path=/dev/cu.debug-console vid=0000 pid=0000`）。
+  - `ctest --preset mac-app -j4 --output-on-failure`：172/172 全部通过（170 通过，2 个真机测试跳过）。
+- **未在真机硬件上验证的部分**：
+  - 已通过 `openpty()` 验证完整 `termios` 与异步读写状态机；外接真实 USB 转串口触控盒（如 CH340 / CP2102 / ESP32-S3 高波特率 `IOSSIOSPEED` 路径及物理拔线）留待接入硬件时实测。
+- **状态**：**可合并**

@@ -66,6 +66,10 @@ if(APPLE)
         target_link_libraries(gs_platform PRIVATE SDL3::SDL3)
         target_compile_definitions(gs_platform PRIVATE GS_HAVE_SDL3)
     endif()
+    if(TARGET libusb::libusb)
+        target_link_libraries(gs_platform PRIVATE libusb::libusb)
+        target_compile_definitions(gs_platform PRIVATE GS_HAVE_LIBUSB)
+    endif()
     target_link_libraries(gs_platform PRIVATE "-framework CoreFoundation" "-framework Security"
                           "-framework Foundation" "-framework CoreGraphics" "-framework Vision" "-framework AppKit"
                           "-framework Carbon" "-framework AVFoundation" "-framework Speech" "-framework UserNotifications"

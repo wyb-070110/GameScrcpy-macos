@@ -430,7 +430,7 @@ Card {
                     small: true
                     tone: "ghost"
                     iconName: "circle-help"
-                    text: qsTr("About AOA on macOS")
+                    text: qsTr("How AOA touch over USB works")
                     onClicked: Commands.trigger("app.help", card.help)
                 }
             }

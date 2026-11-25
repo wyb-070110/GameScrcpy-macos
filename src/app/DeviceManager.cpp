@@ -675,7 +675,7 @@ QVariant DeviceManager::data(const QModelIndex& index, int role) const
             return tr("Not detected");
         }
         if (row.aoaOnly) {
-            return row.usb && row.usb->driver == platform::UsbDriver::Ready ? tr("Online") : tr("Not available on macOS");
+            return row.usb && row.usb->driver == platform::UsbDriver::Ready ? tr("Online") : tr("USB unavailable");
         }
         if (row.provided) {
             return row.provided->state == u"busy"      ? tr("In use")
@@ -6320,11 +6320,11 @@ bool DeviceManager::wantsAoa(const QString& deviceId) const
 std::optional<Advice> DeviceManager::aoaAdviceOf(const Row& row) const
 {
     const bool missing = row.usb && row.usb->driver == platform::UsbDriver::Missing;
-    const Advice needsDriver{tr("AOA touch over USB is not available on macOS yet"),
-                             tr("Connect with USB debugging or wireless debugging instead.")};
+    const Advice needsDriver{tr("This phone cannot be opened over USB for AOA"),
+                             tr("Reconnect the USB cable, unlock the phone and try again")};
     if (!row.aoaOnly) {
         if (missing && wantsAoa(row.deviceId) && !streaming(row)) {
-            return Advice{tr("AOA touch over USB is not available on macOS yet"),
+            return Advice{tr("This phone cannot be opened over USB for AOA"),
                           tr("Touches go the normal way over adb instead.")};
         }
         return std::nullopt;
@@ -6548,7 +6548,7 @@ void DeviceManager::warnTouchUnavailable(const QString& serial)
     QString text;
     switch (row.controller->aoaFailure()) {
     case platform::UsbFailure::NoDriver:
-        text = tr("AOA touch over USB is not available on macOS yet; touches go the normal way.");
+        text = tr("This phone cannot be opened over USB for AOA; touches go the normal way.");
         break;
     case platform::UsbFailure::Busy:
         text = tr("Another program is using this phone's USB, so AOA cannot start; touches go the normal way.");
@@ -6567,7 +6567,7 @@ void DeviceManager::warnTouchUnavailable(const QString& serial)
     if (row.controller->aoaFailure() == platform::UsbFailure::NoDriver) {
         row.toastAction = [this] { emit appCommandRequested(QStringLiteral("app.help"), aoaHelpSlug()); };
         row.toastSecondAction = {};
-        row.mirror->showToast(text, QStringLiteral("info"), tr("About AOA on macOS"));
+        row.mirror->showToast(text, QStringLiteral("info"), tr("How AOA touch over USB works"));
         return;
     }
     row.mirror->showToast(text, QStringLiteral("info"));

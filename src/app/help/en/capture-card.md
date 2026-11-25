@@ -22,7 +22,7 @@ A webcam can show up too. Choose **More > This is not a capture card, hide it** 
 Select **Settings** on the capture card's card and choose in the **Touch** group of the settings window:
 
 - :monitor-play: **No touch**: you watch the picture, and vision and recording work; the keyboard and mouse do nothing on the phone.
-- :usb: **AOA over USB**: plug the phone into this computer with a USB cable as well and choose it under **Phone on USB** (not available on macOS yet; see [AOA touch over USB](help:aoa-driver)).
+- :usb: **AOA over USB**: plug the phone into this computer with a USB cable as well and choose it under **Phone on USB**; macOS needs no driver (see [AOA touch over USB](help:aoa-driver)).
 - :plug: A box from an extension, such as the ESP32 touch box, gives the touches to the phone; the list shows it under its own name while its extension is on and the box is connected. When it is not there, touch stays off and the mirror window says so. [Touch boxes](help:touch-box) tells how to get one.
 
 **Profile** in the **Key mapping** group of the settings window chooses the profile: without adb GameScrcpy cannot tell which game is in front.
