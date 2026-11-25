@@ -19102,10 +19102,6 @@
         <translation>青绿</translation>
     </message>
     <message>
-        <source>Azure</source>
-        <translation>蔚蓝</translation>
-    </message>
-    <message>
         <source>Lime</source>
         <translation>青柠</translation>
     </message>
@@ -19488,6 +19484,10 @@
     <message>
         <source>Folders your own logic may use</source>
         <translation>你自己的逻辑可用的文件夹</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>蓝色</translation>
     </message>
     <message>
         <source>The assistant in the key editor answers questions and changes the keys, the logic and the blueprint of the profile you edit. Only when you send a message, it sends what you wrote, the profile with its logic and, when it needs one, a picture of the phone&apos;s screen, to the model service you choose here. Its changes wait in a draft until you apply them.</source>

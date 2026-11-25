@@ -990,9 +990,9 @@ Item {
                     AccentSetting {
                         path: "appearance.accent"
                         labels: ({
+                            azure: qsTr("Blue"),
                             ember: qsTr("Ember"),
                             teal: qsTr("Teal"),
-                            azure: qsTr("Azure"),
                             lime: qsTr("Lime"),
                             rose: qsTr("Rose"),
                             amber: qsTr("Amber")

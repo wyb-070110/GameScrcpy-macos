@@ -98,8 +98,9 @@ struct Updates {
 enum class ThemeMode : std::uint8_t { Dark, Light, System };
 inline constexpr std::array<std::string_view, 3> kThemeModeNames{"dark", "light", "system"};
 
-enum class Accent : std::uint8_t { Ember, Teal, Azure, Lime, Rose, Amber };
-inline constexpr std::array<std::string_view, 6> kAccentNames{"ember", "teal", "azure", "lime", "rose", "amber"};
+// Azure is Apple's system blue and the default, so it comes first; settings store the name, not the place.
+enum class Accent : std::uint8_t { Azure, Ember, Teal, Lime, Rose, Amber };
+inline constexpr std::array<std::string_view, 6> kAccentNames{"azure", "ember", "teal", "lime", "rose", "amber"};
 
 enum class SystemToggle : std::uint8_t { System, On, Off };
 inline constexpr std::array<std::string_view, 3> kSystemToggleNames{"system", "on", "off"};

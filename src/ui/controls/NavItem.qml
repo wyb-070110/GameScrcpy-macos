@@ -49,7 +49,7 @@ T.AbstractButton {
         id: face
 
         radius: Theme.radius.lg
-        color: control.current ? (Theme.glass ? Theme.colors.accentSubtle : Theme.colors.stateHover) : "transparent"
+        color: control.current ? (Theme.liquid ? Theme.colors.accentSubtle : Theme.colors.stateHover) : "transparent"
 
         StateLayer {
             anchors.fill: parent

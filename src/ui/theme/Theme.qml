@@ -9,8 +9,11 @@ QtObject {
     property string accentName: "azure"
     property bool reducedMotion: false
     property bool reducedTransparency: false
-    // Liquid Glass (macOS): windows show the desktop, blurred, through their translucent surfaces.
-    readonly property bool glass: !reducedTransparency
+    // The macOS 26 design (rounder, neutral greys, capsule buttons, quiet cards): always on.
+    readonly property bool liquid: true
+    // Liquid Glass translucency: the main window shows the desktop, blurred, behind its sidebar. Reduce
+    // transparency turns only this off; the design stays.
+    readonly property bool glass: liquid && !reducedTransparency
     property var palette: ({})
 
     readonly property var accentChoices: ({
@@ -73,7 +76,7 @@ QtObject {
         accent: theme.accentChoices[theme.accentName] ?? theme.accentChoices.azure
         accentTextOnLight: theme.accentTextChoices[theme.accentName] ?? theme.accentTextChoices.azure
         overrides: (theme.dark ? theme.palette.dark : theme.palette.light) ?? ({})
-        glass: theme.glass
+        glass: theme.liquid
     }
     final readonly property Typography type: Typography {}
     final readonly property Size size: Size {}

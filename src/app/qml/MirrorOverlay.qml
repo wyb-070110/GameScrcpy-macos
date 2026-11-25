@@ -393,7 +393,7 @@ Item {
         target: overlay.Window.window
         property: "color"
         // The mirror window is not glass: its background stays opaque, the content area's grey under Liquid Glass.
-        value: Theme.glass ? Qt.rgba(Theme.colors.bgContent.r, Theme.colors.bgContent.g, Theme.colors.bgContent.b, 1)
+        value: Theme.liquid ? Qt.rgba(Theme.colors.bgContent.r, Theme.colors.bgContent.g, Theme.colors.bgContent.b, 1)
                            : Theme.colors.bgBase
         when: overlay.Window.window !== null
     }
@@ -737,7 +737,7 @@ Item {
         anchors.top: parent.top
         height: overlay.pinnedBarHeight
         visible: overlay.toolbarPinned && !overlay.mini && !overlay.editing
-        color: (Theme.glass ? Theme.colors.bgContent : Theme.colors.bgBase)
+        color: (Theme.liquid ? Theme.colors.bgContent : Theme.colors.bgBase)
 
         Rectangle {
             anchors.left: parent.left
@@ -756,7 +756,7 @@ Item {
         width: below ? overlay.width : overlay.pinnedLeft + overlay.pinnedRight
         height: below ? overlay.pinnedBottom : Math.max(0, overlay.height - overlay.pinnedBarHeight)
         visible: overlay.sidePinned && !overlay.mini && !overlay.editing
-        color: (Theme.glass ? Theme.colors.bgContent : Theme.colors.bgBase)
+        color: (Theme.liquid ? Theme.colors.bgContent : Theme.colors.bgBase)
 
         Rectangle {
             x: overlay.toolbarSide === "left" ? parent.width - width : 0
@@ -796,7 +796,7 @@ Item {
         Rectangle {
             anchors.fill: parent
             visible: !overlay.toolbarPinned || overlay.editing
-            color: overlay.editing || titleBar.fixedRow ? (Theme.glass ? Theme.colors.bgContent : Theme.colors.bgBase)
+            color: overlay.editing || titleBar.fixedRow ? (Theme.liquid ? Theme.colors.bgContent : Theme.colors.bgBase)
                  : Theme.reducedTransparency ? Theme.colors.bgElevated : Theme.colors.bgFrosted
 
             Rectangle {

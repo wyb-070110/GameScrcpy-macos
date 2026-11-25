@@ -33,13 +33,13 @@ Item {
         radius: surface.radius
         color: Theme.colors.bgElevated
         border.width: Theme.size.stroke
-        border.color: Theme.glass ? Theme.colors.strokeDefault : Theme.colors.strokeStrong
+        border.color: Theme.liquid ? Theme.colors.strokeDefault : Theme.colors.strokeStrong
 
         Rectangle {
             anchors.fill: parent
             anchors.margins: Theme.size.stroke
             radius: Math.max(0, face.radius - Theme.size.stroke)
-            visible: Theme.glass
+            visible: Theme.liquid
             gradient: Gradient {
                 GradientStop { position: 0; color: Theme.dark ? "#14FFFFFF" : "#66FFFFFF" }
                 GradientStop { position: 0.4; color: "#00FFFFFF" }
@@ -51,7 +51,7 @@ Item {
             y: Theme.size.stroke
             width: Math.max(0, face.width - 2 * face.radius)
             height: Theme.size.stroke
-            visible: Theme.glass
+            visible: Theme.liquid
             color: Theme.colors.glassEdge
         }
     }
