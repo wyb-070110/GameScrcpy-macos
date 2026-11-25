@@ -124,6 +124,20 @@ cmake -S "$WORK/sdl/SDL3-3.4.18" -B "$WORK/sdl/build" -G Ninja -DCMAKE_BUILD_TYP
 cmake --build "$WORK/sdl/build" >/dev/null
 cmake --install "$WORK/sdl/build" >/dev/null
 
+echo "== install names"
+# OpenSSL and libusb name themselves by their absolute build path; the app looks them up by @rpath like the rest.
+for arch in "${ARCHES[@]}"; do
+    for lib in "$DEPS/$arch/lib/"*.dylib; do
+        [[ -L "$lib" ]] && continue
+        name=$(basename "$lib")
+        changes=()
+        for dep in $(otool -L "$lib" | awk -v d="$DEPS/$arch/lib/" 'index($1, d) == 1 {print $1}'); do
+            changes+=(-change "$dep" "@rpath/$(basename "$dep")")
+        done
+        install_name_tool -id "@rpath/$name" "${changes[@]}" "$lib" 2>/dev/null
+    done
+done
+
 echo "== merge arm64 + x86_64"
 mkdir -p "$UNI/lib" "$UNI/include"
 cp -R "$DEPS/arm64/include/." "$UNI/include/"
@@ -155,6 +169,10 @@ done
 rm -f "$UNI/lib/pkgconfig/dav1d.pc"
 
 echo "== check"
+if otool -L "$UNI/lib/"*.dylib | grep -Eq "^[[:space:]]+$DEPS/(arm64|x86_64)/"; then
+    echo "a library still names a build path" >&2
+    exit 1
+fi
 for lib in "$UNI/lib/"*.dylib; do
     [[ -L "$lib" ]] && continue
     printf '%-32s %-14s macOS %s\n' "$(basename "$lib")" "$(lipo -archs "$lib")" \

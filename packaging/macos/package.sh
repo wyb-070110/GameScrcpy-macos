@@ -1,8 +1,8 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
-# Makes a GameScrcpy .dmg for macOS from the built app (cmake --build --preset mac-app):
-#   - copies build/mac-app/bin/GameScrcpy.app to build/package/,
+# Makes a GameScrcpy .dmg for macOS from the built app (cmake --build --preset mac-release, or mac-app):
+#   - copies build/<preset>/bin/GameScrcpy.app to build/package/,
 #   - puts adb inside (Contents/Resources/adb), so a Mac without the Android tools can connect phones,
 #   - brings in Qt (frameworks, QML, plugins) and the other libraries the app and its helpers use (FFmpeg, SDL3,
 #     libusb, OpenSSL…) with macdeployqt, so nothing points at ~/Qt or /opt/homebrew any more,
@@ -11,19 +11,22 @@
 #
 #   packaging/macos/package.sh [label]        (label defaults to "beta1")
 #
-# Environment: QT_DIR (default ~/Qt/6.10.3/macos), ADB (default: adb on PATH, then the Android SDK's).
+# Environment: PRESET (default mac-release: universal, macOS 14 and later, the app's own LGPL FFmpeg),
+# QT_DIR (default ~/Qt/6.10.3/macos), ADB (default: adb on PATH, then the Android SDK's).
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 LABEL=${1:-beta1}
+PRESET=${PRESET:-mac-release}
 QT_DIR=${QT_DIR:-$HOME/Qt/6.10.3/macos}
-SOURCE="$ROOT/build/mac-app/bin/GameScrcpy.app"
+SOURCE="$ROOT/build/$PRESET/bin/GameScrcpy.app"
 OUT="$ROOT/build/package"
 APP="$OUT/GameScrcpy.app"
 
-[[ -d "$SOURCE" ]] || { echo "build the app first: cmake --build --preset mac-app" >&2; exit 1; }
+[[ -d "$SOURCE" ]] || { echo "build the app first: cmake --build --preset $PRESET" >&2; exit 1; }
 VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$SOURCE/Contents/Info.plist")
 ARCH=$(lipo -archs "$SOURCE/Contents/MacOS/GameScrcpy" | tr ' ' '-')
+[[ "$ARCH" == "x86_64-arm64" || "$ARCH" == "arm64-x86_64" ]] && ARCH=universal
 DMG="$OUT/GameScrcpy-$VERSION-$LABEL-macos-$ARCH.dmg"
 
 echo "== GameScrcpy $VERSION ($LABEL, $ARCH)"
