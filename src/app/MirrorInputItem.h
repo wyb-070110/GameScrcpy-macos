@@ -107,6 +107,8 @@ private:
     void flickStep();
     void startFlick(QPointF direction);
     void startFling();
+    [[nodiscard]] QPointF releaseVelocity() const;
+    void releaseSwipe();
     void releaseKeys();
     void showPreedit(const QString& text, int cursor);
     void follow(QPointF position);
@@ -140,6 +142,9 @@ private:
     // The swipe's last movement and how long it took, for the natural fling's speed.
     QPointF m_lastSwipeDelta;
     qint64 m_lastSwipeMs = 1;
+    // The finger's recent positions (ms since the swipe began, point), for its speed when the fingers leave.
+    QElapsedTimer m_moveClock;
+    std::vector<std::pair<qint64, QPointF>> m_recentMoves;
     // The page-turn flick under way: steps left, each step, and the clock between them.
     int m_flickSteps = 0;
     QPointF m_flickStep;

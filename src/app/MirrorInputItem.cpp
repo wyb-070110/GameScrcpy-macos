@@ -487,6 +487,52 @@ void MirrorInputItem::startFling()
     m_flickTimer.start();
 }
 
+// The finger's speed as the fingers leave, in points a millisecond, measured the way Android's VelocityTracker
+// does: over the moves of the last 100 ms, and zero if the finger had not moved for 40 ms (Android then takes it
+// as stopped and does not fling).
+QPointF MirrorInputItem::releaseVelocity() const
+{
+    constexpr qint64 kHorizonMs = 100;
+    constexpr qint64 kStoppedMs = 40;
+    if (m_recentMoves.size() < 2 || !m_moveClock.isValid()) {
+        return {};
+    }
+    const qint64 now = m_moveClock.elapsed();
+    const auto& [lastMs, lastAt] = m_recentMoves.back();
+    if (now - lastMs > kStoppedMs) {
+        return {};
+    }
+    auto first = m_recentMoves.end() - 1;
+    while (first != m_recentMoves.begin() && lastMs - (first - 1)->first <= kHorizonMs) {
+        --first;
+    }
+    const qint64 span = lastMs - first->first;
+    if (span <= 0) {
+        return {};
+    }
+    return (lastAt - first->second) / static_cast<double>(span);
+}
+
+// The fingers left. A real finger leaves the glass while still moving, and the phone flings with that speed (its
+// own inertia, page snapping and list physics): so a moving finger goes on at its speed for two more 8 ms steps
+// and lifts right after the last, as on a touch screen. A finger that had stopped lifts where it is.
+void MirrorInputItem::releaseSwipe()
+{
+    constexpr double kStillBelow = 0.05; // points a millisecond: 50 points a second
+    constexpr double kStepMs = 8.0;
+    constexpr int kTailSteps = 2;
+    const QPointF velocity = releaseVelocity();
+    if (!m_swiping || std::hypot(velocity.x(), velocity.y()) < kStillBelow) {
+        liftSwipe();
+        return;
+    }
+    m_coastIdle.stop();
+    m_coasting = false;
+    m_flickStep = velocity * kStepMs;
+    m_flickSteps = kTailSteps;
+    m_flickTimer.start();
+}
+
 void MirrorInputItem::moveSwipe(QPointF delta, bool ending)
 {
     if (m_swipeCapped) {
@@ -559,7 +605,7 @@ bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
             if (m_swipeMode == SwipeMode::Natural && m_swipeSpeed >= kCoastFrom) {
                 startFling();
             } else {
-                liftSwipe();
+                releaseSwipe();
             }
             return true;
         }
@@ -629,6 +675,9 @@ bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
         m_swipeStart = m_swipePoint;
         m_swipeSpeed = 0.0;
         m_swipeClock.start();
+        m_moveClock.start();
+        m_recentMoves.clear();
+        m_recentMoves.emplace_back(0, m_swipePoint);
         forceActiveFocus(Qt::MouseFocusReason);
         emit touched(input::CursorPhase::Down, *at);
     }
@@ -640,12 +689,23 @@ bool MirrorInputItem::swipeWithTrackpad(QWheelEvent* event)
         m_lastSwipeMs = sinceMs;
         m_swipeSpeed = std::hypot(delta.x(), delta.y()) / static_cast<double>(sinceMs);
     }
-    moveSwipe(delta, event->phase() == Qt::ScrollEnd);
+    // No movement, no move: a move to the same place would tell the phone the finger stopped (the end of a swipe
+    // often comes with no movement at all).
+    if (!delta.isNull()) {
+        moveSwipe(delta, event->phase() == Qt::ScrollEnd);
+        if (m_swiping) {
+            constexpr std::size_t kKeptMoves = 32;
+            if (m_recentMoves.size() == kKeptMoves) {
+                m_recentMoves.erase(m_recentMoves.begin());
+            }
+            m_recentMoves.emplace_back(m_moveClock.elapsed(), m_swipePoint);
+        }
+    }
     if (event->phase() == Qt::ScrollEnd && m_swiping && m_swipeMode != SwipeMode::PageTurn) {
         if (m_swipeMode == SwipeMode::Natural && m_swipeSpeed >= kCoastFrom) {
             startFling();
         } else {
-            liftSwipe();
+            releaseSwipe();
         }
         return true;
     }
