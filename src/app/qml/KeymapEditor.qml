@@ -3,10 +3,10 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Shapes
 import QtQuick.Dialogs
-import GameScrcpy.Theme
-import GameScrcpy.Icons
-import GameScrcpy.Controls
-import GameScrcpy.App
+import Anmacgamer.Theme
+import Anmacgamer.Icons
+import Anmacgamer.Controls
+import Anmacgamer.App
 
 Item {
     id: keymapEditor

@@ -99,10 +99,10 @@
 #include <thread>
 #include <vector>
 
-Q_IMPORT_QML_PLUGIN(GameScrcpy_ThemePlugin)
-Q_IMPORT_QML_PLUGIN(GameScrcpy_IconsPlugin)
-Q_IMPORT_QML_PLUGIN(GameScrcpy_ControlsPlugin)
-Q_IMPORT_QML_PLUGIN(GameScrcpy_BlueprintPlugin)
+Q_IMPORT_QML_PLUGIN(Anmacgamer_ThemePlugin)
+Q_IMPORT_QML_PLUGIN(Anmacgamer_IconsPlugin)
+Q_IMPORT_QML_PLUGIN(Anmacgamer_ControlsPlugin)
+Q_IMPORT_QML_PLUGIN(Anmacgamer_BlueprintPlugin)
 
 using namespace Qt::StringLiterals;
 
@@ -770,7 +770,7 @@ int main(int argc, char* argv[])
                              }
                          });
     }
-    engine.loadFromModule(u"GameScrcpy.App"_s, parser.isSet(gallery) ? u"Gallery"_s : u"Main"_s);
+    engine.loadFromModule(u"Anmacgamer.App"_s, parser.isSet(gallery) ? u"Gallery"_s : u"Main"_s);
     if (auto* hub = engine.rootObjects().isEmpty() ? nullptr
                                                    : qobject_cast<QQuickWindow*>(engine.rootObjects().constFirst())) {
         auto first = std::make_shared<QMetaObject::Connection>();
@@ -790,7 +790,7 @@ int main(int argc, char* argv[])
         commands.retranslate();
         devices.retranslate();
         wireless.retranslate();
-        if (auto* catalog = engine.singletonInstance<gs::app::SettingsCatalog*>("GameScrcpy.App", "SettingsCatalog")) {
+        if (auto* catalog = engine.singletonInstance<gs::app::SettingsCatalog*>("Anmacgamer.App", "SettingsCatalog")) {
             catalog->retranslate();
         }
     });
@@ -816,7 +816,7 @@ int main(int argc, char* argv[])
 
     if (parser.isSet(smokeTest)) {
         for (const QString& name : {u"LogicWindow"_s, u"VisionWorkbenchWindow"_s, u"GridOverlay"_s}) {
-            const QQmlComponent component(&engine, u"GameScrcpy.App"_s, name);
+            const QQmlComponent component(&engine, u"Anmacgamer.App"_s, name);
             if (component.isError()) {
                 qWarning("%s not created: %s", qUtf8Printable(name), qUtf8Printable(component.errorString()));
             }

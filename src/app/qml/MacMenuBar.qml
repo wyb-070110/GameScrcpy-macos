@@ -4,7 +4,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Qt.labs.platform as Platform
-import GameScrcpy.App
+import Anmacgamer.App
 
 // The macOS menu bar: the app's commands (the same list as the command palette and the shortcuts) in the menus a
 // Mac app has, so names, translations, shortcuts and whether an item can be used come from one place. Device items

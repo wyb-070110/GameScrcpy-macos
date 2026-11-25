@@ -804,7 +804,7 @@ ScriptWorkbench::~ScriptWorkbench()
 QQuickWindow* ScriptWorkbench::openWindow(QQmlEngine& engine)
 {
     QJSEngine::setObjectOwnership(this, QJSEngine::CppOwnership);
-    QQmlComponent component(&engine, QStringLiteral("GameScrcpy.App"), QStringLiteral("LogicWindow"));
+    QQmlComponent component(&engine, QStringLiteral("Anmacgamer.App"), QStringLiteral("LogicWindow"));
     QObject* created = component.createWithInitialProperties({{QStringLiteral("bench"), QVariant::fromValue(this)}});
     auto* window = qobject_cast<QQuickWindow*>(created);
     if (window == nullptr) {

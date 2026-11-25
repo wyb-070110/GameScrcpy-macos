@@ -17,7 +17,7 @@ set_target_properties(GameScrcpy PROPERTIES
 )
 
 qt_add_qml_module(GameScrcpy
-    URI GameScrcpy.App
+    URI Anmacgamer.App
     VERSION 1.0
     IMPORT_PATH "${QT_QML_OUTPUT_DIRECTORY}"
     QML_FILES

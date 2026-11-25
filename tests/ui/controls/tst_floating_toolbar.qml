@@ -1,7 +1,7 @@
 import QtQuick
 import QtTest
-import GameScrcpy.Theme
-import GameScrcpy.Controls
+import Anmacgamer.Theme
+import Anmacgamer.Controls
 
 Item {
     id: root
@@ -151,7 +151,7 @@ Item {
 
         function test_compactButtonIsNarrowAndStaysRound() {
             const chevron = createTemporaryQmlObject(
-                "import GameScrcpy.Controls\nToolbarButton { compact: true; iconName: \"chevron-down\"; text: \"Options\" }", root)
+                "import Anmacgamer.Controls\nToolbarButton { compact: true; iconName: \"chevron-down\"; text: \"Options\" }", root)
             compare(chevron.implicitWidth, Theme.size.toolbarChevron)
             compare(chevron.implicitHeight, Theme.size.toolbarButton)
             compare(chevron.background.radius, Theme.size.toolbarChevron / 2)
@@ -159,7 +159,7 @@ Item {
         }
 
         function test_keyHintGrowsWithItsTextAndShowsItsTag() {
-            const hint = createTemporaryQmlObject("import GameScrcpy.Controls\nKeyHint { text: \"W\" }", root)
+            const hint = createTemporaryQmlObject("import Anmacgamer.Controls\nKeyHint { text: \"W\" }", root)
             compare(hint.implicitHeight, Theme.size.keyHint)
             compare(hint.implicitWidth, Theme.size.keyHint)
             verify(!findChild(hint, "tag").visible)
@@ -187,7 +187,7 @@ Item {
         }
 
         function test_keyHintShapes(data) {
-            const hint = createTemporaryQmlObject("import GameScrcpy.Controls\nKeyHint { text: \"Q\"; shape: \"" + data.shape + "\" }", root)
+            const hint = createTemporaryQmlObject("import Anmacgamer.Controls\nKeyHint { text: \"Q\"; shape: \"" + data.shape + "\" }", root)
             compare(hint.implicitHeight, Theme.size.keyHintRound)
             if (data.shape === "freeLook") {
                 compare(hint.implicitWidth, 2 * Theme.size.keyHintRound)
@@ -205,7 +205,7 @@ Item {
         }
 
         function test_keyHintKeepsTheSquareKeyByDefault() {
-            const hint = createTemporaryQmlObject("import GameScrcpy.Controls\nKeyHint { text: \"W\"; small: true }", root)
+            const hint = createTemporaryQmlObject("import Anmacgamer.Controls\nKeyHint { text: \"W\"; small: true }", root)
             compare(hint.shape, "key")
             compare(hint.radius, Theme.radius.md)
             compare(hint.implicitHeight, Theme.size.keyHintSmall)
@@ -224,7 +224,7 @@ Item {
         }
 
         function test_keyHintDrawsMouseButtons(data) {
-            const hint = createTemporaryQmlObject("import GameScrcpy.Controls\nKeyHint { shape: \"tap\"; mouseButton: \"" + data.button + "\" }", root)
+            const hint = createTemporaryQmlObject("import Anmacgamer.Controls\nKeyHint { shape: \"tap\"; mouseButton: \"" + data.button + "\" }", root)
             const glyph = findChild(hint, "mouseGlyph")
             verify(glyph.visible)
             compare(hint.implicitWidth, Theme.size.keyHintRound)
@@ -235,7 +235,7 @@ Item {
         }
 
         function test_mappingPreviewPlacesItsMarkers() {
-            const preview = createTemporaryQmlObject("import GameScrcpy.Controls\nMappingPreview {}", root)
+            const preview = createTemporaryQmlObject("import Anmacgamer.Controls\nMappingPreview {}", root)
             compare(preview.implicitWidth, Theme.size.previewLong)
             compare(preview.implicitHeight, Theme.size.previewShort)
             preview.markers = [{ type: "tap", x: 0.5, y: 0.25, rx: 0, ry: 0 },
@@ -249,7 +249,7 @@ Item {
         }
 
         function test_edgeGlowFadesInWhileActive() {
-            const glow = createTemporaryQmlObject("import GameScrcpy.Controls\nEdgeGlow { width: 200; height: 100 }", root)
+            const glow = createTemporaryQmlObject("import Anmacgamer.Controls\nEdgeGlow { width: 200; height: 100 }", root)
             verify(!glow.visible)
             glow.active = true
             tryCompare(glow, "opacity", 1)
@@ -260,7 +260,7 @@ Item {
 
         function test_flatToolbarDrawsNoSurface() {
             const flat = createTemporaryQmlObject(
-                "import GameScrcpy.Controls\nFloatingToolbar { flat: true; ToolbarButton { iconName: \"pin\"; text: \"Pin\" } }", root)
+                "import Anmacgamer.Controls\nFloatingToolbar { flat: true; ToolbarButton { iconName: \"pin\"; text: \"Pin\" } }", root)
             flat.reveal()
             tryCompare(flat, "opacity", 1)
             verify(!findChild(flat, "face").visible)
@@ -270,7 +270,7 @@ Item {
         }
 
         function test_toolbarStartsHidden() {
-            const fresh = createTemporaryQmlObject("import GameScrcpy.Controls\nFloatingToolbar {}", root)
+            const fresh = createTemporaryQmlObject("import Anmacgamer.Controls\nFloatingToolbar {}", root)
             verify(!fresh.shown)
             verify(!fresh.visible)
             compare(fresh.opacity, 0)
@@ -395,7 +395,7 @@ Item {
 
         function test_capsuleToastShowsItsIconInARoundBadge() {
             const toast = createTemporaryQmlObject(
-                "import GameScrcpy.Controls\nToast { capsule: true; iconName: \"keyboard\" }", root)
+                "import Anmacgamer.Controls\nToast { capsule: true; iconName: \"keyboard\" }", root)
             toast.show("Rest the pointer at the top to show the toolbar", "info")
             tryVerify(() => toast.opened)
             const badge = findChild(toast.contentItem, "iconBadge")
@@ -411,7 +411,7 @@ Item {
 
         function test_plainToastHasNoBadge() {
             const toast = createTemporaryQmlObject(
-                "import GameScrcpy.Controls\nToast { iconName: \"keyboard\" }", root)
+                "import Anmacgamer.Controls\nToast { iconName: \"keyboard\" }", root)
             toast.show("Saved", "ok")
             tryVerify(() => toast.opened)
             verify(!findChild(toast.contentItem, "iconBadge").visible)
@@ -423,7 +423,7 @@ Item {
         function test_longToastStaysInsideANarrowWindow() {
             const narrow = createTemporaryQmlObject("import QtQuick\nItem { width: 300; height: 200 }", root)
             const toast = createTemporaryQmlObject(
-                "import GameScrcpy.Controls\nToast { capsule: true; iconName: \"triangle-alert\" }", root)
+                "import Anmacgamer.Controls\nToast { capsule: true; iconName: \"triangle-alert\" }", root)
             toast.parent = narrow
             toast.show("Logic error: logic.ts line 3: Error: something went wrong far away from the start", "info")
             tryVerify(() => toast.opened)
@@ -438,7 +438,7 @@ Item {
 
         function test_verticalToolbarDrawsAButtonShownLater() {
             const bar = createTemporaryQmlObject(
-                "import GameScrcpy.Controls\n"
+                "import Anmacgamer.Controls\n"
                 + "FloatingToolbar {\n"
                 + "    vertical: true; pinned: true\n"
                 + "    ToolbarButton { objectName: 'first'; iconName: 'arrow-left'; text: 'Back' }\n"
@@ -464,7 +464,7 @@ Item {
 
         function test_switchingVerticalBackAndForthKeepsButtonOrder() {
             const bar = createTemporaryQmlObject(
-                "import GameScrcpy.Controls\n"
+                "import Anmacgamer.Controls\n"
                 + "FloatingToolbar {\n"
                 + "    pinned: true\n"
                 + "    ToolbarButton { objectName: 'b0'; iconName: 'arrow-left'; text: 'Back' }\n"
@@ -494,7 +494,7 @@ Item {
 
         function test_separatorLiesAcrossVerticalToolbarAndStandsUpInHorizontal() {
             const bar = createTemporaryQmlObject(
-                "import GameScrcpy.Controls\n"
+                "import Anmacgamer.Controls\n"
                 + "FloatingToolbar {\n"
                 + "    pinned: true\n"
                 + "    ToolbarButton { iconName: 'arrow-left'; text: 'Back' }\n"
@@ -518,7 +518,7 @@ Item {
 
         function test_compactChevronTurnsAcrossInVerticalToolbar() {
             const bar = createTemporaryQmlObject(
-                "import GameScrcpy.Controls\n"
+                "import Anmacgamer.Controls\n"
                 + "FloatingToolbar {\n"
                 + "    pinned: true\n"
                 + "    ToolbarButton { objectName: 'chevron'; compact: true; iconName: 'chevron-down'; text: 'Options' }\n"
@@ -552,7 +552,7 @@ Item {
         }
 
         function test_buildsInEitherTheme(data) {
-            const control = createTemporaryQmlObject("import QtQuick\nimport GameScrcpy.Controls\n" + data.qml, root)
+            const control = createTemporaryQmlObject("import QtQuick\nimport Anmacgamer.Controls\n" + data.qml, root)
             verify(control.implicitWidth > 0)
             verify(control.implicitHeight > 0)
             Theme.dark = false

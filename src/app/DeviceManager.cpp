@@ -4045,7 +4045,7 @@ QString DeviceManager::showVisionWorkbench(const QString& serial, const QString&
     };
     auto* bench = new VisionWorkbench(std::move(setup));
     QQmlEngine::setObjectOwnership(bench, QQmlEngine::CppOwnership);
-    QQmlComponent component(engine, QStringLiteral("GameScrcpy.App"), QStringLiteral("VisionWorkbenchWindow"));
+    QQmlComponent component(engine, QStringLiteral("Anmacgamer.App"), QStringLiteral("VisionWorkbenchWindow"));
     QObject* created = component.beginCreate(engine->rootContext());
     auto* window = qobject_cast<QQuickWindow*>(created);
     if (window == nullptr) {
@@ -4189,7 +4189,7 @@ void DeviceManager::warnInputRefused(Row& row)
     const QStringList guide = guideOf(row).split(u'/');
     std::function<void()> showGuide = [this, vendor = guide.value(0), step = guide.value(1)] {
         if (QQmlEngine* engine = m_engine.data(); engine != nullptr) {
-            if (auto* setup = engine->singletonInstance<SetupGuide*>("GameScrcpy.App", "SetupGuide")) {
+            if (auto* setup = engine->singletonInstance<SetupGuide*>("Anmacgamer.App", "SetupGuide")) {
                 setup->open(1, vendor, step);
             }
         }

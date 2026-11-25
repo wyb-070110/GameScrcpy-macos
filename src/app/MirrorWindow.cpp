@@ -212,7 +212,7 @@ void MirrorWindow::attachOverlay(QQmlEngine& engine)
     if (m_overlay != nullptr) {
         return;
     }
-    QQmlComponent component(&engine, QStringLiteral("GameScrcpy.App"), QStringLiteral("MirrorOverlay"));
+    QQmlComponent component(&engine, QStringLiteral("Anmacgamer.App"), QStringLiteral("MirrorOverlay"));
     QObject* created = component.createWithInitialProperties({{QStringLiteral("serial"), m_serial}});
     auto* overlay = qobject_cast<QQuickItem*>(created);
     if (overlay == nullptr) {
