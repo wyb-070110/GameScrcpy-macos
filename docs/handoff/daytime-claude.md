@@ -11,3 +11,10 @@
   - 3098719 trackpad swipe modes (翻页 / 自然甩动 / 跟手 / 滚轮) — the user found swiping still not right;
     needs the phone, parked.
   - The user's settings: mirror toolbar moved to the right (display.toolbarSide = right).
+- 08:58 0e71ebb mirror window resizing keeps the phone's proportions (tested by dragging a demo window: 308→256 wide gave 256x653 = 0.45 + 84 chrome).
+- 09:19 Antigravity's quota refreshed; resumed it on A2 (USB) → A5 (serial), told it A3 packaging is done by Claude. Shows Working.
+- 09:26 Published v2.2.1-beta1 (pre-release) with GameScrcpy-2.2.1-beta1-macos-arm64.dmg (sha256 dc606272…); pushed ccr branch to af48cf8.
+- 10:50 Beta 2 built (universal, macOS 14+, own LGPL FFmpeg; 79a1bdb, cd08a15; OpenSSL/libusb now @rpath so both
+  slices ship); runs natively and under Rosetta. CI failure on 2d72ad4 was only the speech tests on GitHub's macOS 15
+  VM: unknown voice ids were accepted there, and recognition never answers (d98831a). Pushed to 45535607104 for CI.
+  A2/A5 not marked 可合并 yet (Antigravity's work uncommitted), not merged.

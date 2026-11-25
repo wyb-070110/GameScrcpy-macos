@@ -29,7 +29,8 @@ Anything that needs the phone or the user: write it under "For the user" and mov
 
 ## For the user
 
-- **Licence:** beta 1 bundles Homebrew's GPL FFmpeg (x264/x265). See older-macos-plan.md; rebuilding an LGPL
-  FFmpeg needs ~45 MB of source downloads — ask before downloading.
+- **Beta 2 is ready** (build/package/GameScrcpy-2.2.1-beta2-macos-universal.dmg: universal, macOS 14+, LGPL
+  FFmpeg). Waiting on the user: does anmacgammer get the source too or only the release, and what happens to
+  beta 1 (GPL FFmpeg) on GameScrcpy-macos.
 
 - Trackpad swipe feel (needs the phone): the four modes are in Settings → Touch → "Trackpad swipe mode".
