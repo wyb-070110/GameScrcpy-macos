@@ -106,7 +106,8 @@ EOF
     (
         cd "$WORK/$arch/libusb-1.0.30"
         CC="clang" CFLAGS="$cflags" LDFLAGS="-arch $arch -mmacosx-version-min=$MIN" \
-            ./configure --prefix="$PREFIX" --host="$host-apple-darwin" --enable-shared --disable-static >/dev/null
+            ./configure --prefix="$PREFIX" --host="$host-apple-darwin" --enable-shared --disable-static \
+            ac_cv_func_pipe2=no >/dev/null # pipe2 is only in macOS 27: on 14 the library would not load
         make -j"$JOBS" >/dev/null
         make install >/dev/null
     )
