@@ -15,15 +15,21 @@ Anything that needs the phone or the user: write it under "For the user" and mov
 - [ ] **Merge Antigravity's A2/A5** when `~/GameScrcpy-macos-antigravity/docs/handoff/antigravity.md` says 可合并 for
       them: review the diff (behaviour changes explained, no edits outside its tasks), merge, build, ctest, commit.
       Do not push the merge until CI on the previous push is green.
-- [ ] **UI polish, other screens.** Screenshot the settings page, profiles, tasks, extensions, the keymap editor and
+- [x] **UI polish, other screens.** (done 2026-11-25: solid base for non-main windows, ⌘ shortcuts, screenshots)
+       Screenshot the settings page, profiles, tasks, extensions, the keymap editor and
       a dialog (dark and light) in the demo copy; fix what breaks the Liquid Glass look of the hub (opaque navy/old
       slabs, accent borders, cramped spacing, Windows leftovers). One commit per screen.
-- [ ] **Settings → Appearance.** Show "Blue" (azure) first among the accent choices; check the "Reduce transparency"
+- [x] **Settings → Appearance.** (done: Blue first; Reduce transparency keeps the design)
+       Show "Blue" (azure) first among the accent choices; check the "Reduce transparency"
       switch turns the glass off cleanly (screenshot both).
-- [ ] **Universal / older macOS plan.** Write `docs/handoff/older-macos-plan.md`: which bundled libraries need
+- [x] **Universal / older macOS plan.** (done: docs/handoff/older-macos-plan.md — found beta 1 ships GPL FFmpeg)
+       Write `docs/handoff/older-macos-plan.md`: which bundled libraries need
       rebuilding from source for macOS 14+ and Intel (from the minos list in package.sh), where each comes from, size,
       build commands — the downloads need the user's OK, so only plan.
 
 ## For the user
+
+- **Licence:** beta 1 bundles Homebrew's GPL FFmpeg (x264/x265). See older-macos-plan.md; rebuilding an LGPL
+  FFmpeg needs ~45 MB of source downloads — ask before downloading.
 
 - Trackpad swipe feel (needs the phone): the four modes are in Settings → Touch → "Trackpad swipe mode".
