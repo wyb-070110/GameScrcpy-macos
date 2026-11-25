@@ -22,8 +22,8 @@
           "tile": "teal",
           "title": { "en": "AOA touch over USB", "zh_CN": "AOA 有线触控" },
           "summary": {
-            "en": "Control a phone without USB debugging and pair GameScrcpy Companion over Wi-Fi. (AOA over USB is not available on macOS yet.)",
-            "zh_CN": "不开 USB 调试时控制手机并经 Wi‑Fi 连接 GameScrcpy 伴侣。（macOS 暂未支持 AOA 有线触控。）"
+            "en": "Control a phone over the USB cable without USB debugging, and pair GameScrcpy Companion over Wi-Fi.",
+            "zh_CN": "不开 USB 调试也能经数据线控制手机，并经 Wi‑Fi 连接 GameScrcpy 伴侣。"
           }
         },
         {

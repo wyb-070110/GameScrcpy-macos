@@ -667,8 +667,8 @@ Item {
                                 return qsTr("Up to 16 fingers. On an independent display touches still go the normal way.")
                             if (touchMethod.current === "aoa")
                                 return qsTr("A touch screen, mouse and keyboard on the USB cable that work even without "
-                                            + "USB debugging. AOA over USB is not available on macOS yet; use Normal or "
-                                            + "UHID touch screen instead.")
+                                            + "USB debugging. macOS needs no extra driver; without USB or wireless "
+                                            + "debugging there is no picture.")
                             if (touchMethod.current === "none")
                                 return qsTr("Only shows the picture; taps, swipes and key mapping do not reach the phone.")
                             return ""
@@ -783,7 +783,7 @@ Item {
                             tone: "ghost"
                             small: true
                             iconName: "circle-help"
-                            text: qsTr("About AOA on macOS")
+                            text: qsTr("How AOA touch over USB works")
                             onClicked: Commands.trigger("app.help", "aoa-driver")
                         }
                     }

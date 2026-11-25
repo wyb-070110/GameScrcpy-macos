@@ -1,14 +1,14 @@
-With AOA the phone takes GameScrcpy for a touch screen on the USB cable, together with a mouse and a keyboard, even when USB debugging is off.
+With AOA the phone takes GameScrcpy for a touch screen on the USB cable, together with a mouse and a keyboard. It works even when USB debugging is off, and macOS needs no USB driver.
 
-> [!NOTE]
-> **Not available on macOS yet**: macOS needs no USB driver (such as WinUSB or Zadig), and AOA touch over USB is not implemented in the macOS version yet. Connect with **Normal** or **UHID touch screen** over USB debugging or wireless debugging instead, or use a hardware touch box from an extension ([Touch boxes](help:touch-box)).
+## Choose AOA
 
-## Without USB debugging: control window and orientation
+1. **Plug in the USB cable**: connect the phone to this Mac with a data-capable USB cable and unlock the phone.
+2. **Select AOA**: in **Settings > Input & key mapping > Touch**, set the touch method to **AOA**, for every phone or for one phone. While you choose, the features that do not work without a picture are listed; it takes effect once you confirm, the next time the phone connects.
 
-When controlling a phone without a picture (for example through a touch box):
+## With a picture, or without one
 
-- **Wireless debugging on**: the picture comes over wireless debugging while touches go through the hardware link.
-- **Wireless debugging off**: a control window opens instead, a dark canvas in the shape of the phone's screen with the key hints and the words "No picture · Watch the phone". The keyboard and mouse turn into touches only while the control window is in front.
+- **USB debugging or wireless debugging on**: the picture comes over debugging while touch goes over AOA on the USB cable. The phone's card shows "USB · picture + AOA touch" or "Wireless · picture + USB · AOA touch".
+- **Debugging off**: a control window opens instead, a dark canvas in the shape of the phone's screen with the key hints and the words "No picture · Watch the phone". The keyboard and mouse turn into touches only while the control window is in front.
 - **The pointer on the phone**: without a picture the phone shows a mouse pointer of its own; with a free cursor, look at the phone and click. While the camera is locked the pointer stops moving and the phone hides it.
 - **How the phone is held**: without adb nothing tells whether the phone is upright or turned. Choose Portrait, Landscape (turned left) or Landscape (turned right) under "How the phone is held" in the control window's toolbar. It starts from the profile's orientation and each phone remembers the last choice.
 

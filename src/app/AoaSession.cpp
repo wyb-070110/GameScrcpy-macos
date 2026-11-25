@@ -29,7 +29,7 @@ const char* failureName(platform::UsbFailure failure) noexcept
     case platform::UsbFailure::NotFound:
         return "not found on USB";
     case platform::UsbFailure::NoDriver:
-        return "AOA over USB is not available on macOS";
+        return "USB access is not supported for this device";
     case platform::UsbFailure::Busy:
         return "in use by another program";
     case platform::UsbFailure::Gone:
