@@ -7645,6 +7645,10 @@
         <translation>完成</translation>
     </message>
     <message>
+        <source>Free and open source (GPL-3.0). Please follow local laws and each game&apos;s terms of use.</source>
+        <translation>免费开源（GPL-3.0）。请遵守当地法律和各游戏的用户协议。</translation>
+    </message>
+    <message>
         <source>Turn on USB debugging</source>
         <translation>打开 USB 调试</translation>
     </message>
@@ -7679,18 +7683,6 @@
     <message>
         <source>A key mapping profile for each game, switched as you open it.</source>
         <translation>每个游戏一套键位方案，打开游戏自动切换。</translation>
-    </message>
-    <message>
-        <source>Make it yours</source>
-        <translation>随心扩展</translation>
-    </message>
-    <message>
-        <source>Extensions add picture filters and themes.</source>
-        <translation>安装扩展，添加画面滤镜和主题。</translation>
-    </message>
-    <message>
-        <source>Open source under the Apache License 2.0. Please follow local laws and each game&apos;s terms of use.</source>
-        <translation>基于 Apache License 2.0 开源。请遵守当地法律和各游戏的用户协议。</translation>
     </message>
     <message>
         <source>A one-time setup on the phone. Choose its brand for the exact steps.</source>

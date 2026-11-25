@@ -103,6 +103,11 @@ T.Popup {
     }
 
     function advance() {
+        // A phone that is already connected and allowed needs no USB debugging steps.
+        if (guide.page === 0 && guide.found) {
+            guide.page = 2
+            return
+        }
         if (guide.page < 2) {
             guide.page += 1
             return
@@ -563,13 +568,6 @@ T.Popup {
                             title: qsTr("Keyboard and mouse for games")
                             detail: qsTr("A key mapping profile for each game, switched as you open it.")
                         }
-
-                        Feature {
-                            width: parent.width
-                            iconName: "puzzle"
-                            title: qsTr("Make it yours")
-                            detail: qsTr("Extensions add picture filters and themes.")
-                        }
                     }
                 }
 
@@ -577,7 +575,7 @@ T.Popup {
                     anchors.bottom: parent.bottom
                     width: parent.width
                     textFormat: Text.PlainText
-                    text: qsTr("Open source under the Apache License 2.0. Please follow local laws and each game's terms of use.")
+                    text: qsTr("Free and open source (GPL-3.0). Please follow local laws and each game's terms of use.")
                     color: Theme.colors.textTertiary
                     font.pixelSize: Theme.type.caption.size
                     wrapMode: Text.Wrap
