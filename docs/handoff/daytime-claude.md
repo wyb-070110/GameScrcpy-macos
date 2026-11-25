@@ -34,3 +34,4 @@
 - 15:48 Hourly run: every backlog item is ticked; nothing to do.
 - 16:48 Antigravity stopped on its quota mid-A8 (2/4 steps; fixes uncommitted in MirrorOverlay.qml, FloatingToolbar.qml, ToolbarButton.qml, main.cpp, tests). Refresh 19:13; overages left off.
 - 16:48 Hourly run: every backlog item is ticked; nothing to do.
+- 17:53 Hourly run: every backlog item is ticked; nothing to do.
