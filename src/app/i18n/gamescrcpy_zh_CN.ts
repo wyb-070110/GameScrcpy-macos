@@ -19575,10 +19575,6 @@
 <context>
     <name>SettingsRow</name>
     <message>
-        <source>Overridden</source>
-        <translation>已覆盖</translation>
-    </message>
-    <message>
         <source>Reset</source>
         <translation>重置</translation>
     </message>
