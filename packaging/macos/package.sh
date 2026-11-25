@@ -93,6 +93,11 @@ STAGE="$OUT/dmg"
 mkdir -p "$STAGE"
 cp -R "$APP" "$STAGE/"
 ln -s /Applications "$STAGE/Applications"
+if [[ -f "$APP/Contents/Resources/GameScrcpy.icns" && -x /usr/bin/SetFile ]]; then
+    cp "$APP/Contents/Resources/GameScrcpy.icns" "$STAGE/.VolumeIcon.icns"
+    /usr/bin/SetFile -a V "$STAGE/.VolumeIcon.icns"
+    /usr/bin/SetFile -a C "$STAGE"
+fi
 hdiutil create -quiet -volname "GameScrcpy $VERSION $LABEL" -srcfolder "$STAGE" -ov -format UDZO "$DMG"
 rm -rf "$STAGE"
 du -h "$DMG"

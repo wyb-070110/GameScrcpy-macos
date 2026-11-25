@@ -174,3 +174,78 @@
 - **未在真机硬件上验证的部分**：
   - 已通过 `openpty()` 验证完整 `termios` 与异步读写状态机；外接真实 USB 转串口触控盒（如 CH340 / CP2102 / ESP32-S3 高波特率 `IOSSIOSPEED` 路径及物理拔线）留待接入硬件时实测。
 - **状态**：**可合并**
+
+
+---
+
+## [2026-11-25 午后] 合并主线、A6 图标（方向 B）、A7 触控轨迹工具
+
+### 0. 合并主线 `ccr-e32722c2-75w11u`（提交 `e5fac65`）
+
+- 冲突只在文件头（主线加了 SPDX 头）：`src/hardware/Posix.cmake`、`src/platform/src/mac/Usb.mm` 及 3 个新文件直接取 Claude 试合并分支 `merge/antigravity-a2-a5`（`44ecfca`）的版本，与 Claude 审过的结果一致。
+
+### 1. A6：应用图标改为 Gemini 方向 B「双屏跃迁」
+
+- **改动文件**：
+  - `packaging/macos/icon/make_icon.swift`：改为只画方向 B 的三层（1024 全出血，全部在 164…860 内）：`phone.png` 海军蓝竖屏 `#1D3557→#0F2038`（188,264 260×480 r58）、`screen.png` 横屏玻璃 `#0A84FF→#38BDF8`（316,400 520×360 r52，压在手机右下）、`chevron.png` 白色粗折角 ›（线宽 48，圆头）。旧的 azure/ember/light 扁平变体与方向 A 图层删去。
+  - `packaging/macos/icon/GameScrcpy.icon/icon.json` + `Assets/`：背景 `linear-gradient` `#F0F6FF→#CFE4FF`（上→下，键名对照 Xcode 模板与 IconComposerFoundation 里的 `linear-gradient`/`orientation`）；三组由上到下 chevron / screen（`"glass": true`，translucency 0.3）/ phone。
+  - `packaging/macos/icon/build_icon.sh`（新增）：画图层 → `actool` 编译 `Assets.car` → 用 Icon Composer 自带的 `ictool` 渲染 16…1024 全部尺寸经 `iconutil` 打成 `GameScrcpy.icns`（actool 自己出的 `.icns` 只到 256 px，macOS 14/15 的大图标会糊）→ 导出 `GameScrcpy-1024.png`。
+  - `src/app/resources/Assets.car`（新增）与 `GameScrcpy.icns`（替换）；`src/app/CMakeLists.txt` 把两者都放进 `Resources`；`src/app/Info.plist.in` 加 `CFBundleIconName = GameScrcpy`。
+- **为什么提交二进制而不是构建时跑 actool**：编译 `.icon` 要 Xcode 26+，CI 在 `macos-15` 镜像上，Xcode 版本不保证；构建只拷贝结果，改图标时跑一次 `packaging/macos/icon/build_icon.sh` 即可。
+- **验证**：
+  - `actool` 无警告，输出 `Assets.car` + `GameScrcpy.icns`，partial plist 为 `CFBundleIconFile`/`CFBundleIconName = GameScrcpy`。
+  - 构建后把 `GameScrcpy.app` 拷到新路径（避开 LaunchServices 缓存），用 `NSWorkspace.shared.icon(forFile:)` 渲染：macOS 27.2 上是完整的 Liquid Glass 图标，**没有灰底板**。`docs/handoff/glass/icon-b-finder-{16,32,128,512}.png`；16/32 px 仍能看出“浅底 + 深蓝竖块 + 亮蓝横块”，32 px 能看到折角。
+  - 各外观（`ictool`，即 Icon Composer 的渲染器）：`icon-b-Dark.png`、`icon-b-ClearLight.png`、`icon-b-TintedDark.png`；macOS 14/15 用的 `.icns`：`icon-b-legacy-icns-256.png`。没有打开 Icon Composer 图形界面（避免在用户屏幕上弹窗），渲染用的是同一个引擎。
+  - 深色外观下背景由系统换成近黑，海军蓝手机对比偏弱，但轮廓仍可辨；若要加强可在 Icon Composer 给 phone 组加 dark 专用填充。
+  - `ctest --preset mac-app`：172/172（2 个真机测试跳过）。
+- **状态**：**可合并**
+
+
+---
+
+### 2. A7：触控轨迹统计工具 `tools/touch_trace.py`
+
+- **改动文件**：
+  - `tools/touch_trace.py`（新增）：解析 `GS_TOUCH_TRACE`（`<steady µs> <s|x> <pointer> <action> <x> <y>`，其中 `x/y` 为 `0..65535` 归一化坐标），按每个指针从 `Down` 到 `Up`/`Cancel` 切分手势，逐条输出：
+    - 移动帧间隔分布 `step p50/p90/max ms`；
+    - 抬手前 100 ms 内的速度（严格对照 `docs/handoff/swipe-design.md` 中 Android `VelocityTracker` 规则：`ACTION_UP` 不计采样点、采样间隔 `> 40 ms` 清空历史、抬手距最后一次移动 `> 40 ms` 速度归零；默认输出 `scr/s`，支持 `--size WxH` 输出像素速度 `px/s`）；
+    - 最后一次 `Move` 到 `Up` 的间隔 `lift gap`（ms）及手势分类（`fling` / `stopped`（`> 40 ms` 被安卓视作停住）/ `tap` / `cancel`），以及未发出帧计数 `unsent`；
+    - 内置 `--self-test` 自测用例。
+- **验证命令与结果**：
+  - `python3 tools/touch_trace.py --self-test`：`touch_trace self-test passed`。
+  - 独立 `GS_DATA_DIR` 演示副本实测（未触碰真机、未影响任何运行实例）：以 `--safe-mode --demo-device tests/data/video/emulator_h265.media` 加载临时测试配置，驱动纵向快滑（120 ms）、横向翻页滑（180 ms）、拖动后停顿 90 ms 再抬手、单击（30 ms）及双指捏合（200 ms），生成 62 行真实轨迹后运行 `tools/touch_trace.py`：
+    - 两条快滑：`step p50 = 17.7 / 18.7 ms`，速度 `5.00 / 3.88 scr/s`（`--size 1080x2400` 下 `12002 / 4195 px/s`），`lift gap = 15.4 / 17.1 ms` → `fling`；
+    - 拖动停顿后抬手：`13` 次移动，`lift gap = 88.7 ms > 40 ms`，速度 `0.00` → `stopped`；
+    - 单击：`0` 次移动，`30 ms` → `tap`；
+    - 双指捏合：双指针同步 `11` 次移动，速度 `0.75 scr/s`，`lift gap = 0.1 ms` → `fling`。
+  - `ctest --preset mac-app`：172/172（2 个真机测试跳过）。
+- **状态**：**可合并**
+
+
+---
+
+### 3. 文档重命名（`anmacgamer`）、标明上游出处与清理原作者/Windows 遗留痕迹
+
+- **改动文件**：
+  - 上游出处集中标注（仅此三处保留 `NuoRan/GameScrcpy` Apache-2.0 出处说明）：
+    - `README.md`、`README.en.md`：项目名称改为 **anmacgamer**，顶部图标换为新 macOS 图标 `packaging/macos/icon/GameScrcpy-1024.png`，仓库与发布/反馈/安全链接统一指向 `https://github.com/wyb-070110/anmacgammer`，功能列表同步至当前 macOS 通用版状态（Apple 芯片 + Intel、Liquid Glass、键鼠手柄、触控板、语音命令、USB/AOA、串口等），并在简介与“许可证与出处致谢”小节明确标注基于上游 `NuoRan/GameScrcpy`（Apache-2.0）。
+    - `LICENSING.md`：项目名改为 **anmacgamer**（`wyb-070110/anmacgammer`，维护者 `@wyb-070110`），保留上游 `NuoRan/GameScrcpy`（Apache-2.0）与 macOS 新增代码（GPL-3.0-or-later）的双层许可说明。
+  - 清理原作者联系方式、旧仓库链接与 Windows 痕迹：
+    - `CODE_OF_CONDUCT.md`：删除 `QQ 交流群 762961615`（中文导语与英文 Enforcement 两处），改为通过本仓库 [GitHub Security 页面](https://github.com/wyb-070110/anmacgammer/security/advisories/new)私下报告或联系维护者 `@wyb-070110`。
+    - `SECURITY.md`：安全漏洞私下报告链接改为 `https://github.com/wyb-070110/anmacgammer/security/advisories/new`（及维护者 `@wyb-070110`），“电脑端程序 / PC app”改为“Mac 端程序 / Mac app”。
+    - `CONTRIBUTING.md`、`CONTRIBUTING.en.md`：标题改为 **参与 anmacgamer 开发 / Contributing to anmacgamer**，Issues 链接指向 `wyb-070110/anmacgammer/issues`，将原有的 Windows 10/11、MSVC、`dev-env.ps1`、`msvc-debug`、`package.ps1`、Inno Setup 等全部重写为 macOS 开发环境、`mac-app`/`mac-release`/`posix-core` 构建与测试流程、`packaging/macos/package.sh` 打包说明及 GPL-3.0+ 贡献许可说明。
+    - `.github/ISSUE_TEMPLATE/bug_report.yml`、`.github/ISSUE_TEMPLATE/config.yml`：替换所有 `NuoRan/GameScrcpy` 链接为 `wyb-070110/anmacgammer`，版本号字段改为 `anmacgamer 版本 / Version`，安装方式改为 `.dmg 安装镜像`，系统环境由 `Windows 版本` 改为 `macOS 版本与芯片型号`。
+    - `AGENTS.md`、`docs/README.md`、`docs/architecture.md`、`docs/macos-port.md`、`docs/extensions/logic.{md,en.md}`、`src/app/help/{zh_CN,en}/touch-box.md`、`CHANGELOG.md`、`packaging/macos/RELEASE-NOTES-beta{1,2}.md`：项目名称统一为 `anmacgamer`，移除残余 `NuoRan` 链接、`WinUSB` 标题与 Windows 专属架构/命令描述。
+- **状态**：**可合并**
+
+
+---
+
+### 4. 重新打包通用发布版 `.dmg`（含新应用图标与卷图标）
+
+- **改动文件**：
+  - `packaging/macos/package.sh`：构建 `.dmg` 时同步写入 `.VolumeIcon.icns` 并通过 `SetFile -a C` 启用自定义磁盘卷图标，使挂载后的 DMG 卷与 `GameScrcpy.app` 一并展示新图标。
+- **构建与打包产物**：
+  - 预设：`mac-release`（`arm64` + `x86_64` 通用二进制，`LSMinimumSystemVersion = 14.0`，零外部 Homebrew/Qt 路径依赖，内置 `gs-server.apk`、`gs-companion.apk`、`adb`、`Assets.car` 与全尺寸 `GameScrcpy.icns`）。
+  - 产物路径：`/Users/york/GameScrcpy-macos-antigravity/build/package/GameScrcpy-2.2.1-beta2-macos-universal.dmg`（及同目录 `GameScrcpy.app`，大小 `148M`，SHA-256：`f74398e1f87899a43d51fe10b8ce2c0d355d411380fdad66a22dc10a48a9eef1`）。
+- **状态**：**可合并**

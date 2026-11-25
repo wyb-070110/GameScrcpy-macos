@@ -1,4 +1,4 @@
-本项目采用贡献者公约（Contributor Covenant）2.1 版。下面是英文原文，官方中文译本见 [contributor-covenant.org](https://www.contributor-covenant.org/zh-cn/version/2/1/code_of_conduct/)。遇到违反准则的行为，请私下告诉维护者：在 QQ 交流群 762961615 里私聊群主。
+本项目采用贡献者公约（Contributor Covenant）2.1 版。下面是英文原文，官方中文译本见 [contributor-covenant.org](https://www.contributor-covenant.org/zh-cn/version/2/1/code_of_conduct/)。遇到违反准则的行为，请通过仓库的 [GitHub Security 页面](https://github.com/wyb-070110/anmacgammer/security/advisories/new)私下向维护者报告，或联系维护者 [@wyb-070110](https://github.com/wyb-070110)。
 
 # Contributor Covenant Code of Conduct
 
@@ -38,7 +38,7 @@ This Code of Conduct applies within all community spaces, and also applies when 
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement privately, by messaging the owner of the QQ group 762961615. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement privately through the repository's [GitHub Security page](https://github.com/wyb-070110/anmacgammer/security/advisories/new) or by contacting the maintainer [@wyb-070110](https://github.com/wyb-070110). All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the reporter of any incident.
 
