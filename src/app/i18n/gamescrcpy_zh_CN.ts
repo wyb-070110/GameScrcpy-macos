@@ -11127,12 +11127,44 @@
         <translation>扩展面板</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation>返回</translation>
+    </message>
+    <message>
+        <source>Home</source>
+        <translation>主屏幕</translation>
+    </message>
+    <message>
+        <source>Recent apps</source>
+        <translation>最近任务</translation>
+    </message>
+    <message>
+        <source>Turn the screen off</source>
+        <translation>息屏</translation>
+    </message>
+    <message>
+        <source>Extension buttons</source>
+        <translation>扩展按钮</translation>
+    </message>
+    <message>
         <source>Close the panel</source>
         <translation>关闭面板</translation>
     </message>
     <message>
         <source>More</source>
         <translation>更多</translation>
+    </message>
+    <message>
+        <source>Show on the toolbar</source>
+        <translation>在工具栏上显示</translation>
+    </message>
+    <message>
+        <source>Show all</source>
+        <translation>全部显示</translation>
+    </message>
+    <message>
+        <source>Toolbar buttons…</source>
+        <translation>工具栏按钮…</translation>
     </message>
     <message>
         <source>Phone status</source>
@@ -18420,11 +18452,11 @@
         <translation>手机休眠或进入息屏显示（AOD）时停止投屏，或者继续投屏。选“第一次询问”时，第一次熄屏会问你。用 GameScrcpy 关掉手机屏幕不算。需要 adb 连接。</translation>
     </message>
     <message>
-        <source>Turn the phone's screen off while mirroring</source>
+        <source>Turn the phone&apos;s screen off while mirroring</source>
         <translation>投屏时关闭手机屏幕</translation>
     </message>
     <message>
-        <source>Turns the phone's own screen dark when mirroring starts; the phone keeps running and the picture keeps coming. Saves battery and keeps the phone cool. Turn it back on from the Device menu.</source>
+        <source>Turns the phone&apos;s own screen dark when mirroring starts; the phone keeps running and the picture keeps coming. Saves battery and keeps the phone cool. Turn it back on from the Device menu.</source>
         <translation>开始投屏时让手机自己的屏幕变黑，手机照常运行，电脑上的画面不受影响。省电，手机也不容易发热。要重新点亮，用“设备”菜单。</translation>
     </message>
     <message>
@@ -18486,6 +18518,18 @@
     <message>
         <source>speech say read aloud voice tts text to speech engine</source>
         <translation>朗读 语音 声音 引擎 文字转语音 tts</translation>
+    </message>
+    <message>
+        <source>Toolbar buttons</source>
+        <translation>工具栏按钮</translation>
+    </message>
+    <message>
+        <source>Which buttons the mirror toolbar shows; choose them from the toolbar&apos;s More menu.</source>
+        <translation>投屏工具栏上显示哪些按钮；在工具栏的“更多”菜单里选择。</translation>
+    </message>
+    <message>
+        <source>toolbar buttons customize customise hide show</source>
+        <translation>工具栏 按钮 自定义 隐藏 显示</translation>
     </message>
     <message>
         <source>Voice</source>

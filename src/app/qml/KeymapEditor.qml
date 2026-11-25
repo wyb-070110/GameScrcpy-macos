@@ -1693,7 +1693,6 @@ Item {
                 id: aspectSelect
 
                 objectName: "aspectSelect"
-                anchors.verticalCenter: parent.verticalCenter
                 width: ratioMetrics.advanceWidth + leftPadding + rightPadding
                 model: keymapEditor.ratios
                 textRole: "text"
@@ -1720,7 +1719,6 @@ Item {
             },
             Text {
                 objectName: "previewNote"
-                anchors.verticalCenter: parent.verticalCenter
                 visible: keymapEditor.previewing
                 leftPadding: Theme.space.xs
                 rightPadding: Theme.space.xs
@@ -1741,7 +1739,6 @@ Item {
                 id: zoomLevel
 
                 objectName: "zoomLevel"
-                anchors.verticalCenter: parent.verticalCenter
                 width: zoomMetrics.advanceWidth + leftPadding + rightPadding
                 small: true
                 tone: "ghost"
