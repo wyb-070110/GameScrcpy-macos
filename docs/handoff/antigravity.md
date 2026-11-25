@@ -174,3 +174,28 @@
 - **未在真机硬件上验证的部分**：
   - 已通过 `openpty()` 验证完整 `termios` 与异步读写状态机；外接真实 USB 转串口触控盒（如 CH340 / CP2102 / ESP32-S3 高波特率 `IOSSIOSPEED` 路径及物理拔线）留待接入硬件时实测。
 - **状态**：**可合并**
+
+
+---
+
+## [2026-11-25 午后] 合并主线、A6 图标（方向 B）、A7 触控轨迹工具
+
+### 0. 合并主线 `ccr-e32722c2-75w11u`（提交 `e5fac65`）
+
+- 冲突只在文件头（主线加了 SPDX 头）：`src/hardware/Posix.cmake`、`src/platform/src/mac/Usb.mm` 及 3 个新文件直接取 Claude 试合并分支 `merge/antigravity-a2-a5`（`44ecfca`）的版本，与 Claude 审过的结果一致。
+
+### 1. A6：应用图标改为 Gemini 方向 B「双屏跃迁」
+
+- **改动文件**：
+  - `packaging/macos/icon/make_icon.swift`：改为只画方向 B 的三层（1024 全出血，全部在 164…860 内）：`phone.png` 海军蓝竖屏 `#1D3557→#0F2038`（188,264 260×480 r58）、`screen.png` 横屏玻璃 `#0A84FF→#38BDF8`（316,400 520×360 r52，压在手机右下）、`chevron.png` 白色粗折角 ›（线宽 48，圆头）。旧的 azure/ember/light 扁平变体与方向 A 图层删去。
+  - `packaging/macos/icon/GameScrcpy.icon/icon.json` + `Assets/`：背景 `linear-gradient` `#F0F6FF→#CFE4FF`（上→下，键名对照 Xcode 模板与 IconComposerFoundation 里的 `linear-gradient`/`orientation`）；三组由上到下 chevron / screen（`"glass": true`，translucency 0.3）/ phone。
+  - `packaging/macos/icon/build_icon.sh`（新增）：画图层 → `actool` 编译 `Assets.car` → 用 Icon Composer 自带的 `ictool` 渲染 16…1024 全部尺寸经 `iconutil` 打成 `GameScrcpy.icns`（actool 自己出的 `.icns` 只到 256 px，macOS 14/15 的大图标会糊）→ 导出 `GameScrcpy-1024.png`。
+  - `src/app/resources/Assets.car`（新增）与 `GameScrcpy.icns`（替换）；`src/app/CMakeLists.txt` 把两者都放进 `Resources`；`src/app/Info.plist.in` 加 `CFBundleIconName = GameScrcpy`。
+- **为什么提交二进制而不是构建时跑 actool**：编译 `.icon` 要 Xcode 26+，CI 在 `macos-15` 镜像上，Xcode 版本不保证；构建只拷贝结果，改图标时跑一次 `packaging/macos/icon/build_icon.sh` 即可。
+- **验证**：
+  - `actool` 无警告，输出 `Assets.car` + `GameScrcpy.icns`，partial plist 为 `CFBundleIconFile`/`CFBundleIconName = GameScrcpy`。
+  - 构建后把 `GameScrcpy.app` 拷到新路径（避开 LaunchServices 缓存），用 `NSWorkspace.shared.icon(forFile:)` 渲染：macOS 27.2 上是完整的 Liquid Glass 图标，**没有灰底板**。`docs/handoff/glass/icon-b-finder-{16,32,128,512}.png`；16/32 px 仍能看出“浅底 + 深蓝竖块 + 亮蓝横块”，32 px 能看到折角。
+  - 各外观（`ictool`，即 Icon Composer 的渲染器）：`icon-b-Dark.png`、`icon-b-ClearLight.png`、`icon-b-TintedDark.png`；macOS 14/15 用的 `.icns`：`icon-b-legacy-icns-256.png`。没有打开 Icon Composer 图形界面（避免在用户屏幕上弹窗），渲染用的是同一个引擎。
+  - 深色外观下背景由系统换成近黑，海军蓝手机对比偏弱，但轮廓仍可辨；若要加强可在 Icon Composer 给 phone 组加 dark 专用填充。
+  - `ctest --preset mac-app`：172/172（2 个真机测试跳过）。
+- **状态**：**可合并**

@@ -1,9 +1,11 @@
 qt_add_executable(GameScrcpy MACOSX_BUNDLE
     main.cpp
     resources/GameScrcpy.icns
+    resources/Assets.car
 )
-# The Dock, Finder and Launchpad icon (drawn by packaging/macos/icon/make_icon.swift).
-set_source_files_properties(resources/GameScrcpy.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+# The Dock, Finder and Launchpad icon, compiled from packaging/macos/icon/GameScrcpy.icon by
+# packaging/macos/icon/build_icon.sh: Assets.car for macOS 26 and later, GameScrcpy.icns before.
+set_source_files_properties(resources/GameScrcpy.icns resources/Assets.car PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 set_target_properties(GameScrcpy PROPERTIES
     MACOSX_BUNDLE_ICON_FILE "GameScrcpy"
     MACOSX_BUNDLE_BUNDLE_NAME "GameScrcpy"
