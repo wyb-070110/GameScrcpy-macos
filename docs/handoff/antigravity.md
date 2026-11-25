@@ -199,3 +199,24 @@
   - 深色外观下背景由系统换成近黑，海军蓝手机对比偏弱，但轮廓仍可辨；若要加强可在 Icon Composer 给 phone 组加 dark 专用填充。
   - `ctest --preset mac-app`：172/172（2 个真机测试跳过）。
 - **状态**：**可合并**
+
+
+---
+
+### 2. A7：触控轨迹统计工具 `tools/touch_trace.py`
+
+- **改动文件**：
+  - `tools/touch_trace.py`（新增）：解析 `GS_TOUCH_TRACE`（`<steady µs> <s|x> <pointer> <action> <x> <y>`，其中 `x/y` 为 `0..65535` 归一化坐标），按每个指针从 `Down` 到 `Up`/`Cancel` 切分手势，逐条输出：
+    - 移动帧间隔分布 `step p50/p90/max ms`；
+    - 抬手前 100 ms 内的速度（严格对照 `docs/handoff/swipe-design.md` 中 Android `VelocityTracker` 规则：`ACTION_UP` 不计采样点、采样间隔 `> 40 ms` 清空历史、抬手距最后一次移动 `> 40 ms` 速度归零；默认输出 `scr/s`，支持 `--size WxH` 输出像素速度 `px/s`）；
+    - 最后一次 `Move` 到 `Up` 的间隔 `lift gap`（ms）及手势分类（`fling` / `stopped`（`> 40 ms` 被安卓视作停住）/ `tap` / `cancel`），以及未发出帧计数 `unsent`；
+    - 内置 `--self-test` 自测用例。
+- **验证命令与结果**：
+  - `python3 tools/touch_trace.py --self-test`：`touch_trace self-test passed`。
+  - 独立 `GS_DATA_DIR` 演示副本实测（未触碰真机、未影响任何运行实例）：以 `--safe-mode --demo-device tests/data/video/emulator_h265.media` 加载临时测试配置，驱动纵向快滑（120 ms）、横向翻页滑（180 ms）、拖动后停顿 90 ms 再抬手、单击（30 ms）及双指捏合（200 ms），生成 62 行真实轨迹后运行 `tools/touch_trace.py`：
+    - 两条快滑：`step p50 = 17.7 / 18.7 ms`，速度 `5.00 / 3.88 scr/s`（`--size 1080x2400` 下 `12002 / 4195 px/s`），`lift gap = 15.4 / 17.1 ms` → `fling`；
+    - 拖动停顿后抬手：`13` 次移动，`lift gap = 88.7 ms > 40 ms`，速度 `0.00` → `stopped`；
+    - 单击：`0` 次移动，`30 ms` → `tap`；
+    - 双指捏合：双指针同步 `11` 次移动，速度 `0.75 scr/s`，`lift gap = 0.1 ms` → `fling`。
+  - `ctest --preset mac-app`：172/172（2 个真机测试跳过）。
+- **状态**：**可合并**
