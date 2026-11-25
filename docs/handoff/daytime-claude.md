@@ -57,3 +57,8 @@
   anmacgamer_<lang>.ts (Chinese UI checked in a demo); f6c9935 copyright lines. 175/175 tests and gradle green
   after each. Left for the morning: Java/Kotlin packages (needs a phone run), icon file names (README links;
   after Gemini's G9), Windows-only files (ask), tier B (ask).
+- 01:35 check: Gemini finished G9; reviewed and committed cacf361 (English-first docs, *.zh-CN.md Chinese, licence
+  facts unchanged). Fixed: old app path/data folder/lupdate target in commands, no-adb companion mirroring moved to
+  "Not yet" until tested, AGENTS.md link. No newer Star Rail mapping from Gemini (build/honkai-star-rail-pc is the
+  23:28 version already built in). Gemini's open points: repo name anmacgammer (kept), Windows details in
+  docs/extensions (kept), CHANGELOG beta3 tag link (at release time).
