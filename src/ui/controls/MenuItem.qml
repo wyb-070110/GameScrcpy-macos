@@ -83,7 +83,7 @@ T.MenuItem {
             anchors.verticalCenter: parent.verticalCenter
             visible: control.shortcut !== ""
             textFormat: Text.PlainText
-            text: control.shortcut
+            text: Theme.keyLabel(control.shortcut)
             color: Theme.colors.textTertiary
             font.pixelSize: Theme.type.caption.size
         }

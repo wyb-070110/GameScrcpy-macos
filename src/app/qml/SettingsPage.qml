@@ -804,6 +804,12 @@ Item {
                         })
                     }
 
+                    SelectSetting {
+                        path: "touch.trackpadMode"
+                        labels: ({ pageTurn: qsTr("Page turn"), natural: qsTr("Natural fling"),
+                                   direct: qsTr("Direct"), scroll: qsTr("Scroll wheel") })
+                    }
+
                     SliderSetting {
                         path: "touch.trackpadSpeed"
                         unit: "%"
@@ -984,9 +990,9 @@ Item {
                     AccentSetting {
                         path: "appearance.accent"
                         labels: ({
+                            azure: qsTr("Blue"),
                             ember: qsTr("Ember"),
                             teal: qsTr("Teal"),
-                            azure: qsTr("Azure"),
                             lime: qsTr("Lime"),
                             rose: qsTr("Rose"),
                             amber: qsTr("Amber")

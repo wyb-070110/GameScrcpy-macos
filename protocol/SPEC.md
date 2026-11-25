@@ -189,7 +189,7 @@ adb 隧道传输（v1）：服务端在抽象 socket 上监听，客户端经 `a
 
 | 类型 | 名称 | 负载 |
 |---|---|---|
-| 0x0101 | TouchFrame | `videoSession u16` · `count u8（1–32）` · `count × TouchPoint`；**TouchPoint**（8 字节）=`action u8`（0 按下、1 抬起、2 移动、3 取消）· `pointerId u8（0–31）` · `x u16` · `y u16` · `pressure u16`；同一帧内 `pointerId` 不得重复 |
+| 0x0101 | TouchFrame | `videoSession u16` · `count u8（1–32）` · `count × TouchPoint`；**TouchPoint**（8 字节）=`action u8`（0 按下、1 抬起、2 移动、3 取消）· `pointerId u8（0–31）` · `x u16` · `y u16` · `pressure u16`；之后是 `hostTimeMs u32`（客户端生成这一帧时它自己单调时钟的毫秒数，会回绕；0 表示不知道。手机按它保持触摸原本的节奏，帧挤在一起到达时也不会把滑动算快）；同一帧内 `pointerId` 不得重复 |
 | 0x0102 | Key | `action u8`（0 按下、1 抬起）· `keycode u32`（Android KEYCODE）· `metaState u32` · `repeat u16`（共 11 字节） |
 | 0x0103 | Text | `text str16（≤ 4096）` |
 | 0x0104 | Scroll | `x u16` · `y u16` · `videoSession u16` · `hScroll i16` · `vScroll i16`（单位：1/256 格） |

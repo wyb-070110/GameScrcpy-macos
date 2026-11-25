@@ -649,6 +649,10 @@ Window {
         }
     }
 
+    MacMenuBar {
+        hub: root
+    }
+
     WindowChrome {
         id: chrome
         window: root

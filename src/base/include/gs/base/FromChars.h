@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 // std::from_chars for integers and floating point everywhere: libc++ before LLVM 20 (Apple Clang included)
 // has no floating-point from_chars, so there it parses with strtod in the C locale, keeping from_chars' rules.
 // Newer libc++ (22 at least) writes ±inf or 0 into the value on result_out_of_range, where the standard keeps
@@ -8,7 +10,13 @@
 #include <system_error>
 #include <type_traits>
 
-#if defined(_LIBCPP_VERSION) && _LIBCPP_VERSION < 200000
+#if defined(__APPLE__)
+#include <Availability.h>
+#endif
+
+// Apple's libc++ has floating-point from_chars only from macOS 26; an app that runs on older macOS parses itself.
+#if (defined(_LIBCPP_VERSION) && _LIBCPP_VERSION < 200000) ||                                                     \
+    (defined(__APPLE__) && defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && __MAC_OS_X_VERSION_MIN_REQUIRED < 260000)
 #include <cerrno>
 #include <clocale>
 #include <cstdlib>

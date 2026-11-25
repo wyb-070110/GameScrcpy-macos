@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 // The per-user key as a generic password in the user's login keychain, for the app in its bundle.
 //
 // A program outside an app bundle (the test programs, development tools) keeps its own key in a file

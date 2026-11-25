@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 // Containers of restricted native extensions off Windows (see posix/Sandbox.h).
 #include "../Container.h"
 #include "Bridge.h"

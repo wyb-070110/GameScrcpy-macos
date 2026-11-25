@@ -57,6 +57,7 @@ public:
     void setDiagnostics(const QStringList& lines);
     void setTrackpad(double speed, bool inertia, double inertiaStrength, double longest);
     void setPageTurn(double turnFrom);
+    void setSwipeMode(int mode);
     void setSharpness(qreal sharpness);
     void setFilters(std::vector<render::VideoFilter> filters);
     [[nodiscard]] const std::vector<render::FilterStatus>& filterStatus() const;
@@ -166,6 +167,7 @@ private:
     void restOnTitle(bool resting);
     void titleRested();
     void fitToPicture();
+    void lockAspect();
     [[nodiscard]] QRect miniGeometry() const;
     void layoutContent();
     [[nodiscard]] int reservedTop() const noexcept;

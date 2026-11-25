@@ -212,6 +212,7 @@ def _touch_frame(w: Writer, f: dict) -> None:
         w.u16(p["x"])
         w.u16(p["y"])
         w.u16(p["pressure"])
+    w.u32(f["hostTimeMs"])
 
 
 @message("Key", 0x0102, "control")
@@ -765,18 +766,19 @@ def handshake_vectors() -> list[dict]:
 def input_vectors() -> list[dict]:
     return [
         ok("touch-frame-single-down", "TouchFrame", {
-            "videoSession": 1, "points": [touch_point("down", 0, 32768, 32768, 65535)]}),
+            "videoSession": 1, "points": [touch_point("down", 0, 32768, 32768, 65535)], "hostTimeMs": 0}),
         ok("touch-frame-joystick-and-camera", "TouchFrame", {
             "videoSession": 2, "points": [touch_point("move", 0, 9000, 48000, 65535),
-                                          touch_point("move", 1, 41000, 20000, 65535)]}),
+                                          touch_point("move", 1, 41000, 20000, 65535)],
+            "hostTimeMs": 123456789}),
         ok("touch-frame-mixed-actions", "TouchFrame", {
             "videoSession": 3, "points": [touch_point("up", 1, 100, 200, 0),
                                           touch_point("move", 2, 300, 400, 30000),
                                           touch_point("down", 3, 500, 600, 65535),
-                                          touch_point("cancel", 7, 0, 0, 1)]}),
+                                          touch_point("cancel", 7, 0, 0, 1)], "hostTimeMs": 1}),
         ok("touch-frame-max", "TouchFrame", {
             "videoSession": 65535,
-            "points": [touch_point("move", i, 65535, 65535, 0) for i in range(32)]}),
+            "points": [touch_point("move", i, 65535, 65535, 0) for i in range(32)], "hostTimeMs": 0xFFFFFFFF}),
         ok("key-down-w", "Key", {"action": "down", "keycode": 51, "metaState": 0, "repeat": 0}),
         ok("key-up-alt", "Key", {"action": "up", "keycode": 51, "metaState": 0x02, "repeat": 0}),
         ok("key-extremes", "Key", {"action": "down", "keycode": 0xFFFFFFFF,
@@ -1219,9 +1221,9 @@ def companion_settings_payload(name: bytes = b"PC", link: int = 0, accent: int =
 
 def malformed_vectors() -> list[dict]:
     point = struct.pack(">BBHHH", 0, 0, 1, 2, 3)
-    touch_payload = struct.pack(">HB", 1, 1) + point
+    touch_payload = struct.pack(">HB", 1, 1) + point + struct.pack(">I", 0)
     duplicate_points = (struct.pack(">HB", 1, 2) + struct.pack(">BBHHH", 0, 3, 1, 2, 3)
-                        + struct.pack(">BBHHH", 2, 3, 4, 5, 6))
+                        + struct.pack(">BBHHH", 2, 3, 4, 5, 6) + struct.pack(">I", 0))
     welcome_resumed_2 = (b"\x00" * 4 + struct.pack(">H", 28) + b"\x00" * 4
                          + struct.pack(">I", 0) + b"\x02")
     long_text = struct.pack(">H", 4097) + b"a" * 4097

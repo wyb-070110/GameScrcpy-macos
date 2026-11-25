@@ -7,7 +7,7 @@
 **在 macOS 上投屏控制安卓手机，支持蓝图与 TypeScript 自动化（移植进行中）**
 
 [![CI](https://img.shields.io/github/actions/workflow/status/wyb-070110/GameScrcpy-macos/macos.yml?style=flat-square&label=macOS%20CI)](https://github.com/wyb-070110/GameScrcpy-macos/actions/workflows/macos.yml)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square)](LICENSE)
+[![License](https://img.shields.io/badge/license-GPL--3.0%2B%20%2F%20Apache--2.0-blue?style=flat-square)](LICENSING.md)
 [![Platform](https://img.shields.io/badge/macOS%2014%2B-Apple%20Silicon-000000?style=flat-square)](#系统要求)
 
 简体中文 · [English](README.en.md)
@@ -107,7 +107,7 @@ cmake --workflow --preset posix-core
 
 ## 许可证与致谢
 
-GameScrcpy 以 [Apache License 2.0](LICENSE) 发布。
+沿用的上游代码以 [Apache License 2.0](LICENSE) 发布；macOS 移植新写的代码以 [GPL 3.0 或更高版本](LICENSES/GPL-3.0-or-later.txt) 发布，macOS 程序整体按 GPL 3.0 或更高版本提供。详见 [LICENSING.md](LICENSING.md)。
 
 - [NuoRan/GameScrcpy](https://github.com/NuoRan/GameScrcpy)：本项目所基于的上游原版。
 - [scrcpy](https://github.com/Genymobile/scrcpy)：安卓投屏的先驱，GameScrcpy 的思路源自它。

@@ -24,6 +24,8 @@
 
 namespace gs::app {
 
+class PreeditBubble;
+
 class MirrorInputItem final : public QQuickItem
 {
     Q_OBJECT
@@ -45,6 +47,11 @@ public:
     // A swipe that went at least turnFrom of the picture one way, with at least 90% of its path that way, ends in
     // a short even flick that way, so the phone turns one page; 0 turns this off.
     void setPageTurn(double turnFrom);
+    // How a two-finger trackpad swipe reaches the phone (Settings.h touch.trackpadMode): one finger that turns a
+    // page per deliberate swipe, one that keeps the swipe's own speed when the fingers leave so the phone flings
+    // it, one that lifts where the fingers stop, or the phone's scroll wheel.
+    enum class SwipeMode : std::uint8_t { PageTurn, Natural, Direct, Scroll };
+    void setSwipeMode(SwipeMode mode) { m_swipeMode = mode; }
     [[nodiscard]] bool relativeMouse() const noexcept { return m_relative; }
 
     [[nodiscard]] static std::optional<input::Vec2> normalized(const QRectF& content, QPointF position, bool clamped);
@@ -99,7 +106,11 @@ private:
     [[nodiscard]] std::optional<QPointF> pageTurn() const;
     void flickStep();
     void startFlick(QPointF direction);
+    void startFling();
+    [[nodiscard]] QPointF releaseVelocity() const;
+    void releaseSwipe();
     void releaseKeys();
+    void showPreedit(const QString& text, int cursor);
     void follow(QPointF position);
     [[nodiscard]] bool pressRelative(QMouseEvent* event, bool down);
 
@@ -127,6 +138,13 @@ private:
     // This swipe's path, summed per direction (right, left, down, up), in points of the picture.
     std::array<double, 4> m_swipePath{};
     double m_turnFrom = 0.25;
+    SwipeMode m_swipeMode = SwipeMode::PageTurn;
+    // The swipe's last movement and how long it took, for the natural fling's speed.
+    QPointF m_lastSwipeDelta;
+    qint64 m_lastSwipeMs = 1;
+    // The finger's recent positions (ms since the swipe began, point), for its speed when the fingers leave.
+    QElapsedTimer m_moveClock;
+    std::vector<std::pair<qint64, QPointF>> m_recentMoves;
     // The page-turn flick under way: steps left, each step, and the clock between them.
     int m_flickSteps = 0;
     QPointF m_flickStep;
@@ -134,6 +152,8 @@ private:
     // How far the finger has coasted, in points of the picture.
     double m_coasted = 0.0;
     QPointF m_lastPress;
+    // The pinyin (or other text) the input method is still composing, shown on the picture.
+    PreeditBubble* m_preedit = nullptr;
     bool m_capturing = false;
     bool m_typing = false;
     bool m_touching = false;

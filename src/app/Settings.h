@@ -98,8 +98,9 @@ struct Updates {
 enum class ThemeMode : std::uint8_t { Dark, Light, System };
 inline constexpr std::array<std::string_view, 3> kThemeModeNames{"dark", "light", "system"};
 
-enum class Accent : std::uint8_t { Ember, Teal, Azure, Lime, Rose, Amber };
-inline constexpr std::array<std::string_view, 6> kAccentNames{"ember", "teal", "azure", "lime", "rose", "amber"};
+// Azure is Apple's system blue and the default, so it comes first; settings store the name, not the place.
+enum class Accent : std::uint8_t { Azure, Ember, Teal, Lime, Rose, Amber };
+inline constexpr std::array<std::string_view, 6> kAccentNames{"azure", "ember", "teal", "lime", "rose", "amber"};
 
 enum class SystemToggle : std::uint8_t { System, On, Off };
 inline constexpr std::array<std::string_view, 3> kSystemToggleNames{"system", "on", "off"};
@@ -107,7 +108,7 @@ inline constexpr std::array<std::string_view, 3> kSystemToggleNames{"system", "o
 struct Appearance {
     static constexpr std::size_t kMaxPaletteLength = 64 + 1 + 4 * 64;
 
-    ThemeMode theme = ThemeMode::Dark;
+    ThemeMode theme = ThemeMode::System;
     Accent accent = Accent::Azure;
     SystemToggle reducedMotion = SystemToggle::System;
     SystemToggle reducedTransparency = SystemToggle::System;
@@ -216,6 +217,7 @@ struct Display {
     bool cameraGlow = true;
     EditingClose closeWhileEditing = EditingClose::Ask;
     ScreenOffAction phoneScreenOff = ScreenOffAction::Ask;
+    bool screenOffWhileMirroring = false;
 
     template <typename V, typename Self>
     static void visit(V& v, Self& m)
@@ -300,6 +302,15 @@ struct Display {
                                                             "stop mirroring battery"),
                   .scope = Scope::Device,
                   .live = true});
+        v.boolean("screenOffWhileMirroring", m.screenOffWhileMirroring,
+                  {.title = GS_TRANSLATE_NOOP("Settings", "Turn the phone's screen off while mirroring"),
+                   .description = GS_TRANSLATE_NOOP("Settings", "Turns the phone's own screen dark when mirroring "
+                                                                "starts; the phone keeps running and the picture "
+                                                                "keeps coming. Saves battery and keeps the phone "
+                                                                "cool. Turn it back on from the Device menu."),
+                   .keywords = GS_TRANSLATE_NOOP("Settings", "screen off dark display power battery heat mirroring "
+                                                             "start"),
+                   .scope = Scope::Device});
     }
 
     friend bool operator==(const Display&, const Display&) = default;
@@ -436,6 +447,10 @@ struct Keymap {
 enum class TouchMethod : std::uint8_t { Inject, Uhid, Aoa, None };
 inline constexpr std::array<std::string_view, 4> kTouchMethodNames{"inject", "uhid", "aoa", "none"};
 
+// The order matches MirrorInputItem::SwipeMode.
+enum class TrackpadMode : std::uint8_t { PageTurn, Natural, Direct, Scroll };
+inline constexpr std::array<std::string_view, 4> kTrackpadModeNames{"pageTurn", "natural", "direct", "scroll"};
+
 struct Touch {
     static constexpr std::size_t kMaxExtensionLength = 64 + 1 + 64;
     static constexpr std::size_t kMaxDeviceLength = 512;
@@ -444,6 +459,7 @@ struct Touch {
     std::string extension;
     std::string device;
     std::int32_t rateHz = 0;
+    TrackpadMode trackpadMode = TrackpadMode::Direct;
     std::int32_t trackpadSpeed = 100;
     bool trackpadInertia = true;
     std::int32_t trackpadInertiaStrength = 100;
@@ -492,6 +508,17 @@ struct Touch {
                                                              "smooth polling"),
                    .scope = Scope::Device,
                    .live = true});
+        v.choice("trackpadMode", m.trackpadMode, kTrackpadModeNames,
+                 {.title = GS_TRANSLATE_NOOP("Settings", "Trackpad swipe mode"),
+                  .description = GS_TRANSLATE_NOOP("Settings", "How a two-finger swipe on the trackpad reaches the "
+                                                               "phone. Page turn: a deliberate swipe turns one page. "
+                                                               "Natural fling: the phone flings with the speed you "
+                                                               "swiped. Direct: the finger stops where yours stop. "
+                                                               "Scroll wheel: sent as mouse scrolling."),
+                  .keywords = GS_TRANSLATE_NOOP("Settings", "trackpad swipe mode page turn natural fling direct "
+                                                            "scroll wheel mapping"),
+                  .scope = Scope::Device,
+                  .live = true});
         v.integer("trackpadSpeed", m.trackpadSpeed, 25, 400,
                   {.title = GS_TRANSLATE_NOOP("Settings", "Trackpad swipe speed"),
                    .description = GS_TRANSLATE_NOOP("Settings", "How far a two-finger swipe on the trackpad moves the "

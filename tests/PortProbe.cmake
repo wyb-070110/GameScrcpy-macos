@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 # Port probe: unit tests of the Windows-free modules.
 function(gs_add_unit_test name)
     cmake_parse_arguments(PARSE_ARGV 1 arg "" "" "SOURCES;LIBRARIES;ARGUMENTS")
@@ -217,6 +219,10 @@ if(APPLE)
         GS_TEST_MACHO_PROBE="$<TARGET_FILE:gs_test_macho_probe>"
         GS_TEST_MACHO_PROBE_CLASSIC="$<TARGET_FILE:gs_test_macho_probe_classic>")
     add_dependencies(gs_ext_tests gs_test_macho_clean gs_test_macho_probe gs_test_macho_probe_classic)
+    # The checks read one-architecture files (and wrap one into a universal file themselves), whatever the app is
+    # built for: the probes are built for this Mac's processor only.
+    set_target_properties(gs_test_macho_clean gs_test_macho_probe gs_test_macho_probe_classic PROPERTIES
+        OSX_ARCHITECTURES "${CMAKE_HOST_SYSTEM_PROCESSOR}")
 endif()
 
 gs_add_unit_test(gs_script_tests

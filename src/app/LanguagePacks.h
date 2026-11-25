@@ -78,6 +78,8 @@ private:
     QVariantMap m_missing;
     QByteArray m_packData;
     QTranslator m_builtin;
+    // Qt's own texts (the macOS application menu: Hide, Quit, Services…) in the interface language.
+    QTranslator m_qt;
     QTranslator m_pack;
     QString m_language;
     QString m_source;

@@ -296,6 +296,8 @@ if(GS_BUILD_TESTS)
     add_test(NAME gs_cli_sign_package
              COMMAND "${CMAKE_COMMAND}" "-DGS=$<TARGET_FILE:gs_cli>" "-DSOURCE=${gs_cli_test_data}/signed-theme"
                      "-DWORK=${CMAKE_CURRENT_BINARY_DIR}/signed-pack" -P "${PROJECT_SOURCE_DIR}/cmake/SignedPackCheck.cmake")
+    # The check expects a one-architecture dylib (it builds the universal form itself).
+    set_target_properties(gs_ext_pc_clock PROPERTIES OSX_ARCHITECTURES "${CMAKE_HOST_SYSTEM_PROCESSOR}")
     add_test(NAME gs_cli_validate_architectures
              COMMAND "${CMAKE_COMMAND}" "-DGS=$<TARGET_FILE:gs_cli>" "-DDLL=$<TARGET_FILE:gs_ext_pc_clock>"
                      "-DWORK=${CMAKE_CURRENT_BINARY_DIR}/architectures"

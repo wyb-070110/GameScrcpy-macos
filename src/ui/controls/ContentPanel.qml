@@ -6,7 +6,7 @@ Rectangle {
 
     default property alias content: inner.data
 
-    color: Theme.colors.bgRaised
+    color: Theme.liquid ? Theme.colors.bgContent : Theme.colors.bgRaised
     topLeftRadius: Theme.radius.xl
 
     Rectangle {

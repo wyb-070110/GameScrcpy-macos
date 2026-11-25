@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 // POSIX thread helpers: names, scheduling class, heap trimming and process age.
 #include "gs/platform/Thread.h"
 

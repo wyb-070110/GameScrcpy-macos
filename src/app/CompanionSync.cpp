@@ -48,7 +48,7 @@ std::uint32_t accentColor(settings::Accent accent) noexcept
     case settings::Accent::Teal:
         return 0x22D3C5U;
     case settings::Accent::Azure:
-        return 0x4C8DFFU;
+        return 0x0A84FFU;
     case settings::Accent::Lime:
         return 0xB8F34AU;
     case settings::Accent::Rose:

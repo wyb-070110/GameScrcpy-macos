@@ -1,46 +1,44 @@
-# Antigravity — next batch (2026-11-25, set by Claude)
+# Antigravity — next batch (2026-11-25 midday, set by Claude before handing over)
 
-Same rules as `TEAM.md` and `antigravity-tonight.md`: only `~/GameScrcpy-macos-antigravity`, branch
-`mac/antigravity`, `git add <paths>`, no push, no downloads, log in `docs/handoff/antigravity.md`. Start with
-`git merge ccr-e32722c2-75w11u` (Claude merged your overnight work, thank you — it was clean).
+Claude is out of quota; you carry on alone until it is back. Rules as before (TEAM.md): work only in
+`~/GameScrcpy-macos-antigravity` on `mac/antigravity`; no push, no downloads, no brew installs, no Overages; never quit
+the user's running GameScrcpy (test with a demo copy and its own `GS_DATA_DIR`); one commit per task; keep
+`ctest --preset mac-app` green; log in `docs/handoff/antigravity.md` and mark each task 可合并 when done.
 
-## A2 — USB phones on macOS (`src/platform/src/mac/Usb.mm`)
+**First:** merge the mainline into your branch: `git merge ccr-e32722c2-75w11u` from `~/GameScrcpy-macos`
+(fetch it with `git fetch ~/GameScrcpy-macos ccr-e32722c2-75w11u`). It already contains your A2/A5 (trial merge
+reviewed by Claude), the touch timing fix, the icon pipeline and Gemini's icon proposals.
 
-Replace the empty stub with libusb (already a dependency: Homebrew `libusb`, found by `third_party/Posix.cmake` as
-`libusb::libusb`; macOS needs no driver):
+## A6 — The app icon: Gemini's direction B (the user's choice)
 
-- `listUsbPhones()`: Android phones on USB with serial, name, VID/PID; `debugging = true` when an ADB interface
-  (class 0xFF, subclass 0x42, protocol 0x01) is present; the driver state `Ready`.
-- `UsbWatcher`: plug/unplug callbacks (libusb hotplug, on a thread of its own).
-- `UsbDevice::open/controlOut/controlIn/bulk…` as `src/platform/include/gs/platform/Usb.h` asks (AOA uses them),
-  `usbLibraryVersion()` returning libusb's version.
-- Then the AOA texts that say "not available on macOS yet" (`DeviceManager.cpp`, `AoaSession.cpp`,
-  `PictureTouch.cpp`, `SessionController.cpp`, `DevicePresentation.cpp`) can go back to their normal wording once
-  AOA works; keep them if it does not.
-- Unit tests in `tests/unit/platform/mac/` for what can run without a phone. With the phone plugged in
-  (serial `RFGL71YMDHD`) log what `listUsbPhones()` returns. Do not switch the phone into accessory mode yourself:
-  write in the log what to try and Claude will run it with the user.
+Spec: `docs/handoff/gemini/icon.md`, section 方向 B「双屏跃迁与极速帧流（Dual-Frame Stream）」. Gemini only drew
+layers for direction A (`docs/handoff/gemini/icon/layers/`): do not use those.
 
-## A3 — a Mac app that installs like any other (`packaging/macos/`)
+1. Draw B's layers as 1024×1024 full-bleed canvases (transparent PNG or SVG; keep everything inside 164…860 px so the
+   system mask never cuts it): back = navy portrait phone `#1D3557`→`#0F2038`, rounded; front = larger landscape
+   glass screen `#0A84FF`→`#38BDF8`, overlapping it to the right; on the front screen a bold white right chevron (›).
+   Extend `packaging/macos/icon/make_icon.swift` (it already has a `layers` mode and the CoreGraphics helpers) or
+   write SVGs by hand.
+2. Rewrite `packaging/macos/icon/GameScrcpy.icon/icon.json` and `Assets/`: background
+   `"fill": {"linear-gradient": ...}` or `"automatic-gradient"` close to `#F0F6FF`→`#CFE4FF`; one group per layer,
+   `"glass": true` on the front screen. Check the JSON keys against Xcode's template
+   (`/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Xcode/Templates/File Templates/macOS/Resource/Icon Composer Icon.xctemplate`)
+   and open it in Icon Composer (`/Applications/Xcode.app/Contents/Applications/Icon Composer.app`) to see it.
+3. Compile: `xcrun actool packaging/macos/icon/GameScrcpy.icon --compile <dir> --platform macosx
+   --minimum-deployment-target 14.0 --app-icon GameScrcpy --output-partial-info-plist <dir>/partial.plist`. This gives
+   `Assets.car` and `GameScrcpy.icns`.
+4. Ship both: replace `src/app/resources/GameScrcpy.icns`, add `src/app/resources/Assets.car` the same way the
+   `.icns` is added in `src/app/CMakeLists.txt` (`MACOSX_PACKAGE_LOCATION Resources`), and add
+   `<key>CFBundleIconName</key><string>GameScrcpy</string>` to `src/app/Info.plist.in`. Better still, make CMake run
+   actool at build time from the `.icon` (a custom command) so nobody commits binaries by hand — your call.
+5. Check: build, then render the bundle's icon as Finder sees it
+   (`NSWorkspace.shared.icon(forFile:)` in a small Swift script, see how Claude did it in
+   `docs/handoff/daytime-claude.md`) — on macOS 27 it must NOT sit on a grey plate. Also look at 16/32 px. Put
+   the renders in `docs/handoff/glass/icon-b-*.png`. Update `packaging/macos/icon/GameScrcpy-1024.png`.
 
-A script `packaging/macos/package.sh` that, from `build/mac-app/bin/GameScrcpy.app`:
+## A7 — If time is left: touch trace tool
 
-1. runs `macdeployqt` (from `~/Qt/6.10.3/macos/bin`) with `-qmldir=src` so Qt, QML and plugins are inside;
-2. copies the non-Qt dylibs it links (FFmpeg, SDL3, libusb, OpenSSL from Homebrew) into `Contents/Frameworks`
-   and rewrites their install names (`install_name_tool`), so `otool -L` shows nothing under `/opt/homebrew`;
-3. signs ad hoc inside out (helpers `gs-exthost`, `gs-scripthost`, `gs` too) with the entitlements in
-   `packaging/macos/GameScrcpy.entitlements` (write it: library validation off for native extensions, see
-   `docs/handoff/gemini/research-universal.md`);
-4. makes `GameScrcpy-macos-arm64.dmg` with `hdiutil` (app + a link to /Applications).
-
-Check: copy the `.app` to `/tmp`, `otool -L` every binary inside, open it with `open`, and confirm it starts and
-the demo device plays (`--demo-device tests/data/video/emulator_h264.media`). Developer ID signing and
-notarization need the user's Apple account: only write the steps in `packaging/macos/README.md`.
-
-## If time is left
-
-A5 — serial devices for touch boxes: `src/hardware/src/posix/NoDevicesBackend.cpp` lists nothing; list
-`/dev/cu.*` serial ports with IOKit and open them with termios as the Windows backend does with COM ports. Tests
-for the parts that need no device.
-
-Write "可合并" in the log after each item that is done.
+`GS_TOUCH_TRACE=<file>` (see `src/app/ControlChannel.cpp`) logs the touch frames sent. Write
+`tools/touch_trace.py` (like `tools/frame_trace.py`): per gesture, the moves' spacing in ms, the speed over the last
+100 ms before the lift, and the gap between the last move and the lift (Android treats > 40 ms as a stopped finger;
+see `docs/handoff/swipe-design.md`). Test it on a trace from a demo copy; do not touch the user's phone.

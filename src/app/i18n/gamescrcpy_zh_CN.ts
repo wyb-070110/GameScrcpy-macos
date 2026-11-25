@@ -10304,6 +10304,41 @@
     </message>
 </context>
 <context>
+    <name>MacMenuBar</name>
+    <message>
+        <source>GameScrcpy</source>
+        <translation>GameScrcpy</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>文件</translation>
+    </message>
+    <message>
+        <source>View</source>
+        <translation>显示</translation>
+    </message>
+    <message>
+        <source>Device</source>
+        <translation>设备</translation>
+    </message>
+    <message>
+        <source>Window</source>
+        <translation>窗口</translation>
+    </message>
+    <message>
+        <source>Minimize</source>
+        <translation>最小化</translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation>缩放</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>帮助</translation>
+    </message>
+</context>
+<context>
     <name>Main</name>
     <message>
         <source>GameScrcpy</source>
@@ -18385,6 +18420,18 @@
         <translation>手机休眠或进入息屏显示（AOD）时停止投屏，或者继续投屏。选“第一次询问”时，第一次熄屏会问你。用 GameScrcpy 关掉手机屏幕不算。需要 adb 连接。</translation>
     </message>
     <message>
+        <source>Turn the phone's screen off while mirroring</source>
+        <translation>投屏时关闭手机屏幕</translation>
+    </message>
+    <message>
+        <source>Turns the phone's own screen dark when mirroring starts; the phone keeps running and the picture keeps coming. Saves battery and keeps the phone cool. Turn it back on from the Device menu.</source>
+        <translation>开始投屏时让手机自己的屏幕变黑，手机照常运行，电脑上的画面不受影响。省电，手机也不容易发热。要重新点亮，用“设备”菜单。</translation>
+    </message>
+    <message>
+        <source>screen off dark display power battery heat mirroring start</source>
+        <translation>屏幕 关闭 熄屏 黑屏 省电 发热 投屏 开始</translation>
+    </message>
+    <message>
         <source>screen off sleep lock aod always on display disconnect stop mirroring battery</source>
         <translation>熄屏 息屏 休眠 锁屏 AOD 息屏显示 断开 停止投屏 省电</translation>
     </message>
@@ -18599,6 +18646,18 @@
     <message>
         <source>touch send rate frequency hz moves latency aim camera smooth polling</source>
         <translation>touch send rate frequency hz moves latency aim camera smooth polling 触控 发送 频率 回报率 移动 延迟 转视角 跟手 平滑</translation>
+    </message>
+    <message>
+        <source>Trackpad swipe mode</source>
+        <translation>触控板滑动方式</translation>
+    </message>
+    <message>
+        <source>How a two-finger swipe on the trackpad reaches the phone. Page turn: a deliberate swipe turns one page. Natural fling: the phone flings with the speed you swiped. Direct: the finger stops where yours stop. Scroll wheel: sent as mouse scrolling.</source>
+        <translation>触控板双指滑动如何传到手机。翻页：一次有意的滑动正好翻一页。自然甩动：手机按你滑动的速度甩出去。跟手：手指停在哪里，手机上的手指就停在哪里。滚轮：当作鼠标滚轮发送。</translation>
+    </message>
+    <message>
+        <source>trackpad swipe mode page turn natural fling direct scroll wheel mapping</source>
+        <translation>触控板 滑动 方式 翻页 自然 甩动 跟手 滚轮 映射</translation>
     </message>
     <message>
         <source>Trackpad swipe speed</source>
@@ -19051,10 +19110,6 @@
         <translation>青绿</translation>
     </message>
     <message>
-        <source>Azure</source>
-        <translation>蔚蓝</translation>
-    </message>
-    <message>
         <source>Lime</source>
         <translation>青柠</translation>
     </message>
@@ -19375,6 +19430,22 @@
         <translation>屏幕刷新率的两倍</translation>
     </message>
     <message>
+        <source>Page turn</source>
+        <translation>翻页</translation>
+    </message>
+    <message>
+        <source>Natural fling</source>
+        <translation>自然甩动</translation>
+    </message>
+    <message>
+        <source>Direct</source>
+        <translation>跟手</translation>
+    </message>
+    <message>
+        <source>Scroll wheel</source>
+        <translation>滚轮</translation>
+    </message>
+    <message>
         <source>The same commands as in the command palette. When the current profile binds a key too, the game gets it first.</source>
         <translation>与命令面板里的是同一组命令。当前方案也绑定了同一个键时，按键先给游戏。</translation>
     </message>
@@ -19425,6 +19496,10 @@
     <message>
         <source>Folders your own logic may use</source>
         <translation>你自己的逻辑可用的文件夹</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>蓝色</translation>
     </message>
     <message>
         <source>The assistant in the key editor answers questions and changes the keys, the logic and the blueprint of the profile you edit. Only when you send a message, it sends what you wrote, the profile with its logic and, when it needs one, a picture of the phone&apos;s screen, to the model service you choose here. Its changes wait in a draft until you apply them.</source>

@@ -741,11 +741,11 @@ TEST_CASE("shortcuts read as their keys")
 {
     FakeHost host;
     const Commands commands(host);
-    CHECK(commands.shortcutText(QStringLiteral("settings.search")) == QStringLiteral("Ctrl F"));
+    CHECK(commands.shortcutText(QStringLiteral("settings.search")) == QStringLiteral(u"⌘F"));
     CHECK(commands.shortcutText(QStringLiteral("device.mute")).isEmpty());
     CHECK(Commands::keyText(QKeyCombination(Qt::ControlModifier | Qt::ShiftModifier, Qt::Key_S)) ==
-          QStringLiteral("Ctrl Shift S"));
-    CHECK(Commands::keyText(QKeyCombination(Qt::AltModifier, Qt::Key_F4)) == QStringLiteral("Alt F4"));
+          QStringLiteral(u"⇧⌘S"));
+    CHECK(Commands::keyText(QKeyCombination(Qt::AltModifier, Qt::Key_F4)) == QStringLiteral(u"⌥F4"));
     CHECK(Commands::keyText(QKeyCombination()).isEmpty());
 }
 
@@ -788,7 +788,7 @@ TEST_CASE("a changed shortcut replaces the default, an emptied one removes it, a
           ShortcutMap{{"device.home", "Ctrl+X, Ctrl+C"}, {"device.missing", "F1"}, {"settings.search", ""}});
     commands.resetAllShortcuts();
     CHECK(stored == ShortcutMap{{"device.missing", "F1"}});
-    CHECK(commands.shortcutText(QStringLiteral("settings.search")) == QStringLiteral("Ctrl F"));
+    CHECK(commands.shortcutText(QStringLiteral("settings.search")) == QStringLiteral(u"⌘F"));
 }
 
 TEST_CASE("shortcuts read from the file that repeat the default, or empty a command without one, change nothing")
@@ -816,12 +816,12 @@ TEST_CASE("shortcuts read from the file that repeat the default, or empty a comm
 TEST_CASE("keys show as one cap each, names of several words included, and keys without Ctrl, Alt or Win are plain")
 {
     CHECK(Commands::keyCaps(QKeyCombination(Qt::ControlModifier, Qt::Key_VolumeUp)) ==
-          QStringList{QStringLiteral("Ctrl"), QStringLiteral("Volume Up")});
+          QStringList{QStringLiteral(u"⌘"), QStringLiteral("Volume Up")});
     CHECK(Commands::keyCaps(QKeyCombination(Qt::AltModifier | Qt::ShiftModifier, Qt::Key_Left)) ==
-          QStringList{QStringLiteral("Alt"), QStringLiteral("Shift"), QStringLiteral(u"←")});
+          QStringList{QStringLiteral(u"⌥"), QStringLiteral(u"⇧"), QStringLiteral(u"←")});
     CHECK(Commands::keyCaps(QKeyCombination(Qt::Key_Space)) == QStringList{QStringLiteral("Space")});
     CHECK(Commands::keyCaps(QKeyCombination()).isEmpty());
-    CHECK(Commands::keyText(QKeyCombination(Qt::MetaModifier, Qt::Key_PageUp)) == QStringLiteral("Win PgUp"));
+    CHECK(Commands::keyText(QKeyCombination(Qt::MetaModifier, Qt::Key_PageUp)) == QStringLiteral(u"⌃PgUp"));
     CHECK(Commands::plain(QKeyCombination(Qt::Key_Space)));
     CHECK(Commands::plain(QKeyCombination(Qt::ShiftModifier, Qt::Key_D)));
     CHECK_FALSE(Commands::plain(QKeyCombination(Qt::ControlModifier, Qt::Key_D)));
@@ -856,7 +856,7 @@ TEST_CASE("the shortcut list updates a changed row in place and narrows to what 
     REQUIRE(search >= 0);
     const QModelIndex at = hub.index(search);
     CHECK(hub.data(at, gs::app::ShortcutModel::KeysRole).toStringList() ==
-          QStringList{QStringLiteral("Ctrl"), QStringLiteral("F")});
+          QStringList{QStringLiteral(u"⌘"), QStringLiteral("F")});
     CHECK(hub.data(at, gs::app::ShortcutModel::DefaultPortableRole).toString() == QStringLiteral("Ctrl+F"));
     CHECK(hub.data(at, gs::app::ShortcutModel::DefaultTextRole).toString() == QStringLiteral("Ctrl F"));
 

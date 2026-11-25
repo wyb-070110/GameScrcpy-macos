@@ -1,4 +1,5 @@
 #include "MirrorWindow.h"
+#include "WindowChromeMac.h"
 
 #include "CompanionInput.h"
 #include "CompanionLink.h"
@@ -160,6 +161,11 @@ void MirrorWindow::setDiagnostics(const QStringList& lines)
 void MirrorWindow::setTrackpad(double speed, bool inertia, double inertiaStrength, double longest)
 {
     m_pointer->setTrackpad(speed, inertia, inertiaStrength, longest);
+}
+
+void MirrorWindow::setSwipeMode(int mode)
+{
+    m_pointer->setSwipeMode(static_cast<MirrorInputItem::SwipeMode>(mode));
 }
 
 void MirrorWindow::setPageTurn(double turnFrom)
@@ -901,8 +907,20 @@ void MirrorWindow::followPinnedBar()
     }
 }
 
+void MirrorWindow::lockAspect()
+{
+    // macOS: dragging the window's edge keeps the phone's proportions (not while editing keys or showing logic,
+    // whose panels change the shape).
+    if (handle() == nullptr) {
+        return;
+    }
+    const bool on = m_aspect > 0 && m_editor == nullptr && !m_logicShown && !m_mini;
+    setMacWindowAspect(this, on ? m_aspect : 0.0, reservedLeft() + reservedRight(), reservedTop() + reservedBottom());
+}
+
 void MirrorWindow::layoutContent()
 {
+    lockAspect();
     const QRectF area = videoArea(pictureView());
     m_video->setPosition(area.topLeft());
     m_video->setSize(area.size());
@@ -1371,6 +1389,7 @@ void MirrorWindow::fitToPicture()
         return;
     }
     m_aspect = aspect;
+    lockAspect();
     const int top = reservedTop();
     const int right = reservedLeft() + reservedRight();
     const int bottom = reservedBottom();

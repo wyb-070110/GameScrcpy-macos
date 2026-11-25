@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 // macOS IOKit serial port enumeration, termios configuration, pty read/write/signals and hangup handling.
 #include <gs/hardware/Backend.h>
 #include <gs/hardware/Devices.h>

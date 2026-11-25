@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 // gs-scripthost off Windows: sandbox the process before anything is read (macOS: deny everything, as the
 // pure-computation profile does), then serve the pipes the parent passed.
 #include "Server.h"

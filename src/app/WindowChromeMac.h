@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 #pragma once
 
 class QWindow;
@@ -10,6 +12,9 @@ void setMacWindowDark(QWindow* window, bool dark);
 // Liquid Glass: the desktop shows through the window, blurred by the system, wherever its content is transparent.
 // Off puts back an opaque window.
 void setMacWindowGlass(QWindow* window, bool on);
+// While the user drags the window's edge, keep the picture at this width-to-height ratio; chromeWidth and
+// chromeHeight (points) are the window's parts around the picture. 0 resizes freely.
+void setMacWindowAspect(QWindow* window, double aspect, int chromeWidth, int chromeHeight);
 bool startMacWindowDrag(QWindow* window);
 void performMacTitleBarDoubleClick(QWindow* window);
 

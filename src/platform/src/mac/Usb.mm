@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Yubo Wu and the GameScrcpy for macOS contributors
 // Android phones over USB on macOS: enumeration, hotplug watching and AOA control transfers via libusb.
 #include "gs/platform/Usb.h"
 

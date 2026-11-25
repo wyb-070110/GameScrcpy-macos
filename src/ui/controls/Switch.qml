@@ -62,7 +62,7 @@ T.Switch {
             width: Theme.size.switchKnob
             height: width
             radius: width / 2
-            color: Theme.glass ? Theme.colors.knob
+            color: Theme.liquid ? Theme.colors.knob
                  : control.checked ? Theme.colors.textOnAccent : Theme.colors.textSecondary
 
             Behavior on x {
