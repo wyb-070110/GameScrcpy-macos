@@ -857,12 +857,21 @@ struct SpeechState : public std::enable_shared_from_this<SpeechState> {
                     [currentReq appendAudioPCMBuffer:buffer];
                 }
             };
+            // The variant that reports an error is in the macOS 27 SDK; an older SDK (as on the CI's Xcode) only has
+            // the one that throws.
+#if defined(__MAC_27_0) && __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_27_0
             if (@available(macOS 27.0, *)) {
                 tapOk = [inputNode installTapOnBus:0 bufferSize:1024 format:inputFormat error:&tapError block:tapBlock];
-            } else {
+            } else
+#endif
+            {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-                [inputNode installTapOnBus:0 bufferSize:1024 format:inputFormat block:tapBlock];
+                @try {
+                    [inputNode installTapOnBus:0 bufferSize:1024 format:inputFormat block:tapBlock];
+                } @catch (NSException*) {
+                    tapOk = false;
+                }
 #pragma clang diagnostic pop
             }
             entry->tapInstalled = tapOk;
