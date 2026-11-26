@@ -61,6 +61,9 @@
 #include <gs/media/FfmpegLog.h>
 #include <gs/media/FrameSnapshot.h>
 #include <gs/platform/CrashHandler.h>
+#if !defined(_WIN32)
+#include <gs/platform/QuitSignal.h>
+#endif
 #include <gs/platform/RunningMarker.h>
 #include <gs/platform/Speech.h>
 #include <gs/platform/Thread.h>
@@ -81,6 +84,9 @@
 #include <QSGRendererInterface>
 #include <QScopeGuard>
 #include <QScreen>
+#if !defined(_WIN32)
+#include <QSocketNotifier>
+#endif
 #include <QStandardPaths>
 #include <QStringList>
 #include <QtQml/qqmlextensionplugin.h>
@@ -440,6 +446,20 @@ int main(int argc, char* argv[])
         qWarning("crash reports are off: %s cannot hold them",
                  qUtf8Printable(QString::fromStdWString((data / "crashes").wstring())));
     }
+#if !defined(_WIN32)
+    gs::platform::QuitSignal quitSignal;
+    std::optional<QSocketNotifier> quitNotifier;
+    if (quitSignal.descriptor() >= 0) {
+        quitNotifier.emplace(quitSignal.descriptor(), QSocketNotifier::Read);
+        QObject::connect(&*quitNotifier, &QSocketNotifier::activated, &app, [&quitSignal, &quitNotifier] {
+            if (const std::optional<int> sig = quitSignal.take()) {
+                quitNotifier->setEnabled(false);
+                qInfo("received %s, quitting", gs::platform::quitSignalName(*sig).data());
+                QCoreApplication::quit();
+            }
+        });
+    }
+#endif
     std::optional<SmokeWatch> smokeWatch;
     if (parser.isSet(smokeTest)) {
         smokeWatch.emplace();

@@ -27,6 +27,7 @@ add_library(gs_platform STATIC
     include/gs/platform/TrayNotice.h
     include/gs/platform/Usb.h
     include/gs/platform/Crypto.h
+    include/gs/platform/QuitSignal.h
     include/gs/platform/RunningMarker.h
     include/gs/platform/TcpStream.h
     include/gs/platform/TextReader.h
@@ -35,6 +36,7 @@ add_library(gs_platform STATIC
     src/posix/AtomicFile.cpp
     src/posix/CrashHandler.cpp
     src/posix/Crypto.cpp
+    src/posix/QuitSignal.cpp
     src/posix/RunningMarker.cpp
     src/posix/TcpStream.cpp
     src/posix/TextJoin.cpp

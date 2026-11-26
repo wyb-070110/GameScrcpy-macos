@@ -96,6 +96,7 @@ void SDLCALL pull(void* opaque, SDL_AudioStream* stream, int additional, int)
 void AudioOutput::run(const std::stop_token& stop)
 {
     platform::setCurrentThreadName("gs-audio-out");
+    SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
     if (!SDL_InitSubSystem(SDL_INIT_AUDIO)) {
         log::error(kLog, "no sound: SDL audio is unavailable ({})", SDL_GetError());
         return;
