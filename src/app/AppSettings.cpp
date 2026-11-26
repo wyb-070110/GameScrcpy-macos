@@ -8,6 +8,7 @@
 #include <gs/platform/Accessibility.h>
 
 #include <QGuiApplication>
+#include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
 #include <QJSEngine>
@@ -112,6 +113,16 @@ std::filesystem::path dataDirectory()
     const QString support = qEnvironmentVariable("HOME") + QStringLiteral("/Library/Application Support/");
     const QString folder = support + QStringLiteral("anmacgamer");
     const QString older = support + QStringLiteral("GameScrcpy");
+    // A folder made before the move (by a helper process or a tool, with no settings in it) is set aside.
+    const QString settings = QStringLiteral("/settings.json");
+    if (QFileInfo(older).isDir() && QFileInfo::exists(older + settings) && QFileInfo(folder).isDir() &&
+        !QFileInfo::exists(folder + settings)) {
+        const QString aside = folder + QStringLiteral(".before-move-") +
+                              QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-HHmmss"));
+        if (!QDir().rename(folder, aside)) {
+            return older.toStdWString();
+        }
+    }
     if (!QFileInfo::exists(folder) && QFileInfo(older).isDir() && !QDir().rename(older, folder)) {
         return older.toStdWString();
     }
