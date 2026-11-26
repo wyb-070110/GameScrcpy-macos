@@ -652,6 +652,22 @@ add_custom_target(gs_builtin_extensions
     VERBATIM
 )
 
+# Signing. Ad hoc ("-") by default. macOS knows an ad-hoc signed app by the hash of its code, so every rebuild is a
+# new program to the login keychain and asks for the password again. With a code-signing identity named
+# "anmacgamer Local Signing" in the keychain (a self-signed certificate made on this Mac), builds are signed with it
+# and keep one identity. GS_SIGN_IDENTITY overrides either.
+set(GS_SIGN_IDENTITY "" CACHE STRING "codesign identity for anmacgamer.app; empty finds anmacgamer Local Signing or signs ad hoc")
+set(gs_sign_identity "${GS_SIGN_IDENTITY}")
+if(gs_sign_identity STREQUAL "")
+    set(gs_sign_identity "-")
+    execute_process(COMMAND /usr/bin/security find-identity -p codesigning
+        OUTPUT_VARIABLE gs_identities ERROR_QUIET RESULT_VARIABLE gs_identities_result)
+    if(gs_identities_result EQUAL 0 AND gs_identities MATCHES "([0-9A-F]+) \"anmacgamer Local Signing\"")
+        set(gs_sign_identity "${CMAKE_MATCH_1}")
+        message(STATUS "Signing anmacgamer.app with anmacgamer Local Signing (${gs_sign_identity})")
+    endif()
+endif()
+
 add_dependencies(anmacgamer
     gs_builtin_extensions
     gs_exthost_program
@@ -675,13 +691,13 @@ add_custom_command(TARGET anmacgamer POST_BUILD
             "$<TARGET_FILE:gs_scripthost_program>" "$<TARGET_FILE:gs_cli>" "$<TARGET_FILE_DIR:anmacgamer>"
     COMMAND "${CMAKE_COMMAND}" -E copy_directory_if_different "${PROJECT_SOURCE_DIR}/third_party/typescript/lib"
             "$<TARGET_BUNDLE_CONTENT_DIR:anmacgamer>/Resources/typescript"
-    COMMAND /usr/bin/codesign --force --sign -
+    COMMAND /usr/bin/codesign --force --sign "${gs_sign_identity}"
             "$<TARGET_FILE_DIR:anmacgamer>/gs-exthost"
             "$<TARGET_FILE_DIR:anmacgamer>/gs-scripthost"
             "$<TARGET_FILE_DIR:anmacgamer>/gs"
             "$<TARGET_BUNDLE_CONTENT_DIR:anmacgamer>/Resources/typescript/tsc"
-    COMMAND /usr/bin/codesign --force --sign - "$<TARGET_BUNDLE_DIR:anmacgamer>"
-    COMMENT "Assembling and ad-hoc signing anmacgamer.app"
+    COMMAND /usr/bin/codesign --force --sign "${gs_sign_identity}" "$<TARGET_BUNDLE_DIR:anmacgamer>"
+    COMMENT "Assembling and signing anmacgamer.app"
     VERBATIM
 )
 
