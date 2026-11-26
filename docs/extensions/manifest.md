@@ -460,7 +460,7 @@ Settings appear in Settings › Extensions and in the settings window of the ext
 
 Each entry of `hosts` is a host name with an optional `:port` (without a port only 443 matches); `*.example.com` covers all its subdomains (not `example.com` itself); a lone `*` covers any host and gets the warning `permission-any-host`. Names compare without regard to case; write internationalized names in their ASCII form (`xn--…`); IPv6 addresses cannot be written. `net.fetch` and `net.socket` in logic reach only these hosts and follow redirects only to them.
 
-Only extensions that declare `script`, `component`, `task` or `native` may ask for permissions. Every permission in the `permissions` of a node or a job must be here too.
+Only extensions that declare `script`, `component`, `task` or `native` may ask for permissions. A profile whose logic needs a permission (such as `input.read` for `keys[...]`) declares `script` as well, since its logic uses the script interface. Every permission in the `permissions` of a node or a job must be here too.
 
 ## `l10n`
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "gamescrcpy.games",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "gamescrcpy": "2.2",
   "name": "Game profiles",
   "description": "Ready-made key mapping profiles for popular games. They show up when the game is on screen and has no profile yet.",
@@ -10,7 +10,8 @@
   ],
   "license": "GPL-3.0-or-later",
   "requires": {
-    "profile": "^1.0"
+    "profile": "^1.0",
+    "script": "^1.0"
   },
   "contributes": {
     "profiles": [
@@ -24,6 +25,20 @@
       }
     ]
   },
+  "permissions": [
+    {
+      "name": "input.read",
+      "reason": "The Star Rail profiles switch between exploring and combat on the ` key and pause detection on F8."
+    },
+    {
+      "name": "mapping",
+      "reason": "The Star Rail profiles turn their combat-mode switch on and off, which changes the keys."
+    },
+    {
+      "name": "device.screen",
+      "reason": "The Star Rail profiles read a few words on screen to tell whether a battle is on."
+    }
+  ],
   "l10n": {
     "zh_CN": {
       "name": "游戏键位方案",

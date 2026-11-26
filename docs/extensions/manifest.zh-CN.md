@@ -460,7 +460,7 @@ anmacgamer 载入扩展时对照上表检查 `requires`：不满足的扩展不�
 
 `hosts` 的每一项是一个主机名，可以带 `:端口`（不写端口就只认 443），`*.example.com` 认它的所有子域名（不含 `example.com` 本身），只写 `*` 认任何主机但会得到警告 `permission-any-host`。比较时不分大小写；国际化域名写成 ASCII 形式（`xn--…`）；不认 IPv6 地址的写法。逻辑的 `net.fetch` / `net.socket` 只能去这些主机，重定向也只跟到这些主机。
 
-只有声明了 `script`、`component`、`task` 或 `native` 的扩展能申请权限。节点和任务的 `permissions` 里写的每一项都必须也在这里。
+只有声明了 `script`、`component`、`task` 或 `native` 的扩展能申请权限。方案的逻辑要用权限时（比如 `keys[...]` 要 `input.read`），也要声明 `script`，因为逻辑用的就是脚本接口。节点和任务的 `permissions` 里写的每一项都必须也在这里。
 
 ## `l10n`
 
