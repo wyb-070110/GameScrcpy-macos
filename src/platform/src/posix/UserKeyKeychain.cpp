@@ -152,17 +152,24 @@ std::optional<UserKey> userKey() noexcept
             return std::nullopt;
         }
     }
+    // Read once per process: every read of a login keychain item may show macOS's access dialog (each time, when
+    // the user picks "Allow" rather than "Always Allow"), and the key is asked for on every protect and unprotect.
     static std::mutex mutex;
+    static std::optional<UserKey> known;
     const std::lock_guard lock(mutex);
+    if (known) {
+        return known;
+    }
     const Ref service = string(kService);
     const Ref account = string(kAccount);
     if (service.get() == nullptr || account.get() == nullptr) {
         return std::nullopt;
     }
-    if (std::optional<UserKey> existing = find(service, account)) {
-        return existing;
+    known = find(service, account);
+    if (!known) {
+        known = add(service, account);
     }
-    return add(service, account);
+    return known;
 }
 
 }
