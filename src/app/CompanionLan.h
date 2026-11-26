@@ -43,6 +43,7 @@ struct LanExpectation {
     LanKey qrKey{};
     std::optional<LanPairing> paired;
     bool announce = false;
+    bool mirror = false;  // waiting for this phone's mirror link: the listener stays open
 };
 
 struct LanArrival {

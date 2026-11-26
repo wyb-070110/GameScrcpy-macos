@@ -6637,9 +6637,7 @@ void DeviceManager::usbChanged()
             row.listed = true;
             continue;
         }
-        if (!wantsAoa(serial) && cardIndexOf(serial) < 0) {
-            continue;
-        }
+        // Every phone on the cable without adb gets a card: AOA control, and mirroring once its companion links up.
         const int at = static_cast<int>(m_rows.size());
         beginInsertRows({}, at, at);
         Row row;
@@ -6667,7 +6665,7 @@ void DeviceManager::usbChanged()
         }
         const bool present = alone.contains(row.serial);
         row.listed = present;
-        if ((!present || (!wantsAoa(row.deviceId) && cardIndexOf(row.deviceId) < 0)) && !active(row.session.phase)) {
+        if (!present && !active(row.session.phase)) {
             removeRow(i);
         }
     }
@@ -7019,7 +7017,14 @@ void DeviceManager::syncLanService()
         }
         expectation.paired =
             pairingOf({.phone = device.companionPhone, .key = device.companionKey, .pc = device.companionPc});
-        if (expectation.paired) {
+        const bool justPaired = !expectation.paired && row.lanPairing.has_value();
+        if (justPaired) {
+            expectation.paired = row.lanPairing;
+        }
+        // A phone without adb gets its picture over the companion's mirror link, which comes after the companion's
+        // own connection (and again after a drop): keep listening for it.
+        expectation.mirror = row.aoaOnly && connected && expectation.paired.has_value();
+        if (expectation.paired && !justPaired) {
             if (std::optional<std::string> sealed = reprotectedLanKey(device.companionKey)) {
                 QMetaObject::invokeMethod(
                     this,
@@ -7042,7 +7047,9 @@ void DeviceManager::syncLanService()
         }
     }
     const bool listen = std::ranges::any_of(
-        expected, [](const LanExpectation& expectation) { return !expectation.token.empty() || expectation.announce; });
+        expected, [](const LanExpectation& expectation) {
+            return !expectation.token.empty() || expectation.announce || expectation.mirror;
+        });
     if (!listen) {
         m_companionLan.reset();
     } else {
@@ -7371,7 +7378,8 @@ void DeviceManager::companionNotice(const QString& serial, quint64 ticket, const
         bumpBackgrounds();
         followCompanionTurn(row, notice);
         if (noPictureOf(row)) {
-            const std::optional<LanPairing> paired = std::exchange(row.lanPairing, std::nullopt);
+            // Kept until the pairing is saved: the mirror link of an AOA phone comes right behind this connection.
+            const std::optional<LanPairing> paired = row.lanPairing;
             row.lanToken.clear();
             if (paired && !row.deviceId.isEmpty()) {
                 QMetaObject::invokeMethod(
@@ -7387,6 +7395,7 @@ void DeviceManager::companionNotice(const QString& serial, quint64 ticket, const
                         device.companionKey = text.key;
                         device.companionPc = text.pc;
                         m_settings.setDevice(id, device);
+                        syncLanService();
                     },
                     Qt::QueuedConnection);
             }

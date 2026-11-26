@@ -30,6 +30,7 @@
 #include <optional>
 #include <set>
 #include <span>
+#include <thread>
 #include <utility>
 #include <variant>
 
@@ -41,6 +42,8 @@ using namespace std::chrono_literals;
 
 constexpr std::string_view kLog = "companion";
 constexpr std::chrono::milliseconds kHandshakeTimeout = 5s;
+constexpr int kMirrorPairingWaits = 20;
+constexpr std::chrono::milliseconds kMirrorPairingWait = 100ms;
 constexpr std::chrono::milliseconds kDownloadTimeout = 30s;
 constexpr std::chrono::milliseconds kDrainTimeout = 2s;
 constexpr std::chrono::milliseconds kMirrorWriteTimeout = 10s;
@@ -777,7 +780,12 @@ void CompanionLan::serve(Slot& slot)
         std::optional<LanPairing> pairing;
         MirrorArrival arrival;
         MirrorArrived arrived;
-        {
+        // The mirror link follows the companion's connection within milliseconds; a pairing made by that connection
+        // reaches the expectations a moment later, so wait for it briefly.
+        for (int attempt = 0; attempt < kMirrorPairingWaits && !pairing && !m_closing; ++attempt) {
+            if (attempt > 0) {
+                std::this_thread::sleep_for(kMirrorPairingWait);
+            }
             const std::lock_guard lock(m_mutex);
             for (const LanExpectation& expectation : m_expected) {
                 if (decoded->token.empty() && expectation.paired && expectation.paired->phone == decoded->phone) {
@@ -879,6 +887,15 @@ void CompanionLan::serve(Slot& slot)
     {
         const std::lock_guard lock(slot.mutex);
         slot.socket.reset();
+    }
+    if (arrival->paired) {
+        // Known at once, for the mirror link that follows before the app has saved the pairing.
+        const std::lock_guard lock(m_mutex);
+        for (LanExpectation& expectation : m_expected) {
+            if (expectation.serial == arrival->serial && !expectation.paired) {
+                expectation.paired = arrival->paired;
+            }
+        }
     }
     arrival->channel = std::move(channel);
     arrival->welcome = *welcome;

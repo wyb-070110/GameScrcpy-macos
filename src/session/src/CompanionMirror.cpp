@@ -2,6 +2,7 @@
 // Mirroring through the companion app (SPEC 11.10): the computer's end of the multiplexed link.
 #include "gs/session/CompanionMirror.h"
 
+#include <gs/base/Log.h>
 #include "gs/platform/Thread.h"
 
 #include <algorithm>
@@ -268,6 +269,7 @@ private:
             }
         }
         m_changed.notify_all();
+        log::info("session", "the companion's mirror link ended: {}", reason.empty() ? "the connection was closed" : reason);
         for (const std::shared_ptr<TransportStream>& stream : streams) {
             stream->closed(m_reason);
         }
