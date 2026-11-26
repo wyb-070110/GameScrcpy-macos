@@ -484,7 +484,7 @@ class CompanionService : Service(), ProjectionHost {
         }
         val builder = Notification.Builder(this, CHANNEL)
             .setSmallIcon(icon)
-            .setColor(Look.OPAQUE or (computer?.accent ?: Look.EMBER))
+            .setColor(Look.OPAQUE or (computer?.accent ?: Look.BRAND))
             .setContentTitle(title)
             .setContentIntent(open)
             .setOngoing(true)

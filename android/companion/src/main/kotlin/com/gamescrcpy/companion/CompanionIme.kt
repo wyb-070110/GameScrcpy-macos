@@ -51,10 +51,10 @@ class CompanionIme : InputMethodService(), ImeTarget {
             strip = null
             return Space(this)
         }
-        val ui = Ui(this, Look.palette(this, null))
-        val face = ColorDrawable(ui.palette.bgElevated)
-        val edge = ColorDrawable(ui.palette.strokeSubtle)
-        val view = ui.text(Look.LABEL, ui.palette.textPrimary).apply {
+        val ui = Ui(this, Look.palette(this))
+        val face = ColorDrawable(ui.palette.surfaceHigh)
+        val edge = ColorDrawable(ui.palette.outlineVariant)
+        val view = ui.text(Look.LABEL, ui.palette.onSurface).apply {
             gravity = Gravity.CENTER
             minHeight = ui.px(STRIP_HEIGHT_DP)
             setPaddingRelative(ui.px(Look.SPACE_MD), ui.px(Look.SPACE_XS), ui.px(Look.SPACE_MD), ui.px(Look.SPACE_XS))
@@ -62,7 +62,7 @@ class CompanionIme : InputMethodService(), ImeTarget {
                 setLayerGravity(1, Gravity.TOP or Gravity.FILL_HORIZONTAL)
                 setLayerHeight(1, ui.px(Look.STROKE))
             }
-            ui.lead(this, R.drawable.ic_keyboard, ui.palette.accent)
+            ui.lead(this, R.drawable.ic_keyboard, ui.palette.primary)
             setOnClickListener { switchToPhoneKeyboard() }
         }
         strip = view
