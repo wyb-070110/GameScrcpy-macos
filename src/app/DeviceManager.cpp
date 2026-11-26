@@ -2111,6 +2111,9 @@ void DeviceManager::disconnectDevice(const QString& serial)
             sessionChanged(serial, {session::SessionPhase::Stopped, std::nullopt});
         } else if (row.aoa != nullptr) {
             row.aoa->stop();
+        } else if (row.controller != nullptr) {
+            // The picture comes from the companion's mirror link: a real session, touch on AOA.
+            row.controller->stop();
         }
     } else if (isBoxRow(row)) {
         if (row.touchBox != nullptr) {

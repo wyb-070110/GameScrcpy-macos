@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <condition_variable>
 #include <mutex>
 #include <optional>
 #include <string>
@@ -98,6 +99,7 @@ private:
     std::uint16_t m_port = 0;
     std::atomic<bool> m_closing{false};
     std::mutex m_mutex;
+    std::condition_variable m_expectedChanged;  // m_expected changed (a mirror link may wait for its pairing)
     std::vector<LanExpectation> m_expected;
     MirrorArrived m_mirrorArrived;
     std::vector<OlderPhone> m_older;

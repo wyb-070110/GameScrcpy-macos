@@ -30,7 +30,6 @@
 #include <optional>
 #include <set>
 #include <span>
-#include <thread>
 #include <utility>
 #include <variant>
 
@@ -42,8 +41,7 @@ using namespace std::chrono_literals;
 
 constexpr std::string_view kLog = "companion";
 constexpr std::chrono::milliseconds kHandshakeTimeout = 5s;
-constexpr int kMirrorPairingWaits = 20;
-constexpr std::chrono::milliseconds kMirrorPairingWait = 100ms;
+constexpr std::chrono::milliseconds kMirrorPairingWait = 2s;
 constexpr std::chrono::milliseconds kDownloadTimeout = 30s;
 constexpr std::chrono::milliseconds kDrainTimeout = 2s;
 constexpr std::chrono::milliseconds kMirrorWriteTimeout = 10s;
@@ -630,6 +628,7 @@ CompanionLan::CompanionLan(std::shared_ptr<const CompanionApk> apk, Arrived arri
 CompanionLan::~CompanionLan()
 {
     m_closing = true;
+    m_expectedChanged.notify_all();
     if (m_acceptor.joinable()) {
         m_acceptor.join();
     }
@@ -670,6 +669,7 @@ void CompanionLan::expect(std::vector<LanExpectation> expectations)
         const std::lock_guard lock(m_mutex);
         m_expected = std::move(expectations);
     }
+    m_expectedChanged.notify_all();
     if (m_announcer != nullptr) {
         m_announcer->announce(names, m_port);
     }
@@ -782,18 +782,18 @@ void CompanionLan::serve(Slot& slot)
         MirrorArrived arrived;
         // The mirror link follows the companion's connection within milliseconds; a pairing made by that connection
         // reaches the expectations a moment later, so wait for it briefly.
-        for (int attempt = 0; attempt < kMirrorPairingWaits && !pairing && !m_closing; ++attempt) {
-            if (attempt > 0) {
-                std::this_thread::sleep_for(kMirrorPairingWait);
-            }
-            const std::lock_guard lock(m_mutex);
-            for (const LanExpectation& expectation : m_expected) {
-                if (decoded->token.empty() && expectation.paired && expectation.paired->phone == decoded->phone) {
-                    pairing = expectation.paired;
-                    arrival.serial = expectation.serial;
-                    break;
+        {
+            std::unique_lock lock(m_mutex);
+            m_expectedChanged.wait_for(lock, kMirrorPairingWait, [&] {
+                for (const LanExpectation& expectation : m_expected) {
+                    if (decoded->token.empty() && expectation.paired && expectation.paired->phone == decoded->phone) {
+                        pairing = expectation.paired;
+                        arrival.serial = expectation.serial;
+                        return true;
+                    }
                 }
-            }
+                return m_closing.load();
+            });
             arrived = m_mirrorArrived;
         }
         if (!pairing || !arrived) {
@@ -897,6 +897,7 @@ void CompanionLan::serve(Slot& slot)
             }
         }
     }
+        m_expectedChanged.notify_all();
     arrival->channel = std::move(channel);
     arrival->welcome = *welcome;
     log::info(kLog, "[{}] a companion {} over the local network", arrival->serial,
