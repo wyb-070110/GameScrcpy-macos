@@ -48,7 +48,7 @@
         0.216,
         -0.081
       ],
-      "lockKey": "Mouse.Middle",
+      "lockKey": "Tab",
       "inputs": {
         "look": "Mouse.Move"
       }

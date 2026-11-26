@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "gamescrcpy.games",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "gamescrcpy": "2.2",
   "name": "Game profiles",
   "description": "Ready-made key mapping profiles for popular games. They show up when the game is on screen and has no profile yet.",
