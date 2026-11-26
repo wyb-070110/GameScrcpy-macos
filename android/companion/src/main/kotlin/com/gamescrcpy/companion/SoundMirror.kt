@@ -4,6 +4,7 @@
 package com.gamescrcpy.companion
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioPlaybackCaptureConfiguration
@@ -24,7 +25,11 @@ import java.nio.ByteOrder
 import java.util.concurrent.TimeUnit
 
 @RequiresApi(Build.VERSION_CODES.Q)
-class SoundMirror(private val projection: MediaProjection, private val sink: () -> MirrorSink?) {
+class SoundMirror(
+    private val context: Context,
+    private val projection: MediaProjection,
+    private val sink: () -> MirrorSink?,
+) {
     private var record: AudioRecord? = null
     private var codec: MediaCodec? = null
     private var feeder: Thread? = null
@@ -73,6 +78,7 @@ class SoundMirror(private val projection: MediaProjection, private val sink: () 
         sink()?.audioPacket(Media.encodeAudioSession(session, info))
         active = true
         running = true
+        PhoneSpeaker.silence(context)
         val number = session
         feeder = Thread({ feed(opened, encoder) }, "companion-mirror-sound-in").apply {
             isDaemon = true
@@ -87,6 +93,9 @@ class SoundMirror(private val projection: MediaProjection, private val sink: () 
 
     @Synchronized
     fun stop() {
+        if (running) {
+            PhoneSpeaker.restore(context)
+        }
         active = false
         running = false
         record?.let { runCatching { it.stop() } }

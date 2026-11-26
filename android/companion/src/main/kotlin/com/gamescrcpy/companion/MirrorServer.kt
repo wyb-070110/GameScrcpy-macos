@@ -560,7 +560,7 @@ class MirrorServer(private val link: MirrorConnection, private val host: MirrorH
         projection = granted
         screen = ScreenMirror(host.context, granted) { session }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && host.audioAllowed()) {
-            sound = SoundMirror(granted) { session }
+            sound = SoundMirror(host.context, granted) { session }
         }
         return granted
     }

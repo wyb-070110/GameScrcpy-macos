@@ -76,6 +76,7 @@ class CompanionService : Service(), ProjectionHost {
 
     override fun onCreate() {
         super.onCreate()
+        PhoneSpeaker.restore(this)
         val channel = NotificationChannel(
             CHANNEL,
             getString(R.string.notification_channel),
